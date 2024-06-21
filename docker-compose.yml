@@ -1,0 +1,44 @@
+version: '3'
+services:
+  mysql:
+    image: mysql
+    environment:
+      MYSQL_DATABASE: productshop
+      MYSQL_ROOT_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      TZ: "Asia/Seoul"
+    ports:
+      - "3306:3306"
+    networks:
+      - productshop_network
+
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - productshop_network
+
+  productshop:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      - mysql
+      - redis
+    ports:
+      - '8080:8080'
+    env_file:
+      - .env
+    environment:
+      TZ: "Asia/Seoul"
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/productshop
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+      SPRING_REDIS_HOST: redis
+      SPRING_REDIS_PORT: 6379
+    networks:
+      - productshop_network
+
+networks:
+  productshop_network:
+    driver: bridge
