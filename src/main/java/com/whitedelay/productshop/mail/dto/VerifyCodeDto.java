@@ -1,4 +1,4 @@
-package com.whitedelay.productshop.member.mail.dto;
+package com.whitedelay.productshop.mail.dto;
 
 import lombok.Getter;
 

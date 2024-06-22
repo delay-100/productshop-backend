@@ -1,9 +1,9 @@
-package com.whitedelay.productshop.member.mail.controller;
+package com.whitedelay.productshop.mail.controller;
 
+import com.whitedelay.productshop.mail.dto.VerifyCodeDto;
+import com.whitedelay.productshop.mail.service.MailService;
 import com.whitedelay.productshop.util.ApiResponse;
-import com.whitedelay.productshop.member.mail.dto.VerifyCodeDto;
-import com.whitedelay.productshop.member.mail.service.MailService;
-import com.whitedelay.productshop.member.mail.service.RedisService;
+import com.whitedelay.productshop.mail.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 

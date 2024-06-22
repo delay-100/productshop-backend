@@ -1,4 +1,4 @@
-package com.whitedelay.productshop.util;
+package com.whitedelay.productshop.security;
 
 import org.springframework.beans.factory.annotation.Value;
 

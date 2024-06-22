@@ -1,4 +1,4 @@
-package com.whitedelay.productshop.member.mail.service;
+package com.whitedelay.productshop.mail.service;
 
 import com.whitedelay.productshop.member.repository.MemberRepository;
 import jakarta.mail.Message;

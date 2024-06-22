@@ -1,4 +1,4 @@
-package com.whitedelay.productshop.security.dto;
+package com.whitedelay.productshop.member.dto;
 
 import lombok.Getter;
 import lombok.Setter;

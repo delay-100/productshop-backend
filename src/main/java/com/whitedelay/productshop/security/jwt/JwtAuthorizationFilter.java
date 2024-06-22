@@ -1,6 +1,9 @@
 package com.whitedelay.productshop.security.jwt;
 
+import com.whitedelay.productshop.member.entity.MemberRoleEnum;
 import com.whitedelay.productshop.security.UserDetails.UserDetailsServiceImpl;
+import com.whitedelay.productshop.security.entity.Token;
+import com.whitedelay.productshop.security.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -16,58 +19,93 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.util.Optional;
 
 @Slf4j(topic = "JWT 검증 및 인가")
-public class JwtAuthorizationFilter extends OncePerRequestFilter { // 기본 Filter 대신 받아온 Filter
+public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
+    private final TokenRepository tokenRepository;
+    private static final String access = "Access";
+    private static final String refresh = "Refresh";
 
-    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService) {
+    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, TokenRepository tokenRepository) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
+        this.tokenRepository = tokenRepository;
     }
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
+        String accessToken = jwtUtil.getTokenFromRequest(req, access);
+        String refreshToken = jwtUtil.getTokenFromRequest(req, refresh);
 
-        String tokenValue = jwtUtil.getTokenFromRequest(req); // 요청에서 jwt토큰 가져오는 메소드
+        if (StringUtils.hasText(accessToken)) {
+            accessToken = jwtUtil.substringToken(accessToken);
+            log.info("Access token: " + accessToken); // accesstoken에서 'Bearer을 뗀 값 출력
 
-        if (StringUtils.hasText(tokenValue)) { // jwt토큰이 있는지 없는지 확인하는 메소드
-            // JWT 토큰 substring
-            tokenValue = jwtUtil.substringToken(tokenValue); // 순수한 토큰만 떼어내기 위함('BEARER '떼기
-            log.info(tokenValue);
+            if (!jwtUtil.validateToken(accessToken)) { // accesstoken이 만료된 경우
+                if (StringUtils.hasText(refreshToken)) {
+                    refreshToken = jwtUtil.substringToken(refreshToken); // refreshToken에서 'Bearer ' 을 뗌
 
-            if (!jwtUtil.validateToken(tokenValue)) { // 토큰 검증
-                log.error("Token Error");
-                return;
+                    if (jwtUtil.validateToken(refreshToken)) {
+                        String memberId = jwtUtil.getMemberInfoFromToken(refreshToken).getSubject();
+                        log.info("Member ID from refresh token: " + memberId);
+
+                        Optional<Token> refreshTokenEntity = tokenRepository.findByMemberidAndTokentypeAndExpiredFalse(memberId, refresh);
+                        log.info("Refresh token from database.substringToken: " + jwtUtil.substringToken(refreshTokenEntity.get().getToken()));
+                        log.info("refreshTOken: " + refreshToken);
+                        if (refreshToken.equals(jwtUtil.substringToken(refreshTokenEntity.get().getToken()))) {
+                            System.out.println("access 토큰 재발급");
+                            String newAccessToken = jwtUtil.createToken(memberId, access, MemberRoleEnum.USER);
+                            jwtUtil.addJwtToCookie(newAccessToken, access, res);
+                            accessToken = jwtUtil.substringToken(newAccessToken);
+                            System.out.println("newAccessToken = " + newAccessToken);
+                        } else {
+                            System.out.println("refreshtoken이랑 db의 refreshtoken이 다름");
+                        }
+                    } else {// refresh 토큰이 만료된 경우
+                        log.error("Refresh Token Error: Token invalid");
+                        System.out.println("Refresh 토큰 만료 ");
+                        log.info("refreshToken: " + refreshToken); // accesstoken에서 'Bearer을 뗀 값 출력
+                        refreshToken = "Bearer " + refreshToken;
+                        log.info("Plus Bearer refreshToken: " + refreshToken); // accesstoken에서 'Bearer을 뗀 값 출력
+
+                        Token expiredRefreshToken = tokenRepository.findByToken(refreshToken)
+                                .orElseThrow(() -> new IllegalArgumentException("찾는 토큰이 없습니다."));
+
+                        expiredRefreshToken.setExpired(true);
+                        tokenRepository.save(expiredRefreshToken);
+
+                        res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                        return;
+                    }
+                }
             }
-
-            Claims info = jwtUtil.getMemberInfoFromToken(tokenValue); // 토큰 유저 정보 가져오기
-
+            System.out.println("accessToken = " + accessToken);
+            Claims info = jwtUtil.getMemberInfoFromToken(accessToken);
             try {
-                 setAuthentication(info.getSubject()); // 토큰 만들때 setSubject로 uesr이름 넣었었음
+                setAuthentication(info.getSubject());
             } catch (Exception e) {
                 log.error(e.getMessage());
                 return;
             }
         }
 
-        filterChain.doFilter(req, res); // 여기까지 잘 실행되면, 다음 필터로 넘어감(DispatcherServlet를 통해 Controller로 갈 수 있음
+        filterChain.doFilter(req, res);
     }
 
-    // 인증 처리하는 메소드
-    public void setAuthentication(String memberid) { // 파라미터: 유저 이름
+    public void setAuthentication(String memberid) {
         SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = createAuthentication(memberid); // 인증 객체 생성하는 메소드 실행 후 인증 객체에 넣음
+        Authentication authentication = createAuthentication(memberid);
         context.setAuthentication(authentication);
 
         SecurityContextHolder.setContext(context);
     }
 
-    // 인증 객체 생성
     private Authentication createAuthentication(String memberid) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(memberid); // userDetails를 뽑아오기 위한 메소드
+        UserDetails userDetails = userDetailsService.loadUserByUsername(memberid);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 }

@@ -4,6 +4,7 @@ import com.whitedelay.productshop.security.UserDetails.UserDetailsServiceImpl;
 import com.whitedelay.productshop.security.jwt.JwtAuthenticationFilter;
 import com.whitedelay.productshop.security.jwt.JwtAuthorizationFilter;
 import com.whitedelay.productshop.security.jwt.JwtUtil;
+import com.whitedelay.productshop.security.repository.TokenRepository;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,11 +23,13 @@ public class WebSecurityConfig {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
+    private final TokenRepository tokenRepository;
 
-    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration) {
+    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration, TokenRepository tokenRepository) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.authenticationConfiguration = authenticationConfiguration;
+        this.tokenRepository = tokenRepository;
     }
 
     // authenticationManager는 bean으로 직접 등록할거임
@@ -40,14 +43,14 @@ public class WebSecurityConfig {
     // 인증 필터 객체 생성 후 bean으로 등록
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
+        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, tokenRepository);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration)); // JwtAuthenticationFilter에서 attemptAuthentication 메소드 사용 시 authenticationManager을 필요로 함
         return filter;
     }
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-        return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
+        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, tokenRepository);
     }
 
     @Bean
@@ -72,7 +75,6 @@ public class WebSecurityConfig {
                         .failureUrl("/login?error") // 로그인 실패 시 이동할 url -> 프론트가 없으므로 로그인 실패로 메세지 보내는 get요청 실행예정
                         .permitAll()
         );
-
         // 필터 관리, 위에서 filter을 만들고 어떤 순서에 어디에 끼워넣을건지 적는거임
         // 인가를 먼저 진행 -> 인가가 되지 않았으면 로그인을 진행(Authorization이 앞에있는 이유)
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class); // JwtAuthenticationFilter가 수행되기 전에 jwtAuthorizationFilter 수행

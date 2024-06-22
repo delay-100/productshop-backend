@@ -1,4 +1,4 @@
-package com.whitedelay.productshop.member.mail.service;
+package com.whitedelay.productshop.mail.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
