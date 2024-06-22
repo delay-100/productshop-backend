@@ -11,8 +11,8 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -25,8 +25,13 @@ import java.util.Optional;
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter { // UsernamePasswordAuthenticationFilter을 상속받아옴, 세션 방식 말고 jwt쓸거라서 custom하는거임
     private final JwtUtil jwtUtil; // jwtutil을 생성자 주입으로 가져옴
     private final TokenRepository tokenRepository;
-    private static final String access = "Access";
-    private static final String refresh = "Refresh";
+
+    @Value("${ACCESS_TOKEN_NAME}")
+    private String access;
+
+    @Value("${REFRESH_TOKEN_NAME}")
+    private String refresh;
+
 
     public JwtAuthenticationFilter(JwtUtil jwtUtil, TokenRepository tokenRepository) {
         this.jwtUtil = jwtUtil;
@@ -83,11 +88,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
     }
 
-//    @Override // 로그인 실패 시 실행되는 메소드
-//    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
-//        log.info("로그인 실패");
-//        response.setStatus(401); // 401은 인증 실패시 쓰는 status code임, 추가적인 멘트도 반환하려면 여기서 하면 됨
-//    }
+     // 로그인 실패 시 실행되는 메소드
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);

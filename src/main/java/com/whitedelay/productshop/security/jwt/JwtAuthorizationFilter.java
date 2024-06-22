@@ -10,6 +10,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -27,8 +28,13 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
     private final TokenRepository tokenRepository;
-    private static final String access = "Access";
-    private static final String refresh = "Refresh";
+
+    @Value("${ACCESS_TOKEN_NAME}")
+    private String access;
+
+    @Value("${REFRESH_TOKEN_NAME}")
+    private String refresh;
+
 
     public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, TokenRepository tokenRepository) {
         this.jwtUtil = jwtUtil;
@@ -43,69 +49,61 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
         if (StringUtils.hasText(accessToken)) {
             accessToken = jwtUtil.substringToken(accessToken);
-            log.info("Access token: " + accessToken); // accesstoken에서 'Bearer을 뗀 값 출력
+            if (!jwtUtil.validateToken(accessToken) && StringUtils.hasText(refreshToken)) {
+                refreshToken = jwtUtil.substringToken(refreshToken);
 
-            if (!jwtUtil.validateToken(accessToken)) { // accesstoken이 만료된 경우
-                if (StringUtils.hasText(refreshToken)) {
-                    refreshToken = jwtUtil.substringToken(refreshToken); // refreshToken에서 'Bearer ' 을 뗌
+                if (jwtUtil.validateToken(refreshToken)) {
+                    String memberIdFromAccessToken = jwtUtil.getMemberInfoFromToken(accessToken).getSubject();
 
-                    if (jwtUtil.validateToken(refreshToken)) {
-                        String memberId = jwtUtil.getMemberInfoFromToken(refreshToken).getSubject();
-                        log.info("Member ID from refresh token: " + memberId);
+                    Optional<Token> refreshTokenEntity = tokenRepository.findByMemberidAndTokentypeAndExpiredFalse(memberIdFromAccessToken, refresh);
+                    if (refreshToken.equals(jwtUtil.substringToken(refreshTokenEntity.get().getToken()))) {
+                        String newAccessToken = jwtUtil.createToken(memberIdFromAccessToken, access, MemberRoleEnum.USER);
+                        jwtUtil.addJwtToCookie(newAccessToken, access, res);
+                        accessToken = jwtUtil.substringToken(newAccessToken);
 
-                        Optional<Token> refreshTokenEntity = tokenRepository.findByMemberidAndTokentypeAndExpiredFalse(memberId, refresh);
-                        log.info("Refresh token from database.substringToken: " + jwtUtil.substringToken(refreshTokenEntity.get().getToken()));
-                        log.info("refreshTOken: " + refreshToken);
-                        if (refreshToken.equals(jwtUtil.substringToken(refreshTokenEntity.get().getToken()))) {
-                            System.out.println("access 토큰 재발급");
-                            String newAccessToken = jwtUtil.createToken(memberId, access, MemberRoleEnum.USER);
-                            jwtUtil.addJwtToCookie(newAccessToken, access, res);
-                            accessToken = jwtUtil.substringToken(newAccessToken);
-                            System.out.println("newAccessToken = " + newAccessToken);
-                        } else {
-                            System.out.println("refreshtoken이랑 db의 refreshtoken이 다름");
-                        }
-                    } else {// refresh 토큰이 만료된 경우
-                        log.error("Refresh Token Error: Token invalid");
-                        System.out.println("Refresh 토큰 만료 ");
-                        log.info("refreshToken: " + refreshToken); // accesstoken에서 'Bearer을 뗀 값 출력
-                        refreshToken = "Bearer " + refreshToken;
-                        log.info("Plus Bearer refreshToken: " + refreshToken); // accesstoken에서 'Bearer을 뗀 값 출력
-
-                        Token expiredRefreshToken = tokenRepository.findByToken(refreshToken)
-                                .orElseThrow(() -> new IllegalArgumentException("찾는 토큰이 없습니다."));
-
-                        expiredRefreshToken.setExpired(true);
-                        tokenRepository.save(expiredRefreshToken);
-
-                        res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                    } else {
+                        // 현재 요청을 보낸 사용자랑 refresh token의 주인이 다른 경우
+                        handleExpiredRefreshToken(refreshTokenEntity, res);
                         return;
                     }
+                } else { // refresh token의 유효기간이 만료된 경우
+                    String memberIdFromAccessToken = jwtUtil.getMemberInfoFromToken(accessToken).getSubject();
+                    Optional<Token> refreshTokenEntity = tokenRepository.findByMemberidAndTokentypeAndExpiredFalse(memberIdFromAccessToken, refresh);
+
+                    handleExpiredRefreshToken(refreshTokenEntity, res);
+                    return;
                 }
             }
-            System.out.println("accessToken = " + accessToken);
-            Claims info = jwtUtil.getMemberInfoFromToken(accessToken);
-            try {
+
+            if (jwtUtil.validateToken(accessToken)) {
+                Claims info = jwtUtil.getMemberInfoFromToken(accessToken);
                 setAuthentication(info.getSubject());
-            } catch (Exception e) {
-                log.error(e.getMessage());
-                return;
             }
         }
 
         filterChain.doFilter(req, res);
     }
 
-    public void setAuthentication(String memberid) {
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        Authentication authentication = createAuthentication(memberid);
-        context.setAuthentication(authentication);
+        private void handleExpiredRefreshToken(Optional<Token> refreshTokenEntity, HttpServletResponse res) throws IOException {
+            if (refreshTokenEntity.isPresent()) {
+                Token expiredRefreshToken = refreshTokenEntity.get();
+                expiredRefreshToken.setExpired(true);
+                tokenRepository.save(expiredRefreshToken);
+            }
+            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            res.getWriter().write("Authentication failed: Refresh token expired");
+        }
 
-        SecurityContextHolder.setContext(context);
-    }
+        private void setAuthentication(String memberid) {
+            SecurityContext context = SecurityContextHolder.createEmptyContext();
+            Authentication authentication = createAuthentication(memberid);
+            context.setAuthentication(authentication);
+            SecurityContextHolder.setContext(context);
+        }
 
-    private Authentication createAuthentication(String memberid) {
-        UserDetails userDetails = userDetailsService.loadUserByUsername(memberid);
-        return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-    }
+        private Authentication createAuthentication(String memberid) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(memberid);
+            return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+        }
+
 }

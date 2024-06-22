@@ -29,19 +29,37 @@ import java.util.Date;
 @Component
 public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 하나의 모듈로서 동작하는 클래스
     // Header KEY 값(cookie에서 저장할 이름)
-    public static final String AUTHORIZATION_HEADER = "Authorization";
-    public static final String REFRESHTOKEN_HEADER = "Refreshtoken";
-    // 사용자 권한 값의 KEY(admin, user) -> 비밀번호와 같이 보안이 중요하지는 않아서 jwt내에 보내기도함
-    public static final String AUTHORIZATION_KEY = "auth";
-    // Token 식별자(Token네이밍 규칙)
-    public static final String BEARER_PREFIX = "Bearer "; // 토큰 앞에 구분하기 위해 한칸 띄워야 함
-    // 토큰 만료시간(expired_time으로 해도 됨)
-//    private final long ACCESS_TOKEN_TIME = 6 * 60 * 1000L; // 임의로 6분으로 설정(토큰의 유지 시간) 기본은 1ms(1초)
-    private final long ACCESS_TOKEN_TIME = 1 * 30 * 1000L; // 임의로 6분으로 설정(토큰의 유지 시간) 기본은 1ms(1초)
-    //    private final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000L;; // 임의로 7일
-    private final long REFRESH_TOKEN_TIME = 2 * 60 * 1000L;; // 임의로 1분으로 설정
-    private static final String access = "Access";
+//    public static final String AUTHORIZATION_HEADER = "Authorization";
+//    public static final String REFRESHTOKEN_HEADER = "Refreshtoken";
+//    // 사용자 권한 값의 KEY(admin, user) -> 비밀번호와 같이 보안이 중요하지는 않아서 jwt내에 보내기도함
+//    public static final String AUTHORIZATION_KEY = "auth";
+//    // Token 식별자(Token네이밍 규칙)
+//    public static final String BEARER_PREFIX = "Bearer "; // 토큰 앞에 구분하기 위해 한칸 띄워야 함
+//    // 토큰 만료시간(expired_time으로 해도 됨)
+////    private final long ACCESS_TOKEN_TIME = 6 * 60 * 1000L; // 임의로 6분으로 설정(토큰의 유지 시간) 기본은 1ms(1초)
+//    private final long ACCESS_TOKEN_TIME = 1 * 30 * 1000L; // 임의로 6분으로 설정(토큰의 유지 시간) 기본은 1ms(1초)
+//    //    private final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000L;; // 임의로 7일
+//    private final long REFRESH_TOKEN_TIME = 2 * 60 * 1000L;; // 임의로 1분으로 설정
+//    private static final String access = "Access";
+    @Value("${AUTHORIZATION_HEADER}")
+    public String AUTHORIZATION_HEADER;
 
+    @Value("${REFRESHTOKEN_HEADER}")
+    public String REFRESHTOKEN_HEADER;
+
+    @Value("${AUTHORIZATION_KEY}")
+    public String AUTHORIZATION_KEY;
+
+    public static final String BEARER_PREFIX = "Bearer ";
+
+    @Value("${ACCESS_TOKEN_TIME}")
+    private long ACCESS_TOKEN_TIME;
+
+    @Value("${REFRESH_TOKEN_TIME}")
+    private long REFRESH_TOKEN_TIME;
+
+    @Value("${ACCESS_TOKEN_NAME}")
+    private String access;
 
     // @Value는 Beansfactory에서 가져옴(위에 import확인)
     @Value("${JWT_SECRET_KEY}") // Base64 Encode 한 SecretKey
@@ -63,14 +81,19 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
     public String createToken(String memberid, String tokenType, MemberRoleEnum role) {
         Date date = new Date();
 
-        return BEARER_PREFIX + // 'BEARER '
-                Jwts.builder()
-                        .setSubject(memberid) // 사용자 식별자값(ID)
-                        .claim(AUTHORIZATION_KEY, role) // jwt사용자의 권한 정보를 넣음, UserRole의 enum정보를 넣음, claim은 key, value로 데이터를 넣는 것
-                        .setExpiration(new Date(date.getTime() + (tokenType.equals(access) ? ACCESS_TOKEN_TIME : REFRESH_TOKEN_TIME))) // 만료 시간
-                        .setIssuedAt(date) // 발급일
-                        .signWith(key, signatureAlgorithm) // 암호화 알고리즘(시크릿 키, 시크릿 알고리즘)을 넣어주면 됨
-                        .compact(); // jwt옵션을 전부다 넣지 않아도 되는데 여기서는 이것저것 해보려고 많이 넣은거임
+        JwtBuilder jwtBuilder = Jwts.builder()
+                .setExpiration(new Date(date.getTime() + (tokenType.equals(access) ? ACCESS_TOKEN_TIME : REFRESH_TOKEN_TIME))) // 만료 시간
+                .setIssuedAt(date) // 발급일
+                .signWith(key, signatureAlgorithm);// 암호화 알고리즘(시크릿 키, 시크릿 알고리즘)을 넣어주면
+
+        if (tokenType.equals(access)) { // accesstoken인 경우에만 유저정보 넣음
+            jwtBuilder
+                    .setSubject(memberid)  // 사용자 식별자값(ID)
+                    .claim(AUTHORIZATION_KEY, role); // jwt사용자의 권한 정보를 넣음, UserRole의 enum정보를 넣음, claim은 key, value로 데이터를 넣는 것
+
+        }
+
+        return BEARER_PREFIX + jwtBuilder.compact();
     }
 
     // 3. 생성된 JWT를 Cookie에 저장
@@ -81,6 +104,7 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
 
             Cookie cookie = new Cookie((tokenType.equals(access) ? AUTHORIZATION_HEADER : REFRESHTOKEN_HEADER), token); // Name-Value(encoding한 토큰 값을 넣음)
             cookie.setPath("/");
+            cookie.setHttpOnly(true); // HttpOnly 속성 설정
 
             // Response 객체에 Cookie 추가
             res.addCookie(cookie);
@@ -119,11 +143,22 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
     // 검증해서 문제가 없음이 확인됨
     //6. JWT에서 사용자 정보 가져오기
     // 토큰에서 사용자 정보 가져오기
-    public Claims getMemberInfoFromToken(String token) { // jwt가 Claim기반임
-        // 데이터를 가져오려면 secretKey값이 필요(setSigningKey)
-        // 분석을 할 토큰을 넣어줘야 함(parseClaimsJws)
-        // Body안에 들어있는 Claims를 가져올 수 있음(Claims 안에 있는 사용자 정보를 가져올 수 있음)
-        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+//    public Claims getMemberInfoFromToken(String token) { // jwt가 Claim기반임
+//        // 데이터를 가져오려면 secretKey값이 필요(setSigningKey)
+//        // 분석을 할 토큰을 넣어줘야 함(parseClaimsJws)
+//        // Body안에 들어있는 Claims를 가져올 수 있음(Claims 안에 있는 사용자 정보를 가져올 수 있음)
+//        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+//    }
+    public Claims getMemberInfoFromToken(String token) {
+        try {
+            return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+        } catch (ExpiredJwtException e) {
+            logger.info("Expired JWT token, 만료된 JWT token 입니다.");
+            return e.getClaims(); // 만료된 토큰에서 Claims를 추출
+        } catch (JwtException e) {
+            logger.error("Invalid JWT token");
+            throw new IllegalArgumentException("Invalid JWT token", e);
+        }
     }
 
     // @CookieValue를 사용할 수 없는 경우에
