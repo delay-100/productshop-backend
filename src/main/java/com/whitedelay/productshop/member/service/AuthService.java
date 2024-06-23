@@ -1,13 +1,15 @@
 package com.whitedelay.productshop.member.service;
 
+import com.whitedelay.productshop.member.dto.MemberMyinfoRequestDto;
+import com.whitedelay.productshop.member.dto.MemberMyinfoResponseDto;
 import com.whitedelay.productshop.member.dto.SignupRequestDto;
 import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.member.entity.MemberRoleEnum;
 import com.whitedelay.productshop.mail.service.RedisService;
 import com.whitedelay.productshop.member.repository.MemberRepository;
 import com.whitedelay.productshop.security.AES256Encoder;
+import com.whitedelay.productshop.security.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,12 +20,7 @@ public class AuthService {
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final AES256Encoder aes256Encoder;
-
-    @Value("${ACCESS_TOKEN_NAME}")
-    private String access;
-
-    @Value("${REFRESH_TOKEN_NAME}")
-    private String refresh;
+    private final JwtUtil jwtUtil;
 
     public boolean signup(SignupRequestDto signupRequestDto) {
         // Redis 검증
@@ -50,20 +47,45 @@ public class AuthService {
         return true;
     }
 
-    public SignupRequestDto tempCheckUser(String id, String password) {
-        Member member = memberRepository.findByMemberid(id)
+    public MemberMyinfoResponseDto getMemberMyinfo(String userToken) {
+        // 토큰 내의 유저 빼오기
+        userToken = jwtUtil.substringToken(userToken);
+        String memberId = jwtUtil.getMemberInfoFromToken(userToken).getSubject();
+        Member member = memberRepository.findByMemberid(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-        if (passwordEncoder.matches(password, member.getPassword())) {
-            SignupRequestDto signupRequestDto = new SignupRequestDto();
-            signupRequestDto.setUserid(member.getMemberid());
-            signupRequestDto.setEmail(aes256Encoder.decodeString(member.getEmail()));
-            signupRequestDto.setUsername(aes256Encoder.decodeString(member.getMembername()));
-            signupRequestDto.setAddress(aes256Encoder.decodeString(member.getAddress()));
-            signupRequestDto.setPhone(aes256Encoder.decodeString(member.getPhone()));
-            return signupRequestDto;
-        } else {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
-        }
+        return MemberMyinfoResponseDto.builder()
+                .userid(member.getMemberid())
+                .email(aes256Encoder.decodeString(member.getEmail()))
+                .username(aes256Encoder.decodeString(member.getMembername()))
+                .address(aes256Encoder.decodeString(member.getAddress()))
+                .phone(aes256Encoder.decodeString(member.getPhone()))
+                .build();
+    }
+
+    public MemberMyinfoResponseDto updateMemberMyinfo(String userToken, MemberMyinfoRequestDto memberMyinfoRequestDto) {
+        // 토큰 내의 유저 빼오기
+        userToken = jwtUtil.substringToken(userToken);
+        String memberId = jwtUtil.getMemberInfoFromToken(userToken).getSubject();
+        Member member = memberRepository.findByMemberid(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+
+        String encodedAddress = aes256Encoder.encodeString(memberMyinfoRequestDto.getAddress());
+        String encodedPhone = aes256Encoder.encodeString(memberMyinfoRequestDto.getPhone());
+
+        member.setAddress(encodedAddress);
+        member.setPhone(encodedPhone);
+
+        memberRepository.save(member);
+
+        return MemberMyinfoResponseDto.builder()
+                .userid(member.getMemberid())
+                .email(aes256Encoder.decodeString(member.getEmail()))
+                .username(aes256Encoder.decodeString(member.getMembername()))
+                .address(aes256Encoder.decodeString(member.getAddress()))
+                .phone(aes256Encoder.decodeString(member.getPhone()))
+                .build();
+
     }
 }

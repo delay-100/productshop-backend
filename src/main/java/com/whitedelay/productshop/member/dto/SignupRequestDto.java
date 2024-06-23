@@ -33,4 +33,5 @@ public class SignupRequestDto {
 
     @NotBlank(message = "이메일 코드를 입력해주세요.")
     private String emailCode;
+
 }

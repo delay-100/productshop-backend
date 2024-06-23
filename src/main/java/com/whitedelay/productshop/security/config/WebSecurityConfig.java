@@ -2,8 +2,8 @@ package com.whitedelay.productshop.security.config;
 
 import com.whitedelay.productshop.security.UserDetails.UserDetailsServiceImpl;
 import com.whitedelay.productshop.security.jwt.*;
-import com.whitedelay.productshop.security.logout.CustomLogoutHandler;
-import com.whitedelay.productshop.security.logout.CustomLogoutSuccessHandler;
+import com.whitedelay.productshop.security.handler.CustomLogoutHandler;
+import com.whitedelay.productshop.security.handler.CustomLogoutSuccessHandler;
 import com.whitedelay.productshop.security.repository.TokenRepository;
 import org.springframework.boot.autoconfigure.security.servlet.PathRequest;
 import org.springframework.context.annotation.Bean;
@@ -34,11 +34,11 @@ public class WebSecurityConfig {
     // authenticationManager는 bean으로 직접 등록할거임
     // authenticationConfiguration 처럼 바로 가져올 수가 없어서 authenticationConfiguration으로 가져와서 수동등록함
     // 파라미터로 받아온 authenticationConfiguration을 넣어줘서 getAuthencationManager()을 가져옴
-
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
         return configuration.getAuthenticationManager();
     }
+
     // 인증 필터 객체 생성 후 bean으로 등록
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {

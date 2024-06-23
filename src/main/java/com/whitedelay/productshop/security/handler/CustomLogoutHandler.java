@@ -1,4 +1,4 @@
-package com.whitedelay.productshop.security.logout;
+package com.whitedelay.productshop.security.handler;
 
 import com.whitedelay.productshop.security.entity.Token;
 import com.whitedelay.productshop.security.jwt.JwtUtil;

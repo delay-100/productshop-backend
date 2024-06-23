@@ -44,4 +44,12 @@ public class Member extends Timestamped {
         this.phone = phone;
         this.role = role;
     }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
 }
