@@ -2,6 +2,7 @@ package com.whitedelay.productshop.member.controller;
 
 import com.whitedelay.productshop.member.dto.MemberMyinfoRequestDto;
 import com.whitedelay.productshop.member.dto.MemberMyinfoResponseDto;
+import com.whitedelay.productshop.member.dto.MemberpasswordRequestDto;
 import com.whitedelay.productshop.util.ApiResponse;
 import com.whitedelay.productshop.member.dto.SignupRequestDto;
 import com.whitedelay.productshop.member.service.AuthService;
@@ -38,8 +39,14 @@ public class AuthController {
         return ApiResponse.createSuccess(authService.getMemberMyinfo(userToken));
     }
 
-    @PostMapping("/member/myinfo")
+    @PatchMapping("/member/myinfo")
     public ApiResponse<MemberMyinfoResponseDto> updateMemberMyinfo(@CookieValue("${AUTHORIZATION_HEADER}") String userToken, @RequestBody MemberMyinfoRequestDto memberMyinfoRequestDto) {
         return ApiResponse.createSuccess(authService.updateMemberMyinfo(userToken, memberMyinfoRequestDto));
     }
+
+    @PatchMapping("/member/modify/password")
+    public ApiResponse<Boolean> updateMemberPassword(@CookieValue("${AUTHORIZATION_HEADER}") String userToken, @RequestBody MemberpasswordRequestDto memberpasswordRequestDto) {
+        return ApiResponse.createSuccess(authService.updateMemberPassword(userToken, memberpasswordRequestDto));
+    }
+
 }

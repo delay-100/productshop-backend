@@ -2,6 +2,7 @@ package com.whitedelay.productshop.member.service;
 
 import com.whitedelay.productshop.member.dto.MemberMyinfoRequestDto;
 import com.whitedelay.productshop.member.dto.MemberMyinfoResponseDto;
+import com.whitedelay.productshop.member.dto.MemberpasswordRequestDto;
 import com.whitedelay.productshop.member.dto.SignupRequestDto;
 import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.member.entity.MemberRoleEnum;
@@ -70,7 +71,6 @@ public class AuthService {
         Member member = memberRepository.findByMemberid(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
-
         String encodedAddress = aes256Encoder.encodeString(memberMyinfoRequestDto.getAddress());
         String encodedPhone = aes256Encoder.encodeString(memberMyinfoRequestDto.getPhone());
 
@@ -87,5 +87,31 @@ public class AuthService {
                 .phone(aes256Encoder.decodeString(member.getPhone()))
                 .build();
 
+    }
+
+    public Boolean updateMemberPassword(String userToken, MemberpasswordRequestDto memberpasswordRequestDto) {
+        // 토큰 내의 유저 빼오기
+        userToken = jwtUtil.substringToken(userToken);
+        String memberId = jwtUtil.getMemberInfoFromToken(userToken).getSubject();
+        Member member = memberRepository.findByMemberid(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        // 현재 비밀번호 검증
+        if (!passwordEncoder.matches(memberpasswordRequestDto.getPrePassword(), member.getPassword())) {
+            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        // 새로운 비밀번호 확인
+        if (!memberpasswordRequestDto.getNewPassword().equals(memberpasswordRequestDto.getNewPasswordConfirm())) {
+            throw new IllegalArgumentException("새로운 비밀번호가 일치하지 않습니다.");
+        }
+
+        // 새로운 비밀번호 암호화 및 설정
+        String newPassword = passwordEncoder.encode(memberpasswordRequestDto.getNewPassword());
+        member.setPassword(newPassword);
+
+        memberRepository.save(member);
+
+        return true;
     }
 }
