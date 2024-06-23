@@ -7,17 +7,23 @@ import com.whitedelay.productshop.mail.service.RedisService;
 import com.whitedelay.productshop.member.repository.MemberRepository;
 import com.whitedelay.productshop.security.AES256Encoder;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-
 @Service
 @RequiredArgsConstructor
-public class MemberService {
+public class AuthService {
     private final RedisService redisService;
     private final MemberRepository memberRepository;
     private final PasswordEncoder passwordEncoder;
     private final AES256Encoder aes256Encoder;
+
+    @Value("${ACCESS_TOKEN_NAME}")
+    private String access;
+
+    @Value("${REFRESH_TOKEN_NAME}")
+    private String refresh;
 
     public boolean signup(SignupRequestDto signupRequestDto) {
         // Redis 검증
@@ -60,5 +66,4 @@ public class MemberService {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
     }
-
 }

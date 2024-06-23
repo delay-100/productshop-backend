@@ -28,20 +28,7 @@ import java.util.Date;
 //5. JWT에서 사용자 정보 가져오기
 @Component
 public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 하나의 모듈로서 동작하는 클래스
-    // Header KEY 값(cookie에서 저장할 이름)
-//    public static final String AUTHORIZATION_HEADER = "Authorization";
-//    public static final String REFRESHTOKEN_HEADER = "Refreshtoken";
-//    // 사용자 권한 값의 KEY(admin, user) -> 비밀번호와 같이 보안이 중요하지는 않아서 jwt내에 보내기도함
-//    public static final String AUTHORIZATION_KEY = "auth";
-//    // Token 식별자(Token네이밍 규칙)
-//    public static final String BEARER_PREFIX = "Bearer "; // 토큰 앞에 구분하기 위해 한칸 띄워야 함
-//    // 토큰 만료시간(expired_time으로 해도 됨)
-////    private final long ACCESS_TOKEN_TIME = 6 * 60 * 1000L; // 임의로 6분으로 설정(토큰의 유지 시간) 기본은 1ms(1초)
-//    private final long ACCESS_TOKEN_TIME = 1 * 30 * 1000L; // 임의로 6분으로 설정(토큰의 유지 시간) 기본은 1ms(1초)
-//    //    private final long REFRESH_TOKEN_TIME = 7 * 24 * 60 * 60 * 1000L;; // 임의로 7일
-//    private final long REFRESH_TOKEN_TIME = 2 * 60 * 1000L;; // 임의로 1분으로 설정
-//    private static final String access = "Access";
-    @Value("${AUTHORIZATION_HEADER}")
+  @Value("${AUTHORIZATION_HEADER}")
     public String AUTHORIZATION_HEADER;
 
     @Value("${REFRESHTOKEN_HEADER}")
