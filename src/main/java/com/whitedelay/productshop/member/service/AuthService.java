@@ -1,12 +1,9 @@
 package com.whitedelay.productshop.member.service;
 
-import com.whitedelay.productshop.member.dto.MemberMyinfoRequestDto;
-import com.whitedelay.productshop.member.dto.MemberMyinfoResponseDto;
-import com.whitedelay.productshop.member.dto.MemberpasswordRequestDto;
-import com.whitedelay.productshop.member.dto.SignupRequestDto;
+import com.whitedelay.productshop.member.dto.*;
 import com.whitedelay.productshop.member.entity.Member;
-import com.whitedelay.productshop.member.entity.MemberRoleEnum;
 import com.whitedelay.productshop.mail.service.RedisService;
+import com.whitedelay.productshop.member.entity.MemberRoleEnum;
 import com.whitedelay.productshop.member.repository.MemberRepository;
 import com.whitedelay.productshop.security.AES256Encoder;
 import com.whitedelay.productshop.security.jwt.JwtUtil;
@@ -31,20 +28,19 @@ public class AuthService {
         if (memberRepository.existsByEmail(signupRequestDto.getEmail())) {
             throw new IllegalArgumentException("중복된 이메일입니다.");
         }
-        if (memberRepository.existsByMemberid(signupRequestDto.getUserid())) {
+        if (memberRepository.existsByMemberid(signupRequestDto.getMemberid())) {
             throw new IllegalArgumentException("중복된 아이디입니다.");
         }
         // 값 넣기
-        String userid = signupRequestDto.getUserid();
+        String memberid = signupRequestDto.getMemberid();
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
         String email = aes256Encoder.encodeString(signupRequestDto.getEmail());
         String username = aes256Encoder.encodeString(signupRequestDto.getUsername());
         String address = aes256Encoder.encodeString(signupRequestDto.getAddress());
         String phone = aes256Encoder.encodeString(signupRequestDto.getPhone());
 
-        Member member = new Member(userid, password, email, username, address, phone, MemberRoleEnum.USER);
-
-        memberRepository.save(member);
+        MemberRequestDto memberRequestDto = new MemberRequestDto(memberid, password, email, username, address, phone, MemberRoleEnum.USER);
+        memberRepository.save(Member.from(memberRequestDto));
         return true;
     }
 
@@ -89,7 +85,7 @@ public class AuthService {
 
     }
 
-    public Boolean updateMemberPassword(String userToken, MemberpasswordRequestDto memberpasswordRequestDto) {
+    public boolean updateMemberPassword(String userToken, MemberpasswordRequestDto memberpasswordRequestDto) {
         // 토큰 내의 유저 빼오기
         userToken = jwtUtil.substringToken(userToken);
         String memberId = jwtUtil.getMemberInfoFromToken(userToken).getSubject();

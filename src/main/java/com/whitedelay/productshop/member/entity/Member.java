@@ -1,12 +1,14 @@
 package com.whitedelay.productshop.member.entity;
 
+import com.whitedelay.productshop.member.dto.MemberRequestDto;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
+@Builder(access = AccessLevel.PRIVATE)
 @Getter
 @Entity
-@NoArgsConstructor
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name= "member")
 public class Member extends Timestamped {
     @Id
@@ -35,14 +37,15 @@ public class Member extends Timestamped {
     @Enumerated(value = EnumType.STRING)
     private MemberRoleEnum role;
 
-    public Member(String memberid, String password, String email, String membername, String address, String phone, MemberRoleEnum role) {
-        this.memberid = memberid;
-        this.password = password;
-        this.email = email;
-        this.membername = membername;
-        this.address = address;
-        this.phone = phone;
-        this.role = role;
+    public static Member from(MemberRequestDto member) {
+        return Member.builder()
+                .memberid(member.getMemberid())
+                .password(member.getPassword())
+                .address(member.getAddress())
+                .email(member.getEmail())
+                .phone(member.getPhone())
+                .role(member.getRole())
+                .build();
     }
 
     public void setAddress(String address) {

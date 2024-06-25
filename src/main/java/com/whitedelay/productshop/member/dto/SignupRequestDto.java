@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SignupRequestDto {
     @NotBlank(message = "아이디를 입력해주세요.")
-    private String userid;
+    private String memberid;
 
     @NotBlank(message = "비밀번호를 입력해주세요.")
     private String password;

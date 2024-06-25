@@ -1,6 +1,7 @@
 package com.whitedelay.productshop.member.entity;
 
-public enum MemberRoleEnum {
+public enum MemberRoleEnum {     // implements GrantedAuthority 하면 SpringSecurity에서 get으로 가져올 수 있음
+
     USER(Authority.USER),  // 사용자 권한
     ADMIN(Authority.ADMIN);  // 관리자 권한
 
@@ -10,6 +11,7 @@ public enum MemberRoleEnum {
         this.authority = authority;
     }
 
+    // @Override하면 됨
     public String getAuthority() {
         return this.authority;
     }
