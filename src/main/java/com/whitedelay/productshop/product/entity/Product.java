@@ -24,14 +24,18 @@ public class Product extends Timestamped {
     @Column(nullable = false)
     private String productContent;
 
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String productStatus; // 판매중, 판매대기,
+    private ProductStatusEnum productStatus;
 
     @Column(nullable = false)
     private int productWishlistCount;
 
     @Column(nullable = false)
     private int productPrice;
+
+    @Column(nullable = false)
+    private int productStock;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -47,10 +51,12 @@ public class Product extends Timestamped {
         return Product.builder()
                 .productTitle(product.getProductTitle())
                 .productContent(product.getProductContent())
-                .productStatus(product.getProductStatus())
+                .productStatus(ProductStatusEnum.valueOf(product.getProductStatus().toUpperCase()))
                 .productWishlistCount(product.getProductWishlistCount())
                 .productPrice(product.getProductPrice())
-                .productCategory(ProductCategoryEnum.valueOf(product.getProductCategory()))
+                .productStock(product.getProductStock())
+                .productCategory(ProductCategoryEnum.valueOf(product.getProductCategory().toUpperCase()))
+                .productStartDate(product.getProductStartDate())
                 .build();
     }
 }

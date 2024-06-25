@@ -15,6 +15,10 @@ public enum ProductCategoryEnum {
         this.category = category;
     }
 
+    public String getCategory() {
+        return category;
+    }
+
     public static class Category {
         public static final String CLOTHING = "의류";
         public static final String ELECTRONICS = "가전제품";

@@ -4,6 +4,8 @@ import com.whitedelay.productshop.product.entity.Product;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 
 @Setter
 @Getter
@@ -14,5 +16,8 @@ public class ProductRequestDto {
     private String productStatus;
     private int productWishlistCount;
     private int productPrice;
+    private int productStock;
     private String productCategory;
+    private LocalDateTime productStartDate;
+
 }

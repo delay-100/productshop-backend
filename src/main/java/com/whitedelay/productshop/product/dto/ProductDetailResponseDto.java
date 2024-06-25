@@ -16,6 +16,7 @@ public class ProductDetailResponseDto {
     private String productStatus;
     private int productWishlistCount;
     private int productPrice;
+    private int productStock;
     private String productCategory;
     private List<ProductOptionDetailResponseDto> productOptions;
 
@@ -24,9 +25,11 @@ public class ProductDetailResponseDto {
                 .productId(product.getProductId())
                 .productTitle(product.getProductTitle())
                 .productContent(product.getProductContent())
-                .productStatus(product.getProductStatus())
+                .productStatus(product.getProductStatus().getStatus())
                 .productWishlistCount(product.getProductWishlistCount())
                 .productPrice(product.getProductPrice())
+                .productStock(product.getProductStock())
+                .productStock(product.getProductStock())
                 .productCategory(product.getProductCategory().getCategory())
                 .productOptions(product.getProductOptions().stream()
                         .map(ProductOptionDetailResponseDto::from)

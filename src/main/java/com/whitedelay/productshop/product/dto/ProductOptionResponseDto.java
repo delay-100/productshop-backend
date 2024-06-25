@@ -1,8 +1,11 @@
 package com.whitedelay.productshop.product.dto;
 
+import com.whitedelay.productshop.product.entity.Product;
 import com.whitedelay.productshop.product.entity.ProductOption;
+import lombok.Builder;
 import lombok.Getter;
 
+@Builder
 @Getter
 public class ProductOptionResponseDto {
     private Long productOptionId;
@@ -17,12 +20,5 @@ public class ProductOptionResponseDto {
                 productOption.getProductOptionStock(),
                 productOption.getProductOptionPrice()
         );
-    }
-
-    public ProductOptionResponseDto(Long productOptionId, String productOptionName, int productOptionStock, int productOptionPrice) {
-        this.productOptionId = productOptionId;
-        this.productOptionName = productOptionName;
-        this.productOptionStock = productOptionStock;
-        this.productOptionPrice = productOptionPrice;
     }
 }
