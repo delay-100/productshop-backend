@@ -8,13 +8,13 @@ import lombok.Getter;
 @AllArgsConstructor
 public class MemberRequestDto {
 
-    private String memberid;
+    private String memberId;
 
     private String password;
 
     private String email;
 
-    private String username;
+    private String memberName;
 
     private String address;
 

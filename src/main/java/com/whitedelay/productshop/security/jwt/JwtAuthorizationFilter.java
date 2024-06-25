@@ -55,7 +55,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 if (jwtUtil.validateToken(refreshToken)) {
                     String memberIdFromAccessToken = jwtUtil.getMemberInfoFromToken(accessToken).getSubject();
 
-                    Optional<Token> refreshTokenEntity = tokenRepository.findByMemberidAndTokentypeAndExpiredFalse(memberIdFromAccessToken, refresh);
+                    Optional<Token> refreshTokenEntity = tokenRepository.findByMemberIdAndTokenTypeAndExpiredFalse(memberIdFromAccessToken, refresh);
                     if (refreshToken.equals(jwtUtil.substringToken(refreshTokenEntity.get().getToken()))) {
                         String newAccessToken = jwtUtil.createToken(memberIdFromAccessToken, access, MemberRoleEnum.USER);
                         jwtUtil.addJwtToCookie(newAccessToken, access, res);
@@ -68,7 +68,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                     }
                 } else { // refresh token의 유효기간이 만료된 경우
                     String memberIdFromAccessToken = jwtUtil.getMemberInfoFromToken(accessToken).getSubject();
-                    Optional<Token> refreshTokenEntity = tokenRepository.findByMemberidAndTokentypeAndExpiredFalse(memberIdFromAccessToken, refresh);
+                    Optional<Token> refreshTokenEntity = tokenRepository.findByMemberIdAndTokenTypeAndExpiredFalse(memberIdFromAccessToken, refresh);
 
                     handleExpiredRefreshToken(refreshTokenEntity, res);
                     return;
@@ -94,15 +94,15 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             res.getWriter().write("Authentication failed: Refresh token expired");
         }
 
-        private void setAuthentication(String memberid) {
+        private void setAuthentication(String memberId) {
             SecurityContext context = SecurityContextHolder.createEmptyContext();
-            Authentication authentication = createAuthentication(memberid);
+            Authentication authentication = createAuthentication(memberId);
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
         }
 
-        private Authentication createAuthentication(String memberid) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(memberid);
+        private Authentication createAuthentication(String memberId) {
+            UserDetails userDetails = userDetailsService.loadUserByUsername(memberId);
             return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         }
 

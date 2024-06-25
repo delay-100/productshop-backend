@@ -52,7 +52,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
                                                             // UsernamePasswordAuthenticationFilter를 상속받아서 사용가능한 메소드
                                                             // authenticate: 인증 처리하는 메소드
                     new UsernamePasswordAuthenticationToken( // UsernamePasswordAuthenticationFilter동작에서 초반에 getAuthenticationManager한테 UsernamePasswordAuthenticationToken을 전해줘야 함
-                            requestDto.getMemberid(), // username(아이디)
+                            requestDto.getMemberId(), // username(아이디)
                             requestDto.getPassword(), // password(비밀번호)
                             null // 권한: 인증처리할때 지금 필요가 없기때문에 null을 줌
                     )
@@ -67,16 +67,16 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         log.info("로그인 성공 및 JWT 생성"); // 로그인이 성공(id, pw가 맞으면)하면 jwt를 생성해줘야함
         // 이 메소드는 Authentication 인증 객체를 받아오는데, 이 안에 UserDetails가 들어있음 UserDetails랑 UserDetailsService를 AuthenticationManger가 사용함
-        String memberid = ((UserDetailsImpl) authResult.getPrincipal()).getUsername(); // /api/products에서 @AuthenticationPrinciple로 UserDetails를 받아올 수 있었음, 그걸 코드로 작성한거임이거는
+        String memberId = ((UserDetailsImpl) authResult.getPrincipal()).getUsername(); // /api/products에서 @AuthenticationPrinciple로 UserDetails를 받아올 수 있었음, 그걸 코드로 작성한거임이거는
         MemberRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getMember().getRole();
 
-        String accessToken = jwtUtil.createToken(memberid, access, role); // 토큰 생성 시 2번째 파라미터로 role을 넣어주기 위함
+        String accessToken = jwtUtil.createToken(memberId, access, role); // 토큰 생성 시 2번째 파라미터로 role을 넣어주기 위함
 
-        Optional<Token> existingRefreshToken = tokenRepository.findByMemberidAndTokentypeAndExpiredFalse(memberid, refresh);
+        Optional<Token> existingRefreshToken = tokenRepository.findByMemberIdAndTokenTypeAndExpiredFalse(memberId, refresh);
         String refreshToken;
         if (existingRefreshToken.isEmpty()) {
-            refreshToken = jwtUtil.createToken(memberid, refresh, role);
-            Token refreshTokenEntity = new Token(refresh, refreshToken, memberid, false);
+            refreshToken = jwtUtil.createToken(memberId, refresh, role);
+            Token refreshTokenEntity = new Token(refresh, refreshToken, memberId, false);
             tokenRepository.save(refreshTokenEntity);
         } else {
             refreshToken = existingRefreshToken.get().getToken();

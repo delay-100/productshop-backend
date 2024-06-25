@@ -32,7 +32,7 @@ public class CustomLogoutHandler implements LogoutHandler {
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         String refreshToken = jwtUtil.getTokenFromRequest(request, REFRESHTOKEN_HEADER);
         if (refreshToken != null) {
-            Token token = tokenRepository.findByTokenAndTokentype(refreshToken, refresh)
+            Token token = tokenRepository.findByTokenAndTokenType(refreshToken, refresh)
                     .orElseThrow(() -> new IllegalArgumentException("Refreshtoken을 찾을 수 없습니다."));
 
             token.setExpired(true);

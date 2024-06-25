@@ -16,7 +16,7 @@ public class Member extends Timestamped {
     private Long id;
 
     @Column(nullable = false, unique = true)
-    private String memberid;
+    private String memberId;
 
     @Column(nullable = false)
     private String password;
@@ -25,7 +25,7 @@ public class Member extends Timestamped {
     private String email;
 
     @Column(nullable = false)
-    private String membername;
+    private String memberName;
 
     @Column(nullable = false)
     private String address;
@@ -39,10 +39,11 @@ public class Member extends Timestamped {
 
     public static Member from(MemberRequestDto member) {
         return Member.builder()
-                .memberid(member.getMemberid())
+                .memberId(member.getMemberId())
                 .password(member.getPassword())
                 .address(member.getAddress())
                 .email(member.getEmail())
+                .memberName(member.getMemberName())
                 .phone(member.getPhone())
                 .role(member.getRole())
                 .build();

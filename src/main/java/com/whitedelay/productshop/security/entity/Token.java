@@ -17,15 +17,15 @@ public class Token extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String tokentype;
+    private String tokenType;
     private String token;
-    private String memberid;
+    private String memberId;
     private boolean expired;
 
-    public Token(String tokentype, String token, String memberid, boolean expired) {
-        this.tokentype = tokentype;
+    public Token(String tokenType, String token, String memberId, boolean expired) {
+        this.tokenType = tokenType;
         this.token = token;
-        this.memberid = memberid;
+        this.memberId = memberId;
         this.expired = expired;
     }
 }

@@ -15,10 +15,10 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         this.memberRepository = memberRepository;
     }
     @Override
-    public UserDetails loadUserByUsername(String memberid) throws UsernameNotFoundException {
-        Member member = memberRepository.findByMemberid(memberid)
-                .orElseThrow(() -> new UsernameNotFoundException("Not Found " + memberid));
-        System.out.println("member.getMemberid() = " + member.getMemberid());
+    public UserDetails loadUserByUsername(String memberId) throws UsernameNotFoundException {
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new UsernameNotFoundException("Not Found " + memberId));
+        System.out.println("member.getMemberid() = " + member.getMemberId());
         return new UserDetailsImpl(member);
     }
 }

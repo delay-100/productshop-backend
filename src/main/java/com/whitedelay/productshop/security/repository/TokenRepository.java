@@ -6,6 +6,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface TokenRepository extends JpaRepository<Token, Long> {
-    Optional<Token> findByMemberidAndTokentypeAndExpiredFalse(String memberid, String tokentype);
-    Optional<Token> findByTokenAndTokentype(String refreshToken, String refreshtokenHeader);
+    Optional<Token> findByMemberIdAndTokenTypeAndExpiredFalse(String memberId, String tokenType);
+    Optional<Token> findByTokenAndTokenType(String refreshToken, String refreshtokenHeader);
 }

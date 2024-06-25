@@ -8,9 +8,9 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MemberMyinfoResponseDto {
-    private String userid;
+    private String memberId;
     private String email;
-    private String username;
+    private String memberName;
     private String address;
     private String phone;
 }

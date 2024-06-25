@@ -28,18 +28,18 @@ public class AuthService {
         if (memberRepository.existsByEmail(signupRequestDto.getEmail())) {
             throw new IllegalArgumentException("중복된 이메일입니다.");
         }
-        if (memberRepository.existsByMemberid(signupRequestDto.getMemberid())) {
+        if (memberRepository.existsByMemberId(signupRequestDto.getMemberId())) {
             throw new IllegalArgumentException("중복된 아이디입니다.");
         }
         // 값 넣기
-        String memberid = signupRequestDto.getMemberid();
+        String memberId = signupRequestDto.getMemberId();
         String password = passwordEncoder.encode(signupRequestDto.getPassword());
         String email = aes256Encoder.encodeString(signupRequestDto.getEmail());
-        String username = aes256Encoder.encodeString(signupRequestDto.getUsername());
+        String memberName = aes256Encoder.encodeString(signupRequestDto.getMemberName());
         String address = aes256Encoder.encodeString(signupRequestDto.getAddress());
         String phone = aes256Encoder.encodeString(signupRequestDto.getPhone());
 
-        MemberRequestDto memberRequestDto = new MemberRequestDto(memberid, password, email, username, address, phone, MemberRoleEnum.USER);
+        MemberRequestDto memberRequestDto = new MemberRequestDto(memberId, password, email, memberName, address, phone, MemberRoleEnum.USER);
         memberRepository.save(Member.from(memberRequestDto));
         return true;
     }
@@ -48,13 +48,13 @@ public class AuthService {
         // 토큰 내의 유저 빼오기
         userToken = jwtUtil.substringToken(userToken);
         String memberId = jwtUtil.getMemberInfoFromToken(userToken).getSubject();
-        Member member = memberRepository.findByMemberid(memberId)
+        Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         return MemberMyinfoResponseDto.builder()
-                .userid(member.getMemberid())
+                .memberId(member.getMemberId())
                 .email(aes256Encoder.decodeString(member.getEmail()))
-                .username(aes256Encoder.decodeString(member.getMembername()))
+                .memberName(aes256Encoder.decodeString(member.getMemberName()))
                 .address(aes256Encoder.decodeString(member.getAddress()))
                 .phone(aes256Encoder.decodeString(member.getPhone()))
                 .build();
@@ -64,7 +64,7 @@ public class AuthService {
         // 토큰 내의 유저 빼오기
         userToken = jwtUtil.substringToken(userToken);
         String memberId = jwtUtil.getMemberInfoFromToken(userToken).getSubject();
-        Member member = memberRepository.findByMemberid(memberId)
+        Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         String encodedAddress = aes256Encoder.encodeString(memberMyinfoRequestDto.getAddress());
@@ -76,9 +76,9 @@ public class AuthService {
         memberRepository.save(member);
 
         return MemberMyinfoResponseDto.builder()
-                .userid(member.getMemberid())
+                .memberId(member.getMemberId())
                 .email(aes256Encoder.decodeString(member.getEmail()))
-                .username(aes256Encoder.decodeString(member.getMembername()))
+                .memberName(aes256Encoder.decodeString(member.getMemberName()))
                 .address(aes256Encoder.decodeString(member.getAddress()))
                 .phone(aes256Encoder.decodeString(member.getPhone()))
                 .build();
@@ -89,7 +89,7 @@ public class AuthService {
         // 토큰 내의 유저 빼오기
         userToken = jwtUtil.substringToken(userToken);
         String memberId = jwtUtil.getMemberInfoFromToken(userToken).getSubject();
-        Member member = memberRepository.findByMemberid(memberId)
+        Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         // 현재 비밀번호 검증

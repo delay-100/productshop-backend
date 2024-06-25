@@ -65,7 +65,7 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
 
     // 1. JWT 토큰 생성 -> 생성한 토큰을 반환하는 방법 2가지(1.그냥 헤더에 담아 보냄(Response객체의 header에 그냥 token넣어 보내기) 2. Cookie객체에 Response에 담는 방법(cookie.setToken해서 넣고 Response객체에 넣어 보내기))
     // Access/Refresh 토큰 생성
-    public String createToken(String memberid, String tokenType, MemberRoleEnum role) {
+    public String createToken(String memberId, String tokenType, MemberRoleEnum role) {
         Date date = new Date();
 
         JwtBuilder jwtBuilder = Jwts.builder()
@@ -75,7 +75,7 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
 
         if (tokenType.equals(access)) { // accesstoken인 경우에만 유저정보 넣음
             jwtBuilder
-                    .setSubject(memberid)  // 사용자 식별자값(ID)
+                    .setSubject(memberId)  // 사용자 식별자값(ID)
                     .claim(AUTHORIZATION_KEY, role); // jwt사용자의 권한 정보를 넣음, UserRole의 enum정보를 넣음, claim은 key, value로 데이터를 넣는 것
 
         }

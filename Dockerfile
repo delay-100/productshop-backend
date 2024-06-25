@@ -1,6 +1,8 @@
 # 빌드 단계
 FROM openjdk:21-slim AS builder
 # 안되면 amazoncorretto:21-jdk로 바꿔야대나 ㄷㄷ
+# alpine을 사용하면 일반 이미지에 비해 가볍기 떄문에 빌드, 배포 속도가 빨라짐
+# eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
 COPY .. .
