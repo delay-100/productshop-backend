@@ -34,7 +34,7 @@ public class Member extends Timestamped {
     private String phone;
 
     @Column(nullable = false)
-    @Enumerated(value = EnumType.STRING)
+    @Enumerated(EnumType.STRING)
     private MemberRoleEnum role;
 
     public static Member from(MemberRequestDto member) {

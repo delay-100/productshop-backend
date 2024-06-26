@@ -18,7 +18,6 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
-    private final ProductOptionRepository productOptionRepository;
 
     public Page<ProductResponseDto> getAllProductList(int page, int size, String productTitle) {
         Pageable pageable = PageRequest.of(page, size);

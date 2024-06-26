@@ -1,8 +1,5 @@
 package com.whitedelay.productshop.product.entity;
 
-import lombok.Getter;
-
-@Getter
 public enum ProductCategoryEnum {
     CLOTHING(Category.CLOTHING),
     ELECTRONICS(Category.ELECTRONICS),
