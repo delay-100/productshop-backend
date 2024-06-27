@@ -1,6 +1,7 @@
 package com.whitedelay.productshop.member.repository;
 
 import com.whitedelay.productshop.member.entity.Member;
+import com.whitedelay.productshop.product.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;
@@ -13,4 +14,5 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
     boolean existsByMemberId(String userid);
 
     Optional<Member> findByMemberId(String id);
+
 }
