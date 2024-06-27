@@ -27,6 +27,9 @@ public class SignupRequestDto {
     @NotBlank(message = "주소를 입력해주세요.")
     private String address;
 
+    @NotBlank(message = "우편번호를 입력해주세요.")
+    private String zipCode;
+
     @NotBlank(message = "휴대폰 번호를 입력해주세요.")
     private String phone;
     // 관리자 권한은 아직 필요 없으니 권한은 모두 User로 받을 것임!

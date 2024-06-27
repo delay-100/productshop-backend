@@ -31,6 +31,9 @@ public class Member extends Timestamped {
     private String address;
 
     @Column(nullable = false)
+    private String zipCode;
+
+    @Column(nullable = false)
     private String phone;
 
     @Column(nullable = false)
@@ -42,6 +45,7 @@ public class Member extends Timestamped {
                 .memberId(member.getMemberId())
                 .password(member.getPassword())
                 .address(member.getAddress())
+                .zipCode(member.getZipCode())
                 .email(member.getEmail())
                 .memberName(member.getMemberName())
                 .phone(member.getPhone())

@@ -37,9 +37,10 @@ public class AuthService {
         String email = aes256Encoder.encodeString(signupRequestDto.getEmail());
         String memberName = aes256Encoder.encodeString(signupRequestDto.getMemberName());
         String address = aes256Encoder.encodeString(signupRequestDto.getAddress());
+        String zipCode = aes256Encoder.encodeString(signupRequestDto.getZipCode());
         String phone = aes256Encoder.encodeString(signupRequestDto.getPhone());
 
-        MemberRequestDto memberRequestDto = new MemberRequestDto(memberId, password, email, memberName, address, phone, MemberRoleEnum.USER);
+        MemberRequestDto memberRequestDto = new MemberRequestDto(memberId, password, email, memberName, address, zipCode, phone, MemberRoleEnum.USER);
         memberRepository.save(Member.from(memberRequestDto));
         return true;
     }
@@ -56,6 +57,7 @@ public class AuthService {
                 .email(aes256Encoder.decodeString(member.getEmail()))
                 .memberName(aes256Encoder.decodeString(member.getMemberName()))
                 .address(aes256Encoder.decodeString(member.getAddress()))
+                .zipCode(aes256Encoder.decodeString(member.getZipCode()))
                 .phone(aes256Encoder.decodeString(member.getPhone()))
                 .build();
     }

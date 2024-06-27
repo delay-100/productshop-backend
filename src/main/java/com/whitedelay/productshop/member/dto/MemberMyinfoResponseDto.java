@@ -12,5 +12,6 @@ public class MemberMyinfoResponseDto {
     private String email;
     private String memberName;
     private String address;
+    private String zipCode;
     private String phone;
 }
