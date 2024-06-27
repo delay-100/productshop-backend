@@ -12,7 +12,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -32,12 +31,10 @@ public class WebSecurityConfig {
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthenticationConfiguration authenticationConfiguration;
 
-//    public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration, TokenRepository tokenRepository) {
     public WebSecurityConfig(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, AuthenticationConfiguration authenticationConfiguration) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
         this.authenticationConfiguration = authenticationConfiguration;
-//        this.tokenRepository = tokenRepository;
     }
 
     // authenticationManager는 bean으로 직접 등록할거임
@@ -51,7 +48,6 @@ public class WebSecurityConfig {
     // 인증 필터 객체 생성 후 bean으로 등록
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter() throws Exception {
-//        JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil, tokenRepository);
         JwtAuthenticationFilter filter = new JwtAuthenticationFilter(jwtUtil);
         filter.setAuthenticationManager(authenticationManager(authenticationConfiguration));
         return filter;
@@ -59,20 +55,8 @@ public class WebSecurityConfig {
 
     @Bean
     public JwtAuthorizationFilter jwtAuthorizationFilter() {
-//        return new JwtAuthorizationFilter(jwtUtil, userDetailsService, tokenRepository);
         return new JwtAuthorizationFilter(jwtUtil, userDetailsService);
     }
-
-//    @Bean
-//    public CustomLogoutHandler customLogoutHandler() {
-////        return new CustomLogoutHandler(tokenRepository, jwtUtil);
-//        return new CustomLogoutHandler(jwtUtil);
-//    }
-
-//    @Bean
-//    public CustomLogoutSuccessHandler customLogoutSuccessHandler() {
-//        return new CustomLogoutSuccessHandler();
-//    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -87,10 +71,10 @@ public class WebSecurityConfig {
         http.authorizeHttpRequests((authorizeHttpRequests) ->
                 authorizeHttpRequests
                         .requestMatchers(PathRequest.toStaticResources().atCommonLocations()).permitAll()
+                        .requestMatchers("/refreshtoken/**").permitAll()
                         .requestMatchers("/login/**").permitAll()
                         .requestMatchers("/member/login/**").permitAll()
                         .requestMatchers("/signup/**").permitAll()
-                        .requestMatchers("/refresh/**").permitAll()
                         .requestMatchers("/products/**").permitAll()
                         .anyRequest().authenticated()
         );
@@ -99,14 +83,6 @@ public class WebSecurityConfig {
                 exceptionHandling
                         .authenticationEntryPoint(new FailedAuthenticationEntryPoint()) // 인증 실패 시 처리
         );
-
-//        http.logout((logout) ->
-//                logout
-//                        .logoutUrl("/logout")
-//                        .addLogoutHandler(customLogoutHandler())
-//                        .logoutSuccessHandler(customLogoutSuccessHandler())
-//                        .permitAll()
-//        );
 
         http.addFilterBefore(jwtAuthorizationFilter(), JwtAuthenticationFilter.class);
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

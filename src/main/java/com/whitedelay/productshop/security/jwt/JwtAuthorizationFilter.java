@@ -18,14 +18,12 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Slf4j(topic = "JWT 검증 및 인가")
 public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
-//    private final TokenRepository tokenRepository;
 
     @Value("${ACCESS_TOKEN_NAME}")
     private String access;
@@ -33,23 +31,23 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     @Value("${REFRESH_TOKEN_NAME}")
     private String refresh;
 
-
-//    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, TokenRepository tokenRepository) {
     public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
-//        this.tokenRepository = tokenRepository;
     }
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = jwtUtil.getTokenFromRequest(req);
-        System.out.println("accessTokenasdf = " + accessToken);
+
+        log.info("AccessToken: {}", accessToken);
+
         if (StringUtils.hasText(accessToken)) {
             accessToken = jwtUtil.substringToken(accessToken);
+            log.info("SubStringToken: {}", accessToken);
             if (!jwtUtil.validateToken(accessToken)) {
                 log.error("Token Error");
+                res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid or expired token");
                 return;
             }
             Claims info = jwtUtil.getMemberInfoFromToken(accessToken);
@@ -57,6 +55,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
                 setAuthentication(info.getSubject());
             } catch (Exception e) {
                 log.error(e.getMessage());
+                res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed");
                 return;
             }
         }

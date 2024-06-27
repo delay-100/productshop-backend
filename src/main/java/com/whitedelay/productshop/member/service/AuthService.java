@@ -7,10 +7,12 @@ import com.whitedelay.productshop.member.entity.MemberRoleEnum;
 import com.whitedelay.productshop.member.repository.MemberRepository;
 import com.whitedelay.productshop.security.AES256Encoder;
 import com.whitedelay.productshop.security.jwt.JwtUtil;
-import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.Cookie;
+import org.springframework.beans.factory.annotation.Value;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -20,6 +22,12 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class AuthService {
 
+    @Value("${AUTHORIZATION_HEADER}")
+    public String AUTHORIZATION_HEADER;
+
+    @Value("${REFRESHTOKEN_HEADER}")
+    
+    public String REFRESHTOKEN_HEADER;
     private final RedisTemplate<String, String> redisTemplate;
     private final MailService mailService;
     private final MemberRepository memberRepository;
@@ -74,6 +82,30 @@ public class AuthService {
                 .build();
     }
 
+    public Boolean logout(Member member, HttpServletResponse res) {
+        // redis에서 memberId 찾아서 삭제
+        String refreshToken = redisTemplate.opsForValue().get(member.getMemberId());
+        if (refreshToken != null) {
+            redisTemplate.delete(member.getMemberId());
+        }
+
+        // 응답헤더 Cookie 비우기
+        Cookie accessTokenCookie = new Cookie(AUTHORIZATION_HEADER, null);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setMaxAge(0);
+
+        Cookie refreshTokenCookie = new Cookie(REFRESHTOKEN_HEADER, null);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setMaxAge(0);
+
+        res.addCookie(accessTokenCookie);
+        res.addCookie(refreshTokenCookie);
+
+        return true;
+    }
+
     public MemberMyinfoResponseDto getMemberMyinfo(Member member) {
         return MemberMyinfoResponseDto.builder()
                 .memberId(member.getMemberId())
@@ -101,7 +133,6 @@ public class AuthService {
                 .address(aes256Encoder.decodeString(member.getAddress()))
                 .phone(aes256Encoder.decodeString(member.getPhone()))
                 .build();
-
     }
 
     public boolean updateMemberPassword(Member member, MemberpasswordRequestDto memberpasswordRequestDto) {
@@ -125,4 +156,30 @@ public class AuthService {
         return true;
     }
 
+    public RefreshTokenResponseDto refreshToken(String memberId, String refreshToken, HttpServletResponse res) {
+        Member member = memberRepository.findByMemberId(memberId)
+                .orElseThrow(() -> new UsernameNotFoundException("Not Found " + memberId));
+
+        // RefreshToken 기간 검증
+        refreshToken = jwtUtil.substringToken(refreshToken);
+        if (!jwtUtil.validateToken(refreshToken)) {
+            throw new IllegalArgumentException("만료된 RefreshToken입니다.");
+        }
+
+        // redis의 token과 현재 요청토큰이 같은지 확인
+        String redisToken = redisTemplate.opsForValue().get(member.getMemberId());
+        if (!refreshToken.equals(jwtUtil.substringToken(redisToken))) {
+            redisTemplate.delete(member.getMemberId());
+            throw new IllegalArgumentException("유효하지 않은 RefreshToken입니다.");
+        }
+
+        // AccessToken 재발급
+        String accessToken = jwtUtil.createAccessToken(member.getMemberId(), member.getRole());
+        jwtUtil.addJwtToCookie(accessToken, res);
+
+        return RefreshTokenResponseDto.builder()
+                .accessToken(accessToken)
+                .memberId(member.getMemberId())
+                .build();
+    }
 }
