@@ -1,4 +1,4 @@
-package com.whitedelay.productshop.mail.config;
+package com.whitedelay.productshop.redis.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

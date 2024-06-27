@@ -30,14 +30,8 @@ public class WishlistService {
     private final JwtUtil jwtUtil;
 
     @Transactional
-    public Boolean createWishlistWish(String userToken, long productId) {
+    public Boolean createWishlistWish(Member member, long productId) {
         try {
-            // 토큰 내의 유저 빼오기
-            userToken = jwtUtil.substringToken(userToken);
-            String memberId = jwtUtil.getMemberInfoFromToken(userToken).getSubject();
-            Member member = memberRepository.findByMemberId(memberId)
-                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
             // 상품 조회
             Product product = productRepository.findByProductId(productId)
                     .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
@@ -58,20 +52,14 @@ public class WishlistService {
     }
 
     @Transactional
-    public Boolean deleteWishlistWish(String userToken, long productId) {
+    public Boolean deleteWishlistWish(Member member, long productId) {
         try {
-            // 토큰 내의 유저 빼오기
-            userToken = jwtUtil.substringToken(userToken);
-            String memberId = jwtUtil.getMemberInfoFromToken(userToken).getSubject();
-            Member member = memberRepository.findByMemberId(memberId)
-                    .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
             // 상품 조회
             Product product = productRepository.findByProductId(productId)
                     .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
 
             // wishlist조회 했는데 이미 값이 있는 경우 삭제
-            Optional<Wishlist> wishlist = wishlistRepository.findByMemberMemberIdAndProductProductId(memberId, productId);
+            Optional<Wishlist> wishlist = wishlistRepository.findByMemberMemberIdAndProductProductId(member.getMemberId(), productId);
             if (wishlist.isPresent()) {
                 wishlistRepository.delete(wishlist.get());
             }
@@ -84,14 +72,9 @@ public class WishlistService {
     }
 
     @Transactional(readOnly = true)
-    public Page<WishlistResponseDto> getAllWishlist(String userToken, int page, int size) {
-        userToken = jwtUtil.substringToken(userToken);
-        String memberId = jwtUtil.getMemberInfoFromToken(userToken).getSubject();
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
+    public Page<WishlistResponseDto> getAllWishlist(Member member, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
 
-        return wishlistRepository.findByMemberMemberId(memberId, pageable).map(WishlistResponseDto::from);
+        return wishlistRepository.findByMemberMemberId(member.getMemberId(), pageable).map(WishlistResponseDto::from);
     }
 }

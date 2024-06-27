@@ -34,13 +34,7 @@ public class OrderService {
     private final JwtUtil jwtUtil;
 
     @Transactional(readOnly = true)
-    public OrderProductAllInfoResponseDto getOrderProductAllInfo(String userToken, OrderProductAllInfoRequestDto orderProductAllInfoRequestDto) {
-        // 토큰 내의 유저 추출
-        userToken = jwtUtil.substringToken(userToken);
-        String memberId = jwtUtil.getMemberInfoFromToken(userToken).getSubject();
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
+    public OrderProductAllInfoResponseDto getOrderProductAllInfo(Member member, OrderProductAllInfoRequestDto orderProductAllInfoRequestDto) {
         // 각 주문 항목에 대해 상품 정보 조회
         List<OrderProductResponseDto> orderProducts = orderProductAllInfoRequestDto.getOrderProducts().stream().map(orderProduct -> {
             Product product = productRepository.findByProductId(orderProduct.getProductId())
@@ -88,13 +82,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderProductPayResponseDto postOrderProductPay(String userToken, OrderProductPayRequestDto orderProductPayRequestDto) {
-        // 토큰 내의 유저 추출
-        userToken = jwtUtil.substringToken(userToken);
-        String memberId = jwtUtil.getMemberInfoFromToken(userToken).getSubject();
-        Member member = memberRepository.findByMemberId(memberId)
-                .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
-
+    public OrderProductPayResponseDto postOrderProductPay(Member member, OrderProductPayRequestDto orderProductPayRequestDto) {
         // 주문 엔티티 생성 및 저장
         OrderRequestDto orderRequestDto = OrderRequestDto.builder()
                 .orderDate(LocalDateTime.now()) // 주문 날짜를 현재 시각으로 설정

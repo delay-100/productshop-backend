@@ -2,8 +2,6 @@ package com.whitedelay.productshop.security.jwt;
 
 import com.whitedelay.productshop.member.entity.MemberRoleEnum;
 import com.whitedelay.productshop.security.UserDetails.UserDetailsServiceImpl;
-import com.whitedelay.productshop.security.entity.Token;
-import com.whitedelay.productshop.security.repository.TokenRepository;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,7 +25,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
-    private final TokenRepository tokenRepository;
+//    private final TokenRepository tokenRepository;
 
     @Value("${ACCESS_TOKEN_NAME}")
     private String access;
@@ -36,63 +34,35 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private String refresh;
 
 
-    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, TokenRepository tokenRepository) {
+//    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService, TokenRepository tokenRepository) {
+    public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;
-        this.tokenRepository = tokenRepository;
+//        this.tokenRepository = tokenRepository;
     }
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain filterChain) throws ServletException, IOException {
-        String accessToken = jwtUtil.getTokenFromRequest(req, access);
-        String refreshToken = jwtUtil.getTokenFromRequest(req, refresh);
-
+        String accessToken = jwtUtil.getTokenFromRequest(req);
+        System.out.println("accessTokenasdf = " + accessToken);
         if (StringUtils.hasText(accessToken)) {
             accessToken = jwtUtil.substringToken(accessToken);
-            if (!jwtUtil.validateToken(accessToken) && StringUtils.hasText(refreshToken)) {
-                refreshToken = jwtUtil.substringToken(refreshToken);
-
-                if (jwtUtil.validateToken(refreshToken)) {
-                    String memberIdFromAccessToken = jwtUtil.getMemberInfoFromToken(accessToken).getSubject();
-
-                    Optional<Token> refreshTokenEntity = tokenRepository.findByMemberIdAndTokenTypeAndExpiredFalse(memberIdFromAccessToken, refresh);
-                    if (refreshToken.equals(jwtUtil.substringToken(refreshTokenEntity.get().getToken()))) {
-                        String newAccessToken = jwtUtil.createToken(memberIdFromAccessToken, access, MemberRoleEnum.USER);
-                        jwtUtil.addJwtToCookie(newAccessToken, access, res);
-                        accessToken = jwtUtil.substringToken(newAccessToken);
-
-                    } else {
-                        // 현재 요청을 보낸 사용자랑 refresh token의 주인이 다른 경우
-                        handleExpiredRefreshToken(refreshTokenEntity, res);
-                        return;
-                    }
-                } else { // refresh token의 유효기간이 만료된 경우
-                    String memberIdFromAccessToken = jwtUtil.getMemberInfoFromToken(accessToken).getSubject();
-                    Optional<Token> refreshTokenEntity = tokenRepository.findByMemberIdAndTokenTypeAndExpiredFalse(memberIdFromAccessToken, refresh);
-
-                    handleExpiredRefreshToken(refreshTokenEntity, res);
-                    return;
-                }
+            if (!jwtUtil.validateToken(accessToken)) {
+                log.error("Token Error");
+                return;
             }
-
-            if (jwtUtil.validateToken(accessToken)) {
-                Claims info = jwtUtil.getMemberInfoFromToken(accessToken);
+            Claims info = jwtUtil.getMemberInfoFromToken(accessToken);
+            try {
                 setAuthentication(info.getSubject());
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                return;
             }
         }
 
         filterChain.doFilter(req, res);
     }
-
-        private void handleExpiredRefreshToken(Optional<Token> refreshTokenEntity, HttpServletResponse res) throws IOException {
-            if (refreshTokenEntity.isPresent()) {
-                Token expiredRefreshToken = refreshTokenEntity.get();
-                expiredRefreshToken.setExpired(true);
-                tokenRepository.save(expiredRefreshToken);
-            }
-            res.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            res.getWriter().write("Authentication failed: Refresh token expired");
-        }
 
         private void setAuthentication(String memberId) {
             SecurityContext context = SecurityContextHolder.createEmptyContext();

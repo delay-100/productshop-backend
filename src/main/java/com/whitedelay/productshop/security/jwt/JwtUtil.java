@@ -19,6 +19,8 @@ import java.net.URLEncoder;
 import java.security.Key;
 import java.util.Base64;
 import java.util.Date;
+import java.util.UUID;
+
 // JWT 관련 기능들을 가진 JwtUtil이라는 클래스를 만들어 JWT 관련 기능을 수행시킴
 //<JWT 관련 기능>
 //1. JWT 생성 -> 생성한 토큰을 반환하는 방법 2가지(1.그냥 헤더에 담아 보냄(Response객체의 header에 그냥 token넣어 보내기) 2. Cookie객체에 Response에 담는 방법(cookie.setToken해서 넣고 Response객체에 넣어 보내기))
@@ -34,8 +36,8 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
     @Value("${REFRESHTOKEN_HEADER}")
     public String REFRESHTOKEN_HEADER;
 
-    @Value("${AUTHORIZATION_KEY}")
-    public String AUTHORIZATION_KEY;
+    @Value("${TOKEN_KEY}")
+    public String TOKEN_KEY;
 
     public static final String BEARER_PREFIX = "Bearer ";
 
@@ -44,9 +46,6 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
 
     @Value("${REFRESH_TOKEN_TIME}")
     private long REFRESH_TOKEN_TIME;
-
-    @Value("${ACCESS_TOKEN_NAME}")
-    private String access;
 
     // @Value는 Beansfactory에서 가져옴(위에 import확인)
     @Value("${JWT_SECRET_KEY}") // Base64 Encode 한 SecretKey
@@ -65,31 +64,36 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
 
     // 1. JWT 토큰 생성 -> 생성한 토큰을 반환하는 방법 2가지(1.그냥 헤더에 담아 보냄(Response객체의 header에 그냥 token넣어 보내기) 2. Cookie객체에 Response에 담는 방법(cookie.setToken해서 넣고 Response객체에 넣어 보내기))
     // Access/Refresh 토큰 생성
-    public String createToken(String memberId, String tokenType, MemberRoleEnum role) {
+    public String createAccessToken(String memberId, MemberRoleEnum role) {
         Date date = new Date();
 
-        JwtBuilder jwtBuilder = Jwts.builder()
-                .setExpiration(new Date(date.getTime() + (tokenType.equals(access) ? ACCESS_TOKEN_TIME : REFRESH_TOKEN_TIME))) // 만료 시간
+        return BEARER_PREFIX + Jwts.builder() // jwt사용자의 권한 정보를 넣음, UserRole의 enum정보를 넣음, claim은 key, value로 데이터를 넣는 것
+                .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_TIME)) // 만료 시간
                 .setIssuedAt(date) // 발급일
-                .signWith(key, signatureAlgorithm);// 암호화 알고리즘(시크릿 키, 시크릿 알고리즘)을 넣어주면
+                .signWith(key, signatureAlgorithm)// 암호화 알고리즘(시크릿 키, 시크릿 알고리즘)을 넣어주면
+                .setSubject(memberId)  // 사용자 식별자값(ID)
+                .claim(TOKEN_KEY, role)
+                .compact();
+    }
 
-        if (tokenType.equals(access)) { // accesstoken인 경우에만 유저정보 넣음
-            jwtBuilder
-                    .setSubject(memberId)  // 사용자 식별자값(ID)
-                    .claim(AUTHORIZATION_KEY, role); // jwt사용자의 권한 정보를 넣음, UserRole의 enum정보를 넣음, claim은 key, value로 데이터를 넣는 것
+    public String createRefreshToken() {
+        Date date = new Date();
 
-        }
-
-        return BEARER_PREFIX + jwtBuilder.compact();
+        return BEARER_PREFIX + Jwts.builder() // jwt사용자의 권한 정보를 넣음, UserRole의 enum정보를 넣음, claim은 key, value로 데이터를 넣는 것
+                .setExpiration(new Date(date.getTime() + REFRESH_TOKEN_TIME)) // 만료 시간
+                .setIssuedAt(date) // 발급일
+                .signWith(key, signatureAlgorithm)// 암호화 알고리즘(시크릿 키, 시크릿 알고리즘)을 넣어주면
+                .claim("UUID",  UUID.randomUUID().toString())
+                .compact();
     }
 
     // 3. 생성된 JWT를 Cookie에 저장
     // JWT Cookie 에 저장
-    public void addJwtToCookie(String token, String tokenType, HttpServletResponse res) {
+    public void addJwtToCookie(String token, HttpServletResponse res) {
         try {
-            token = URLEncoder.encode(token, "utf-8").replaceAll("\\+", "%20"); // Cookie Value 에는 공백이 불가능해서 encoding 진행
+            token = URLEncoder.encode(token, "UTF-8").replaceAll("\\+", "%20"); // Cookie Value 에는 공백이 불가능해서 encoding 진행
 
-            Cookie cookie = new Cookie((tokenType.equals(access) ? AUTHORIZATION_HEADER : REFRESHTOKEN_HEADER), token); // Name-Value(encoding한 토큰 값을 넣음)
+            Cookie cookie = new Cookie(AUTHORIZATION_HEADER, token); // Name-Value(encoding한 토큰 값을 넣음)
             cookie.setPath("/");
             cookie.setHttpOnly(true); // HttpOnly 속성 설정
 
@@ -102,12 +106,16 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
     //4. Cookie에 들어있던 JWT 토큰을 Substring(BEARER 떼기
     // JWT 토큰 substring
     public String substringToken(String tokenValue) {
-        // 순수한 토큰 값을 추출
-        if (StringUtils.hasText(tokenValue) && tokenValue.startsWith(BEARER_PREFIX)) { // 1. 공백과 NULL 검증(아니어야하니까), 2. token이 'BEARER '로 시작하는지 확인
-            return tokenValue.substring(7); // 'BEARER '이 7자임
+        if (StringUtils.hasText(tokenValue)) {
+            if (tokenValue.startsWith(BEARER_PREFIX)) {
+                return tokenValue.substring(BEARER_PREFIX.length());
+            } else {
+                logger.error("Token does not start with 'Bearer ' prefix: {}", tokenValue);
+                throw new IllegalArgumentException("Invalid token format");
+            }
         }
-        logger.error("Not Found Token");
-        throw new NullPointerException("Not Found Token");
+        logger.error("Token is null or empty: {}", tokenValue);
+        throw new IllegalArgumentException("Token is null or empty");
     }
     //5. JWT 검증
     // 토큰 검증
@@ -130,12 +138,6 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
     // 검증해서 문제가 없음이 확인됨
     //6. JWT에서 사용자 정보 가져오기
     // 토큰에서 사용자 정보 가져오기
-//    public Claims getMemberInfoFromToken(String token) { // jwt가 Claim기반임
-//        // 데이터를 가져오려면 secretKey값이 필요(setSigningKey)
-//        // 분석을 할 토큰을 넣어줘야 함(parseClaimsJws)
-//        // Body안에 들어있는 Claims를 가져올 수 있음(Claims 안에 있는 사용자 정보를 가져올 수 있음)
-//        return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
-//    }
     public Claims getMemberInfoFromToken(String token) {
         try {
             return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
@@ -150,11 +152,11 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
 
     // @CookieValue를 사용할 수 없는 경우에
     // HttpServletRequest 에서 Cookie Value : JWT 가져오기
-    public String getTokenFromRequest(HttpServletRequest req, String tokenType) {
+    public String getTokenFromRequest(HttpServletRequest req) {
         Cookie[] cookies = req.getCookies();
         if(cookies != null) {
             for (Cookie cookie : cookies) {
-                if (cookie.getName().equals((tokenType.equals(access) ? AUTHORIZATION_HEADER : REFRESHTOKEN_HEADER))) {
+                if (cookie.getName().equals(AUTHORIZATION_HEADER)) {
                     try {
                         return URLDecoder.decode(cookie.getValue(), "UTF-8"); // Encode 되어 넘어간 Value 다시 Decode
                     } catch (UnsupportedEncodingException e) {
