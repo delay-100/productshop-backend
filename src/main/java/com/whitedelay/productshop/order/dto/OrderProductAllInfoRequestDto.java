@@ -6,6 +6,6 @@ import java.util.List;
 
 @Getter
 public class OrderProductAllInfoRequestDto {
-    private List<OrderProductRequestDto> orderProducts;
+    private List<OrderProductInfoRequestDto> orderProducts;
 
 }

@@ -1,5 +1,6 @@
 package com.whitedelay.productshop.order.entity;
 
+import com.whitedelay.productshop.order.dto.OrderProductRequestDto;
 import com.whitedelay.productshop.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.*;
@@ -19,7 +20,13 @@ public class OrderProduct extends Timestamped {
     @Column(nullable = false)
     private int orderProductQuantity;
 
-    private int orderProductOption;
+    @Column(nullable = false)
+    private int orderProductPrice;
+
+    private long orderProductOptionId; // 현재 productOption에 붙어있는 Option에 대한 값
+
+    private int orderProductOptionPrice;// 현재 productOption에 붙어있는 Option에 가격 대한 값
+
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
@@ -28,4 +35,17 @@ public class OrderProduct extends Timestamped {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
     private Product product;
+
+    public static OrderProduct from(OrderProductRequestDto orderProduct) {
+        return OrderProduct.builder()
+                .order(orderProduct.getOrder())
+                .product(orderProduct.getProduct())
+                .orderProductQuantity(orderProduct.getOrderProductQuantity())
+                .orderProductPrice(orderProduct.getOrderProductPrice())
+                .orderProductOptionId(orderProduct.getOrderProductOptionId())
+                .orderProductOptionPrice(orderProduct.getOrderProductOptionPrice())
+                .build();
+    }
+
+
 }

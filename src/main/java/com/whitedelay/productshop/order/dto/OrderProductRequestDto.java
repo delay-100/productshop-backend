@@ -1,5 +1,11 @@
 package com.whitedelay.productshop.order.dto;
 
+import com.whitedelay.productshop.order.entity.Order;
+import com.whitedelay.productshop.product.entity.Product;
+import jakarta.persistence.Column;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +14,17 @@ import lombok.Setter;
 @Setter
 @Builder
 public class OrderProductRequestDto {
-    private Long productId;
-    private int quantity;
-    private Long productOptionId; // nullable, 옵션이 없을 수도 있음
+//    private int quantity;
+//    private Long productOptionId; // nullable, 옵션이 없을 수도 있음
+//
+//    private int productPrice;
+//    private int optionPrice; // nullable, 없을수도 있음
+
+
+    private int orderProductQuantity;
+    private int orderProductPrice;
+    private long orderProductOptionId;
+    private int orderProductOptionPrice;
+    private Order order;
+    private Product product;
 }

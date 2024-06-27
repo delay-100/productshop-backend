@@ -11,17 +11,20 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderProductAllInfoResponseDto {
+public class OrderProductPayRequestDto {
+
     // 주문할 상품
     private List<OrderProductResponseDto> orderProducts;
 
-    // 기본으로 사용할 주소 정보 - user에서 빼오기
+    // 실제로 배송할 주소 정보
     private String orderMemberName;
     private String orderZipCode;
     private String orderAddress;
     private String orderPhone;
+    private String orderReq; // 배송 요청사항
 
-    // 결제 금액
+    // 결제
+    private String orderCardCompany;
     private int totalOrderPrice;
     private int orderShippingFee;
     private int orderPrice; // 총금액

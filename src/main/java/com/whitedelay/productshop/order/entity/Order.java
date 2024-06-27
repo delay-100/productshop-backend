@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 @Table(name = "`order`")
 public class Order extends Timestamped {
 
+    // Order시 처음에 백엔드에서 넣어줘야 하는 값
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long orderId;
@@ -24,8 +25,12 @@ public class Order extends Timestamped {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private OrderStatausEnum orderStatus;
+    private OrderStatusEnum orderStatus;
 
+    @Column(nullable = false)
+    private boolean orderPayYN;
+
+    // 백 -> 프 -> 백
     @Column(nullable = false)
     private int orderShippingFee;
 
@@ -36,15 +41,12 @@ public class Order extends Timestamped {
     @Column(nullable = false)
     private OrderCardCompanyEnum orderCardCompany;
 
-    @Column(nullable = false)
-    private boolean orderPayYN;
-
     // 결제 완료 시 사용할 주소 정보
     @Column(nullable = false)
     private String orderMemberName;
 
     @Column(nullable = false)
-    private int orderZipCode;
+    private String orderZipCode;
 
     @Column(nullable = false)
     private String orderAddress;
@@ -55,6 +57,7 @@ public class Order extends Timestamped {
     @Column(nullable = false)
     private String orderReq;
 
+    // 결제한 아이디
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="member_id", nullable = false)
     private Member member;
@@ -74,5 +77,13 @@ public class Order extends Timestamped {
                 .orderReq(order.getOrderReq())
                 .member(order.getMember())
                 .build();
+    }
+
+    public void setOrderStatus(OrderStatusEnum orderStatusEnum) {
+        this.orderStatus = orderStatusEnum;
+    }
+
+    public void setOrderPayYN(boolean orderPayYN) {
+        this.orderPayYN = orderPayYN;
     }
 }

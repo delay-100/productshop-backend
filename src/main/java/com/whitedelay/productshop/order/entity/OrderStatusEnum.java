@@ -1,18 +1,19 @@
 package com.whitedelay.productshop.order.entity;
 
-public enum OrderStatausEnum {
-    PAYMENT_COMPLETED(OrderStatausEnum.Status.PAYMENT_COMPLETED),
-    PAYMENT_FAILED(OrderStatausEnum.Status.PAYMENT_FAILED),
-    PREPARING_SHIPMENT(OrderStatausEnum.Status.PREPARING_SHIPMENT),
-    SHIPPING(OrderStatausEnum.Status.SHIPPING),
-    DELIVERY_COMPLETED(OrderStatausEnum.Status.DELIVERY_COMPLETED),
-    ORDER_CANCELLED(OrderStatausEnum.Status.ORDER_CANCELLED),
-    RETURN_REQUESTED(OrderStatausEnum.Status.RETURN_REQUESTED),
-    RETURN_COMPLETED(OrderStatausEnum.Status.RETURN_COMPLETED);
+public enum OrderStatusEnum {
+    PAYING(OrderStatusEnum.Status.PAYING),
+    PAYMENT_COMPLETED(OrderStatusEnum.Status.PAYMENT_COMPLETED),
+    PAYMENT_FAILED(OrderStatusEnum.Status.PAYMENT_FAILED),
+    PREPARING_SHIPMENT(OrderStatusEnum.Status.PREPARING_SHIPMENT),
+    SHIPPING(OrderStatusEnum.Status.SHIPPING),
+    DELIVERY_COMPLETED(OrderStatusEnum.Status.DELIVERY_COMPLETED),
+    ORDER_CANCELLED(OrderStatusEnum.Status.ORDER_CANCELLED),
+    RETURN_REQUESTED(OrderStatusEnum.Status.RETURN_REQUESTED),
+    RETURN_COMPLETED(OrderStatusEnum.Status.RETURN_COMPLETED);
 
     private final String status;
 
-    OrderStatausEnum(String status) {
+    OrderStatusEnum(String status) {
         this.status = status;
     }
 
@@ -21,6 +22,7 @@ public enum OrderStatausEnum {
     }
 
     public static class Status {
+        public static final String PAYING = "결제중";
         public static final String PAYMENT_COMPLETED = "결제완료";
         public static final String PAYMENT_FAILED = "결제실패";
         public static final String PREPARING_SHIPMENT = "배송준비중";
