@@ -91,8 +91,12 @@ jobs:
       - name: Display .env file for debugging
         run: cat .env
 
+      - name: Download wait-for-it script
+        run: curl -o wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
+
       - name: Set up Docker Compose
         run: |
-          docker-compose -f docker-compose.yml up --build -d
-          docker-compose -f docker-compose.yml run productshop ./gradlew test
+          chmod +x wait-for-it.sh
+          docker-compose -f docker-compose.yml up -d
+          ./wait-for-it.sh mysql:3306 -- docker-compose -f docker-compose.yml run productshop ./gradlew test
           docker-compose -f docker-compose.yml down
