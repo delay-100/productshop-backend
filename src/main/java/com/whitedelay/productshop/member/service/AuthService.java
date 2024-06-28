@@ -88,20 +88,7 @@ public class AuthService {
         if (refreshToken != null) {
             redisTemplate.delete(member.getMemberId());
         }
-
-        // 응답헤더 Cookie 비우기
-        Cookie accessTokenCookie = new Cookie(AUTHORIZATION_HEADER, null);
-        accessTokenCookie.setPath("/");
-        accessTokenCookie.setHttpOnly(true);
-        accessTokenCookie.setMaxAge(0);
-
-        Cookie refreshTokenCookie = new Cookie(REFRESHTOKEN_HEADER, null);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setMaxAge(0);
-
-        res.addCookie(accessTokenCookie);
-        res.addCookie(refreshTokenCookie);
+        deleteCookie(res);
 
         return true;
     }
@@ -163,13 +150,14 @@ public class AuthService {
         // RefreshToken 기간 검증
         refreshToken = jwtUtil.substringToken(refreshToken);
         if (!jwtUtil.validateToken(refreshToken)) {
+            deleteCookie(res);
             throw new IllegalArgumentException("만료된 RefreshToken입니다.");
         }
 
         // redis의 token과 현재 요청토큰이 같은지 확인
         String redisToken = redisTemplate.opsForValue().get(member.getMemberId());
         if (!refreshToken.equals(jwtUtil.substringToken(redisToken))) {
-            redisTemplate.delete(member.getMemberId());
+            deleteCookie(res);
             throw new IllegalArgumentException("유효하지 않은 RefreshToken입니다.");
         }
 
@@ -181,5 +169,23 @@ public class AuthService {
                 .accessToken(accessToken)
                 .memberId(member.getMemberId())
                 .build();
+    }
+
+    private void deleteCookie(HttpServletResponse res) {
+
+        // 응답헤더 Cookie 비우기
+        Cookie accessTokenCookie = new Cookie(AUTHORIZATION_HEADER, null);
+        accessTokenCookie.setPath("/");
+        accessTokenCookie.setHttpOnly(true);
+        accessTokenCookie.setMaxAge(0);
+
+        Cookie refreshTokenCookie = new Cookie(REFRESHTOKEN_HEADER, null);
+        refreshTokenCookie.setPath("/");
+        refreshTokenCookie.setHttpOnly(true);
+        refreshTokenCookie.setMaxAge(0);
+
+        res.addCookie(accessTokenCookie);
+        res.addCookie(refreshTokenCookie);
+
     }
 }
