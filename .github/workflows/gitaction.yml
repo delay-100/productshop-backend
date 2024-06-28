@@ -16,11 +16,29 @@ jobs:
         uses: actions/setup-java@v2
         with:
           java-version: '21'
+          distribution: 'temurin'
 
       - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+        run: chmod +x ./gradlew
 
       - name: Build with Gradle
+        env:
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+          AES_ALG: ${{ secrets.AES_ALG }}
+          AES_KEY: ${{ secrets.AES_KEY }}
+          MAIL_HOST: ${{ secrets.MAIL_HOST }}
+          MAIL_PORT: ${{ secrets.MAIL_PORT }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          AUTHORIZATION_HEADER: ${{ secrets.AUTHORIZATION_HEADER }}
+          REFRESHTOKEN_HEADER: ${{ secrets.REFRESHTOKEN_HEADER }}
+          TOKEN_KEY: ${{ secrets.TOKEN_KEY }}
+          ACCESS_TOKEN_TIME: ${{ secrets.ACCESS_TOKEN_TIME }}
+          REFRESH_TOKEN_TIME: ${{ secrets.REFRESH_TOKEN_TIME }}
+          ACCESS_TOKEN_NAME: ${{ secrets.ACCESS_TOKEN_NAME }}
+          REFRESH_TOKEN_NAME: ${{ secrets.REFRESH_TOKEN_NAME }}
         run: ./gradlew build
 
       - name: Set up Docker Buildx
@@ -42,7 +60,31 @@ jobs:
       - name: Logout from Docker Hub
         run: docker logout
 
-      - name: Run tests with Docker Compose
+  test:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Docker Compose
+        env:
+          SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
+          SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
+          AES_ALG: ${{ secrets.AES_ALG }}
+          AES_KEY: ${{ secrets.AES_KEY }}
+          MAIL_HOST: ${{ secrets.MAIL_HOST }}
+          MAIL_PORT: ${{ secrets.MAIL_PORT }}
+          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
+          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
+          AUTHORIZATION_HEADER: ${{ secrets.AUTHORIZATION_HEADER }}
+          REFRESHTOKEN_HEADER: ${{ secrets.REFRESHTOKEN_HEADER }}
+          TOKEN_KEY: ${{ secrets.TOKEN_KEY }}
+          ACCESS_TOKEN_TIME: ${{ secrets.ACCESS_TOKEN_TIME }}
+          REFRESH_TOKEN_TIME: ${{ secrets.REFRESH_TOKEN_TIME }}
+          ACCESS_TOKEN_NAME: ${{ secrets.ACCESS_TOKEN_NAME }}
+          REFRESH_TOKEN_NAME: ${{ secrets.REFRESH_TOKEN_NAME }}
         run: |
           docker-compose -f docker-compose.yml up --build -d
           docker-compose -f docker-compose.yml run productshop ./gradlew test
