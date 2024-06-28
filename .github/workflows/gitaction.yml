@@ -86,6 +86,9 @@ jobs:
           echo ACCESS_TOKEN_NAME=${{ secrets.ACCESS_TOKEN_NAME }} >> .env
           echo REFRESH_TOKEN_NAME=${{ secrets.REFRESH_TOKEN_NAME }} >> .env
 
+      - name: Display .env file for debugging
+        run: cat .env
+
       - name: Set up Docker Compose
         run: |
           docker-compose -f docker-compose.yml up --build -d
