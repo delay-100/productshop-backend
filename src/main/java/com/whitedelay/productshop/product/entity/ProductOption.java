@@ -42,4 +42,7 @@ public class ProductOption {
                 .build();
     }
 
+    public void setProductOptionStock(int stock) {
+        this.productOptionStock = stock;
+    }
 }

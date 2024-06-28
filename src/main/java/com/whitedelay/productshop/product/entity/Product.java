@@ -59,4 +59,8 @@ public class Product extends Timestamped {
                 .productStartDate(product.getProductStartDate())
                 .build();
     }
+
+    public void setProductStock(int stock) {
+        this.productStock = stock;
+    }
 }
