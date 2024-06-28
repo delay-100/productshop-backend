@@ -5,7 +5,7 @@ FROM openjdk:21-slim AS builder
 # eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
-COPY .. .
+COPY . .
 
 # 작업 디렉토리 복사 (RUN 명령어 최소화)
 COPY gradlew.bat .
