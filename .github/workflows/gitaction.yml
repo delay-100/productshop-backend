@@ -22,7 +22,7 @@ jobs:
       - name: gradlew 권한부여
         run: chmod +x ./gradlew
 
-      - name: Gradle 빌드 (테스트 제외)
+      - name: Gradle 빌드
         run: ./gradlew build
 
       - name: Docker Buildx 설정
