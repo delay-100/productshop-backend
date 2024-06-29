@@ -6,7 +6,7 @@ on:
       - ci2
 
 jobs:
-  build:
+  build-and-test:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -21,26 +21,8 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle
-        env:
-          SPRING_DATASOURCE_USERNAME: ${{ secrets.SPRING_DATASOURCE_USERNAME }}
-          SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
-          AES_ALG: ${{ secrets.AES_ALG }}
-          AES_KEY: ${{ secrets.AES_KEY }}
-          MAIL_HOST: ${{ secrets.MAIL_HOST }}
-          MAIL_PORT: ${{ secrets.MAIL_PORT }}
-          MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-          MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD }}
-          JWT_SECRET_KEY: ${{ secrets.JWT_SECRET_KEY }}
-          AUTHORIZATION_HEADER: ${{ secrets.AUTHORIZATION_HEADER }}
-          REFRESHTOKEN_HEADER: ${{ secrets.REFRESHTOKEN_HEADER }}
-          TOKEN_KEY: ${{ secrets.TOKEN_KEY }}
-          ACCESS_TOKEN_TIME: ${{ secrets.ACCESS_TOKEN_TIME }}
-          REFRESH_TOKEN_TIME: ${{ secrets.REFRESH_TOKEN_TIME }}
-          ACCESS_TOKEN_NAME: ${{ secrets.ACCESS_TOKEN_NAME }}
-          REFRESH_TOKEN_NAME: ${{ secrets.REFRESH_TOKEN_NAME }}
-          MYSQL_SERVER: ${{ secrets.MYSQL_SERVER }}
-        run: ./gradlew build
+      - name: Build with Gradle (without tests)
+        run: ./gradlew build -x test
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v2
@@ -51,54 +33,35 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
-        with:
-          context: .
-          push: true
-          tags: ${{ secrets.DOCKER_USERNAME }}/my-spring-boot-app:latest
+      - name: Build Docker image with tests
+        run: |
+          docker build -t my-spring-boot-app:test .
+          
+          # Run tests within the Docker container
+          docker run --rm \
+            -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
+            -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
+            -e AES_ALG=${{ secrets.AES_ALG }} \
+            -e AES_KEY=${{ secrets.AES_KEY }} \
+            -e MAIL_HOST=${{ secrets.MAIL_HOST }} \
+            -e MAIL_PORT=${{ secrets.MAIL_PORT }} \
+            -e MAIL_USERNAME=${{ secrets.MAIL_USERNAME }} \
+            -e MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }} \
+            -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
+            -e AUTHORIZATION_HEADER=${{ secrets.AUTHORIZATION_HEADER }} \
+            -e REFRESHTOKEN_HEADER=${{ secrets.REFRESHTOKEN_HEADER }} \
+            -e TOKEN_KEY=${{ secrets.TOKEN_KEY }} \
+            -e ACCESS_TOKEN_TIME=${{ secrets.ACCESS_TOKEN_TIME }} \
+            -e REFRESH_TOKEN_TIME=${{ secrets.REFRESH_TOKEN_TIME }} \
+            -e ACCESS_TOKEN_NAME=${{ secrets.ACCESS_TOKEN_NAME }} \
+            -e REFRESH_TOKEN_NAME=${{ secrets.REFRESH_TOKEN_NAME }} \
+            -e MYSQL_SERVER=${{ secrets.MYSQL_SERVER }} \
+            my-spring-boot-app:test ./gradlew test
+
+      - name: Push Docker image if tests pass
+        run: |
+          docker tag my-spring-boot-app:test ${{ secrets.DOCKER_USERNAME }}/my-spring-boot-app:test
+          docker push ${{ secrets.DOCKER_USERNAME }}/my-spring-boot-app:test
 
       - name: Logout from Docker Hub
         run: docker logout
-
-  test:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Create .env file
-        run: |
-          echo SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} >> .env
-          echo SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} >> .env
-          echo AES_ALG=${{ secrets.AES_ALG }} >> .env
-          echo AES_KEY=${{ secrets.AES_KEY }} >> .env
-          echo MAIL_HOST=${{ secrets.MAIL_HOST }} >> .env
-          echo MAIL_PORT=${{ secrets.MAIL_PORT }} >> .env
-          echo MAIL_USERNAME=${{ secrets.MAIL_USERNAME }} >> .env
-          echo MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }} >> .env
-          echo JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} >> .env
-          echo AUTHORIZATION_HEADER=${{ secrets.AUTHORIZATION_HEADER }} >> .env
-          echo REFRESHTOKEN_HEADER=${{ secrets.REFRESHTOKEN_HEADER }} >> .env
-          echo TOKEN_KEY=${{ secrets.TOKEN_KEY }} >> .env
-          echo ACCESS_TOKEN_TIME=${{ secrets.ACCESS_TOKEN_TIME }} >> .env
-          echo REFRESH_TOKEN_TIME=${{ secrets.REFRESH_TOKEN_TIME }} >> .env
-          echo ACCESS_TOKEN_NAME=${{ secrets.ACCESS_TOKEN_NAME }} >> .env
-          echo REFRESH_TOKEN_NAME=${{ secrets.REFRESH_TOKEN_NAME }} >> .env
-          echo MYSQL_SERVER=${{ secrets.MYSQL_SERVER }} >> .env
-
-      - name: Display .env file for debugging
-        run: cat .env
-
-      - name: Download wait-for-it script
-        run: curl -o wait-for-it.sh https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
-
-      - name: Set up Docker Compose
-        run: |
-          chmod +x wait-for-it.sh
-          docker-compose -f docker-compose.yml up -d
-          ./wait-for-it.sh mysql:3306 -- docker-compose -f docker-compose.yml run productshop ./gradlew test
-
-      - name: Tear down Docker Compose services
-        run: docker-compose -f docker-compose.yml down
