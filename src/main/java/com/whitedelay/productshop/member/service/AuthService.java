@@ -76,6 +76,7 @@ public class AuthService {
         String refreshToken = jwtUtil.createRefreshToken();
         redisTemplate.opsForValue().set(member.getMemberId(), refreshToken, 25920, TimeUnit.MINUTES);
 
+        System.out.println("accessToken = " + accessToken);
         return LoginResponseDto.builder()
                 .memberId(member.getMemberId())
                 .refreshToken(refreshToken)

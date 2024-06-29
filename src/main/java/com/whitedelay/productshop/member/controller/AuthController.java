@@ -18,7 +18,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class AuthController {
 
-    final private AuthService authService;
+    private final AuthService authService;
 
     // 회원가입
     @PostMapping("/signup")
