@@ -17,6 +17,16 @@ public enum OrderStatusEnum {
         this.status = status;
     }
 
+    // 주문 취소 가능 여부
+    public boolean isCancellable() {
+        return this == PAYMENT_COMPLETED || this == PREPARING_SHIPMENT;
+    }
+
+    // 주문 반품 가능 여부
+    public boolean isReturnable() {
+        return this == DELIVERY_COMPLETED;
+    }
+
     public String getStatus() {
         return status;
     }

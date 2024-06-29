@@ -1,11 +1,13 @@
 package com.whitedelay.productshop.member.service;
 
+import com.whitedelay.productshop.member.dto.OrderCancelResponseDto;
 import com.whitedelay.productshop.member.dto.OrderDetailResponseDto;
 import com.whitedelay.productshop.member.dto.OrderListResponseDto;
 import com.whitedelay.productshop.member.dto.OrderProductDetailResponseDto;
 import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.order.entity.Order;
 import com.whitedelay.productshop.order.entity.OrderProduct;
+import com.whitedelay.productshop.order.entity.OrderStatusEnum;
 import com.whitedelay.productshop.order.repository.OrderProductRepository;
 import com.whitedelay.productshop.order.repository.OrderRepository;
 import com.whitedelay.productshop.product.entity.Product;
@@ -91,6 +93,33 @@ public class MemberService {
                 }).collect(Collectors.toList());
 
         return OrderDetailResponseDto.from(order, orderProductDetailResponseDto);
+    }
+
+
+    @Transactional
+    public OrderCancelResponseDto updateOrderStatusCancel(Member member, long orderId) {
+        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId);
+        if (order == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found for memberId: " + member.getMemberId() + " and orderId: " + orderId);
+        }
+
+        // 취소 가능 상태인지 확인
+        if (!order.getOrderStatus().isCancellable()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot cancel order after it has been shipped.");
+        }
+
+        order.setOrderStatus(OrderStatusEnum.ORDER_CANCELLED);
+
+        List<OrderProduct> orderProducts = orderProductRepository.findByOrderOrderId(orderId);
+        for (OrderProduct orderProduct : orderProducts) {
+            Product product = orderProduct.getProduct();
+            product.setProductStock(product.getProductStock() + orderProduct.getOrderProductQuantity());
+            productRepository.save(product);
+        }
+
+        orderRepository.save(order);
+
+        return OrderCancelResponseDto.from(order);
     }
 }
 

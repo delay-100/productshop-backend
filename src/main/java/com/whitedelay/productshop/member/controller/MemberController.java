@@ -1,5 +1,6 @@
 package com.whitedelay.productshop.member.controller;
 
+import com.whitedelay.productshop.member.dto.OrderCancelResponseDto;
 import com.whitedelay.productshop.member.dto.OrderDetailResponseDto;
 import com.whitedelay.productshop.member.dto.OrderListResponseDto;
 import com.whitedelay.productshop.member.entity.Member;
@@ -10,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -35,6 +37,15 @@ public class MemberController {
         @RequestParam long orderId
     ) {
         return ApiResponse.createSuccess(memberService.getOrderDetail(userDetails.getMember(), orderId));
+    }
+
+    // 상품 취소
+    @PatchMapping("/mypage/order/cancel")
+    public ApiResponse<OrderCancelResponseDto> updateOrderStatusCancel(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestParam long orderId
+    ) {
+        return ApiResponse.createSuccess(memberService.updateOrderStatusCancel(userDetails.getMember(), orderId));
     }
 
 }
