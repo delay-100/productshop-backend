@@ -36,6 +36,9 @@ public class WishlistService {
             Product product = productRepository.findByProductId(productId)
                     .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
 
+            Optional<Wishlist> wishlist = wishlistRepository.findByMemberMemberIdAndProductProductId(member.getMemberId(), productId);
+            if(!wishlist.isEmpty()) return false;
+
             // Wishlist 생성 및 저장
             wishlistRepository.save(Wishlist.from(
                     WishlistRequestDto.builder()

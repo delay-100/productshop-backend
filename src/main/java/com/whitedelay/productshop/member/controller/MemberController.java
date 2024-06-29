@@ -3,17 +3,20 @@ package com.whitedelay.productshop.member.controller;
 import com.whitedelay.productshop.member.dto.OrderCancelResponseDto;
 import com.whitedelay.productshop.member.dto.OrderDetailResponseDto;
 import com.whitedelay.productshop.member.dto.OrderListResponseDto;
+import com.whitedelay.productshop.member.dto.OrderReturnResponseDto;
 import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.member.service.MemberService;
 import com.whitedelay.productshop.security.UserDetails.UserDetailsImpl;
 import com.whitedelay.productshop.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 @RequiredArgsConstructor
@@ -46,6 +49,15 @@ public class MemberController {
             @RequestParam long orderId
     ) {
         return ApiResponse.createSuccess(memberService.updateOrderStatusCancel(userDetails.getMember(), orderId));
+    }
+
+    // 상품 반품
+    @PatchMapping("/mypage/order/return")
+    public ApiResponse<OrderReturnResponseDto> updateOrderStatusReturn(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestParam long orderId
+    ) {
+        return ApiResponse.createSuccess(memberService.updateOrderStatusReturn(userDetails.getMember(), orderId));
     }
 
 }

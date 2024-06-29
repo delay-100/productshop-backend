@@ -1,9 +1,6 @@
 package com.whitedelay.productshop.member.service;
 
-import com.whitedelay.productshop.member.dto.OrderCancelResponseDto;
-import com.whitedelay.productshop.member.dto.OrderDetailResponseDto;
-import com.whitedelay.productshop.member.dto.OrderListResponseDto;
-import com.whitedelay.productshop.member.dto.OrderProductDetailResponseDto;
+import com.whitedelay.productshop.member.dto.*;
 import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.order.entity.Order;
 import com.whitedelay.productshop.order.entity.OrderProduct;
@@ -23,6 +20,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -96,6 +94,13 @@ public class MemberService {
     }
 
 
+    /**
+     * 멤버의 주문 상태를 취소로 업데이트하는 메서드
+     *
+     * @param member 멤버 객체
+     * @param orderId 주문 ID
+     * @return 주문 취소 응답 DTO
+     */
     @Transactional
     public OrderCancelResponseDto updateOrderStatusCancel(Member member, long orderId) {
         Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId);
@@ -120,6 +125,37 @@ public class MemberService {
         orderRepository.save(order);
 
         return OrderCancelResponseDto.from(order);
+    }
+
+
+    /**
+     * 멤버의 주문 상태를 취소로 업데이트하는 메서드
+     *
+     * @param member 멤버 객체
+     * @param orderId 주문 ID
+     * @return 주문 취소 응답 DTO
+     */
+    @Transactional
+    public OrderReturnResponseDto updateOrderStatusReturn(Member member, long orderId) {
+        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId);
+        if (order == null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found for memberId: " + member.getMemberId() + " and orderId: " + orderId);
+        }
+
+        // 반품 가능 상태인지 확인
+        if (!order.getOrderStatus().isReturnable()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only delivered orders can be returned.");
+        }
+
+        // 반품 가능 기간인지 확인 (배송 완료 후 1일 이내)
+        if (order.getUpdatedAt().plusMinutes(1).isBefore(LocalDateTime.now())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Return period has expired.");
+        }
+
+        order.setOrderStatus(OrderStatusEnum.RETURN_REQUESTED);
+        orderRepository.save(order);
+
+        return OrderReturnResponseDto.from(order);
     }
 }
 
