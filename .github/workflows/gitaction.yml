@@ -39,23 +39,9 @@ jobs:
           
           # Docker 컨테이너 내에서 테스트 실행
           docker run --rm \
+            -e SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.MYSQL_SERVER }}:3306/your_database \
             -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
             -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
-            -e AES_ALG=${{ secrets.AES_ALG }} \
-            -e AES_KEY=${{ secrets.AES_KEY }} \
-            -e MAIL_HOST=${{ secrets.MAIL_HOST }} \
-            -e MAIL_PORT=${{ secrets.MAIL_PORT }} \
-            -e MAIL_USERNAME=${{ secrets.MAIL_USERNAME }} \
-            -e MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }} \
-            -e JWT_SECRET_KEY=${{ secrets.JWT_SECRET_KEY }} \
-            -e AUTHORIZATION_HEADER=${{ secrets.AUTHORIZATION_HEADER }} \
-            -e REFRESHTOKEN_HEADER=${{ secrets.REFRESHTOKEN_HEADER }} \
-            -e TOKEN_KEY=${{ secrets.TOKEN_KEY }} \
-            -e ACCESS_TOKEN_TIME=${{ secrets.ACCESS_TOKEN_TIME }} \
-            -e REFRESH_TOKEN_TIME=${{ secrets.REFRESH_TOKEN_TIME }} \
-            -e ACCESS_TOKEN_NAME=${{ secrets.ACCESS_TOKEN_NAME }} \
-            -e REFRESH_TOKEN_NAME=${{ secrets.REFRESH_TOKEN_NAME }} \
-            -e MYSQL_SERVER=${{ secrets.MYSQL_SERVER }} \
             my-spring-boot-app:test ./gradlew test
 
       - name: 테스트 통과 시 Docker 이미지 푸시
