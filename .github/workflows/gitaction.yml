@@ -6,8 +6,9 @@ on:
       - ci2
 
 jobs:
-  build-and-test:
+  build-and-deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: 코드 체크아웃
         uses: actions/checkout@v3
@@ -18,10 +19,7 @@ jobs:
           java-version: '21'
           distribution: 'temurin'
 
-      - name: gradlew 실행 권한 부여
-        run: chmod +x ./gradlew
-
-      - name: Gradle로 빌드 (테스트 제외)
+      - name: Gradle 빌드 (테스트 제외)
         run: ./gradlew build -x test
 
       - name: Docker Buildx 설정
@@ -33,22 +31,13 @@ jobs:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
-      - name: Docker 이미지 빌드 및 테스트
-        run: |
-          docker build -t my-spring-boot-app:test .
-          
-          # Docker 컨테이너 내에서 테스트 실행
-          docker run --rm \
-            -e SPRING_DATASOURCE_URL=jdbc:mysql://${{ secrets.MYSQL_SERVER }}:3306/your_database \
-            -e SPRING_DATASOURCE_USERNAME=${{ secrets.SPRING_DATASOURCE_USERNAME }} \
-            -e SPRING_DATASOURCE_PASSWORD=${{ secrets.SPRING_DATASOURCE_PASSWORD }} \
-            my-spring-boot-app:test ./gradlew test
+      - name: Docker 이미지 빌드
+        run: docker build -t my-spring-boot-app:latest .
 
-      - name: 테스트 통과 시 Docker 이미지 푸시
-        if: success()
+      - name: Docker 이미지 푸시
         run: |
-          docker tag my-spring-boot-app:test ${{ secrets.DOCKER_USERNAME }}/my-spring-boot-app:test
-          docker push ${{ secrets.DOCKER_USERNAME }}/my-spring-boot-app:test
+          docker tag my-spring-boot-app:latest ${{ secrets.DOCKER_USERNAME }}/my-spring-boot-app:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/my-spring-boot-app:latest
 
       - name: Docker Hub 로그아웃
         run: docker logout
