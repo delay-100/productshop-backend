@@ -2,7 +2,6 @@ package com.whitedelay.productshop.wishlist.service;
 
 import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.member.repository.MemberRepository;
-import com.whitedelay.productshop.product.dto.ProductResponseDto;
 import com.whitedelay.productshop.product.entity.Product;
 import com.whitedelay.productshop.product.repository.ProductRepository;
 import com.whitedelay.productshop.security.jwt.JwtUtil;
@@ -25,9 +24,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class WishlistService {
     private final WishlistRepository wishlistRepository;
-    private final MemberRepository memberRepository;
     private final ProductRepository productRepository;
-    private final JwtUtil jwtUtil;
 
     @Transactional
     public Boolean createWishlistWish(Member member, long productId) {
@@ -36,18 +33,22 @@ public class WishlistService {
             Product product = productRepository.findByProductId(productId)
                     .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
 
-            Optional<Wishlist> wishlist = wishlistRepository.findByMemberMemberIdAndProductProductId(member.getMemberId(), productId);
-            if(!wishlist.isEmpty()) return false;
+            // 위시리스트에 상품이 이미 존재하는지 확인
+            boolean exists = wishlistRepository.existsByMemberMemberIdAndProductProductId(member.getMemberId(), productId);
+            if (exists) {
+                throw new IllegalArgumentException("이미 등록되어있는 상품입니다.");
+            }
 
             // Wishlist 생성 및 저장
-            wishlistRepository.save(Wishlist.from(
-                    WishlistRequestDto.builder()
-                            .member(member)
-                            .product(product)
-                            .build()));
+            Wishlist wishlist = Wishlist.from(WishlistRequestDto.builder()
+                    .member(member)
+                    .product(product)
+                    .build());
+            wishlistRepository.save(wishlist);
 
             // product의 wishlistCount 증가
             product.setProductWishlistCount(product.getProductWishlistCount() + 1);
+            productRepository.save(product); // product 객체를 업데이트
 
             return true;
 
@@ -56,6 +57,7 @@ public class WishlistService {
             throw e;
         }
     }
+
 
     @Transactional
     public Boolean deleteWishlistWish(Member member, long productId) {
