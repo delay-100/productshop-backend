@@ -31,7 +31,7 @@ services:
       - .env
     environment:
       TZ: "Asia/Seoul"
-      SPRING_DATASOURCE_URL: jdbc:mysql://${MYSQL_SERVER}:3306/productshop
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/productshop
       SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
       SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       SPRING_REDIS_HOST: redis
