@@ -25,7 +25,9 @@ public class LoadDatabase {
         return args -> {
             LocalDateTime startDate1 = LocalDateTime.of(2024, 6, 26, 9, 0);
             LocalDateTime startDate2 = LocalDateTime.of(2024, 6, 26, 10, 0);
+            LocalDateTime startDate3 = LocalDateTime.of(2024, 6, 27, 11, 0); // 새로운 시작 날짜 추가
 
+            // 옵션이 있는 상품
             Product product1 = Product.builder()
                     .productTitle("반팔")
                     .productContent("여름용 반팔 티셔츠")
@@ -34,7 +36,7 @@ public class LoadDatabase {
                     .productPrice(41100)
                     .productCategory(ProductCategoryEnum.CLOTHING)
                     .productStartDate(startDate1)
-                    .productStock(20) // 추가된 부분
+                    .productStock(20)
                     .build();
 
             Product product2 = Product.builder()
@@ -45,10 +47,22 @@ public class LoadDatabase {
                     .productPrice(22900)
                     .productCategory(ProductCategoryEnum.ELECTRONICS)
                     .productStartDate(startDate2)
-                    .productStock(15) // 추가된 부분
+                    .productStock(20)
                     .build();
 
-            productRepository.saveAll(Arrays.asList(product1, product2));
+            // 옵션이 없는 상품
+            Product product3 = Product.builder()
+                    .productTitle("노트북")
+                    .productContent("갤럭시북3")
+                    .productStatus(ProductStatusEnum.AVAILABLE) // Enum 값으로 변경
+                    .productWishlistCount(0)
+                    .productPrice(1500000)
+                    .productCategory(ProductCategoryEnum.ELECTRONICS)
+                    .productStartDate(startDate3)
+                    .productStock(10)
+                    .build();
+
+            productRepository.saveAll(Arrays.asList(product1, product2, product3));
 
             ProductOption option1 = ProductOption.builder()
                     .product(product1)

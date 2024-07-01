@@ -63,4 +63,8 @@ public class Product extends Timestamped {
     public void setProductStock(int stock) {
         this.productStock = stock;
     }
+
+    public void setProductWishlistCount(int wishlistCount) {
+        this.productWishlistCount = wishlistCount;
+    }
 }

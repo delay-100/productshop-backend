@@ -46,6 +46,9 @@ public class WishlistService {
                             .product(product)
                             .build()));
 
+            // product의 wishlistCount 증가
+            product.setProductWishlistCount(product.getProductWishlistCount() + 1);
+
             return true;
 
         } catch (Exception e) {
