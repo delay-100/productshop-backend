@@ -2,7 +2,6 @@ package com.whitedelay.productshop.order.service;
 
 import com.whitedelay.productshop.member.dto.*;
 import com.whitedelay.productshop.member.entity.Member;
-import com.whitedelay.productshop.member.repository.MemberRepository;
 import com.whitedelay.productshop.order.dto.*;
 import com.whitedelay.productshop.order.entity.Order;
 import com.whitedelay.productshop.order.entity.OrderCardCompanyEnum;
@@ -15,7 +14,6 @@ import com.whitedelay.productshop.product.entity.ProductOption;
 import com.whitedelay.productshop.product.repository.ProductOptionRepository;
 import com.whitedelay.productshop.product.repository.ProductRepository;
 import com.whitedelay.productshop.security.AES256Encoder;
-import com.whitedelay.productshop.security.jwt.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -49,7 +47,7 @@ public class OrderService {
             ProductOption productOption = null;
 
             int productPrice = product.getProductPrice();
-            int totalPrice = productPrice * orderProduct.getQuantity();
+            int productTotalPrice = productPrice * orderProduct.getQuantity();
 
             if (orderProduct.getProductOptionId() != null) {
                 productOption = product.getProductOptions().stream()
@@ -64,24 +62,24 @@ public class OrderService {
                     .productTitle(product.getProductTitle())
                     .quantity(orderProduct.getQuantity())
                     .productOptionId(productOption != null ? productOption.getProductOptionId() : null)
-                    .productOptionName(productOption != null ? productOption.getProductOptionName() : null)
+                    .productOptionTitle(productOption != null ? productOption.getProductOptionTitle() : null)
                     .productPrice(productPrice)
-                    .totalPrice(totalPrice)
+                    .productTotalPrice(productTotalPrice)
                     .build();
         }).collect(Collectors.toList());
 
         // 총 결제 금액 계산
-        int totalOrderPrice = orderProducts.stream().mapToInt(OrderProductResponseDto::getTotalPrice).sum();
-        int orderShippingFee = totalOrderPrice >= 30000 ? 0 : 3000;
-        int orderPrice = totalOrderPrice + orderShippingFee;
+        int productTotalPrice = orderProducts.stream().mapToInt(OrderProductResponseDto::getProductTotalPrice).sum();
+        int orderShippingFee = productTotalPrice >= 30000 ? 0 : 3000;
+        int orderPrice = productTotalPrice + orderShippingFee;
 
         return OrderProductAllInfoResponseDto.builder()
                 .orderMemberName(aes256Encoder.decodeString(member.getMemberName())) // 회원 이름
-                .orderZipCode(aes256Encoder.decodeString(member.getZipCode())) // 회원 우편번호
+                .orderZipCode(member.getZipCode()) // 회원 우편번호
                 .orderAddress(aes256Encoder.decodeString(member.getAddress())) // 회원 주소
                 .orderPhone(aes256Encoder.decodeString(member.getPhone())) // 회원 전화번호
                 .orderProducts(orderProducts)
-                .totalOrderPrice(totalOrderPrice)
+                .productTotalPrice(productTotalPrice)
                 .orderShippingFee(orderShippingFee)
                 .orderPrice(orderPrice)
                 .build();
@@ -97,11 +95,11 @@ public class OrderService {
                 .orderShippingFee(requestDto.getOrderShippingFee()) // 배송비 설정
                 .orderPrice(requestDto.getOrderPrice()) // 주문 총 가격 설정
                 .orderCardCompany(OrderCardCompanyEnum.valueOf(requestDto.getOrderCardCompany().toUpperCase())) // 카드 회사 설정
-                .orderMemberName(requestDto.getOrderMemberName()) // 주문자 이름 설정
+                .orderMemberName(aes256Encoder.encodeString(requestDto.getOrderMemberName())) // 주문자 이름 설정
                 .orderZipCode(requestDto.getOrderZipCode()) // 주문자 우편번호 설정
-                .orderAddress(requestDto.getOrderAddress()) // 주문자 주소 설정
-                .orderPhone(requestDto.getOrderPhone()) // 주문자 전화번호 설정
-                .orderReq(requestDto.getOrderReq()) // 배송 요청사항 설정
+                .orderAddress(aes256Encoder.encodeString(requestDto.getOrderAddress())) // 주문자 주소 설정
+                .orderPhone(aes256Encoder.encodeString(requestDto.getOrderPhone())) // 주문자 전화번호 설정
+                .orderReq(aes256Encoder.encodeString(requestDto.getOrderReq())) // 배송 요청사항 설정
                 .member(member) // 주문자 정보를 member 객체로 설정
                 .build();
 
@@ -170,16 +168,10 @@ public class OrderService {
             orderRepository.save(order); // 업데이트된 주문 정보를 데이터베이스에 저장
 
             return OrderProductPayResponseDto.builder()
-                    .orderMemberName(requestDto.getOrderMemberName()) // 응답 DTO에 주문자 이름 설정
-                    .orderZipCode(requestDto.getOrderZipCode()) // 응답 DTO에 주문자 우편번호 설정
-                    .orderAddress(requestDto.getOrderAddress()) // 응답 DTO에 주문자 주소 설정
-                    .orderPhone(requestDto.getOrderPhone()) // 응답 DTO에 주문자 전화번호 설정
-                    .orderReq(requestDto.getOrderReq()) // 응답 DTO에 배송 요청사항 설정
-                    .orderCardCompany(requestDto.getOrderCardCompany()) // 응답 DTO에 카드 회사 설정
-                    .totalOrderPrice(requestDto.getTotalOrderPrice()) // 응답 DTO에 총 주문 가격 설정
-                    .orderShippingFee(requestDto.getOrderShippingFee()) // 응답 DTO에 배송비 설정
-                    .orderPrice(requestDto.getOrderPrice()) // 응답 DTO에 최종 주문 가격 설정
-                    .paymentStatus(OrderStatusEnum.Status.PAYMENT_COMPLETED) // 결제 성공 상태 설정
+                    .totalOrderPrice(requestDto.getTotalOrderPrice())
+                    .orderShippingFee(requestDto.getOrderShippingFee())
+                    .orderPrice(requestDto.getOrderPrice())
+                    .paymentStatus(OrderStatusEnum.Status.PAYMENT_COMPLETED)
                     .build();
 
         } catch (Exception e) {
@@ -205,15 +197,9 @@ public class OrderService {
             orderRepository.save(order); // 업데이트된 주문 정보를 데이터베이스에 저장
 
             return OrderProductPayResponseDto.builder()
-                    .orderMemberName(requestDto.getOrderMemberName()) // 응답 DTO에 주문자 이름 설정
-                    .orderZipCode(requestDto.getOrderZipCode()) // 응답 DTO에 주문자 우편번호 설정
-                    .orderAddress(requestDto.getOrderAddress()) // 응답 DTO에 주문자 주소 설정
-                    .orderPhone(requestDto.getOrderPhone()) // 응답 DTO에 주문자 전화번호 설정
-                    .orderReq(requestDto.getOrderReq()) // 응답 DTO에 배송 요청사항 설정
-                    .orderCardCompany(requestDto.getOrderCardCompany()) // 응답 DTO에 카드 회사 설정
-                    .totalOrderPrice(requestDto.getTotalOrderPrice()) // 응답 DTO에 총 주문 가격 설정
-                    .orderShippingFee(requestDto.getOrderShippingFee()) // 응답 DTO에 배송비 설정
-                    .orderPrice(requestDto.getOrderPrice()) // 응답 DTO에 최종 주문 가격 설정
+                    .totalOrderPrice(requestDto.getTotalOrderPrice())
+                    .orderShippingFee(requestDto.getOrderShippingFee())
+                    .orderPrice(requestDto.getOrderPrice())
                     .paymentStatus(OrderStatusEnum.Status.PAYMENT_FAILED) // 결제 실패 상태 설정
                     .build();
         }
@@ -224,8 +210,8 @@ public class OrderService {
      * 멤버의 주문 목록을 페이지네이션하여 조회하는 메서드
      *
      * @param member 멤버 객체
-     * @param page     페이지 번호 (0부터 시작)
-     * @param size     페이지 당 주문 수
+     * @param page 페이지 번호 (0부터 시작)
+     * @param size 페이지 당 주문 수
      * @return 주문 목록 페이지
      */
     @Transactional(readOnly = true)
@@ -257,28 +243,23 @@ public class OrderService {
      */
     @Transactional(readOnly = true)
     public OrderDetailResponseDto getOrderDetail(Member member, Long orderId) {
-        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId);
-        if (order == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found for memberId: " + member.getMemberId() + " and orderId: " + orderId);
-        }
-
-        List<OrderProduct> orderProducts = orderProductRepository.findByOrderOrderId(orderId);
-        if (orderProducts.isEmpty()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "No OrderProducts found for orderId: " + orderId);
-        }
+        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId).orElseThrow(() -> new IllegalArgumentException("해당 주문이 없습니다."));
+        
+        List<OrderProduct> orderProducts = Optional.ofNullable(orderProductRepository.findByOrderOrderId(orderId))
+                .filter(products -> !products.isEmpty())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "잘못된 주문이 존재:" + orderId));
 
         List<OrderProductDetailResponseDto> orderProductDetailResponseDto = orderProducts.stream()
                 .map(orderProduct -> {
                     Product product = productRepository.findByProductId(orderProduct.getProduct().getProductId()).orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
 
                     Optional<ProductOption> productOption = productOptionRepository.findByProductOptionId(orderProduct.getOrderProductOptionId());
-                    String productOptionName = productOption.map(ProductOption::getProductOptionName).orElse("Unknown Option");
-                    return OrderProductDetailResponseDto.from(orderProduct, product.getProductTitle(), productOptionName);
+                    String productOptionTitle = productOption.map(ProductOption::getProductOptionTitle).orElse("Unknown Option");
+                    return OrderProductDetailResponseDto.from(orderProduct, product.getProductTitle(), productOptionTitle);
                 }).collect(Collectors.toList());
 
-        return OrderDetailResponseDto.from(order, orderProductDetailResponseDto);
+        return OrderDetailResponseDto.from(order, orderProductDetailResponseDto, aes256Encoder);
     }
-
 
     /**
      * 멤버의 주문 상태를 취소로 업데이트하는 메서드
@@ -289,14 +270,11 @@ public class OrderService {
      */
     @Transactional
     public OrderCancelResponseDto updateOrderStatusCancel(Member member, Long orderId) {
-        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId);
-        if (order == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found for memberId: " + member.getMemberId() + " and orderId: " + orderId);
-        }
+        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId).orElseThrow(() -> new IllegalArgumentException("해당 주문이 없습니다."));
 
         // 취소 가능 상태인지 확인
         if (!order.getOrderStatus().isCancellable()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Cannot cancel order after it has been shipped.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "취소 가능 상태가 아닙니다.");
         }
 
         order.setOrderStatus(OrderStatusEnum.ORDER_CANCELLED);
@@ -315,27 +293,24 @@ public class OrderService {
 
 
     /**
-     * 멤버의 주문 상태를 취소로 업데이트하는 메서드
+     * 멤버의 주문 상태를 반품으로 업데이트하는 메서드
      *
      * @param member 멤버 객체
      * @param orderId 주문 ID
-     * @return 주문 취소 응답 DTO
+     * @return 주문 반품 응답 DTO
      */
     @Transactional
     public OrderReturnResponseDto updateOrderStatusReturn(Member member, Long orderId) {
-        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId);
-        if (order == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Order not found for memberId: " + member.getMemberId() + " and orderId: " + orderId);
-        }
+        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId).orElseThrow(() -> new IllegalArgumentException("해당 주문이 없습니다."));
 
         // 반품 가능 상태인지 확인
         if (!order.getOrderStatus().isReturnable()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Only delivered orders can be returned.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "반품 가능 상태가 아닙니다.");
         }
 
         // 반품 가능 기간인지 확인 (배송 완료 후 1일 이내)
         if (order.getUpdatedAt().plusMinutes(1).isBefore(LocalDateTime.now())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Return period has expired.");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "반품 가능 기간이 아닙니다. (배송 완료 후 1일 이내)");
         }
 
         order.setOrderStatus(OrderStatusEnum.RETURN_REQUESTED);

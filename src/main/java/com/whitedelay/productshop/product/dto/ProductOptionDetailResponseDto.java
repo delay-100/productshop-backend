@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 @Builder
 public class ProductOptionDetailResponseDto {
     private Long productOptionId;
-    private String productOptionName;
+    private String productOptionTitle;
     private int productOptionStock;
     private int productOptionPrice;
     private LocalDateTime productStartDate;
@@ -18,7 +18,7 @@ public class ProductOptionDetailResponseDto {
     public static ProductOptionDetailResponseDto from(ProductOption productOption) {
         return ProductOptionDetailResponseDto.builder()
                 .productOptionId(productOption.getProductOptionId())
-                .productOptionName(productOption.getProductOptionName())
+                .productOptionTitle(productOption.getProductOptionTitle())
                 .productOptionStock(productOption.getProductOptionStock())
                 .productOptionPrice(productOption.getProductOptionPrice())
                 .productStartDate(productOption.getProductStartDate())

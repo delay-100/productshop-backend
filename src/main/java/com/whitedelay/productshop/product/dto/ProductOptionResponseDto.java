@@ -9,14 +9,14 @@ import lombok.Getter;
 @Getter
 public class ProductOptionResponseDto {
     private Long productOptionId;
-    private String productOptionName;
+    private String productOptionTitle;
     private int productOptionStock;
     private int productOptionPrice;
 
     public static ProductOptionResponseDto from(ProductOption productOption) {
         return new ProductOptionResponseDto(
                 productOption.getProductOptionId(),
-                productOption.getProductOptionName(),
+                productOption.getProductOptionTitle(),
                 productOption.getProductOptionStock(),
                 productOption.getProductOptionPrice()
         );

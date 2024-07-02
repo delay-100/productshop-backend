@@ -18,7 +18,7 @@ public class ProductOption {
     private Long productOptionId;
 
     @Column(nullable = false)
-    private String productOptionName;
+    private String productOptionTitle;
 
     @Column(nullable = false)
     private int productOptionStock;
@@ -35,7 +35,7 @@ public class ProductOption {
 
     public static ProductOption from(ProductOptionRequestDto productOption) {
         return ProductOption.builder()
-                .productOptionName(productOption.getProductOptionName())
+                .productOptionTitle(productOption.getProductOptionTitle())
                 .productOptionStock(productOption.getProductOptionStock())
                 .productOptionPrice(productOption.getProductOptionPrice())
                 .product(productOption.getProduct())

@@ -66,7 +66,7 @@ public class LoadDatabase {
 
             ProductOption option1 = ProductOption.builder()
                     .product(product1)
-                    .productOptionName("화이트/ S")
+                    .productOptionTitle("화이트/ S")
                     .productOptionStock(10)
                     .productOptionPrice(0)
                     .productStartDate(startDate1)
@@ -74,7 +74,7 @@ public class LoadDatabase {
 
             ProductOption option2 = ProductOption.builder()
                     .product(product1)
-                    .productOptionName("블랙/ S")
+                    .productOptionTitle("블랙/ S")
                     .productOptionStock(5)
                     .productOptionPrice(0)
                     .productStartDate(startDate1)
@@ -82,7 +82,7 @@ public class LoadDatabase {
 
             ProductOption option3 = ProductOption.builder()
                     .product(product1)
-                    .productOptionName("블랙/ M")
+                    .productOptionTitle("블랙/ M")
                     .productOptionStock(5)
                     .productOptionPrice(0)
                     .productStartDate(startDate1)
@@ -90,7 +90,7 @@ public class LoadDatabase {
 
             ProductOption option4 = ProductOption.builder()
                     .product(product2)
-                    .productOptionName("XP2_RED")
+                    .productOptionTitle("XP2_RED")
                     .productOptionStock(7)
                     .productOptionPrice(0)
                     .productStartDate(startDate2)
@@ -98,7 +98,7 @@ public class LoadDatabase {
 
             ProductOption option5 = ProductOption.builder()
                     .product(product2)
-                    .productOptionName("HP5")
+                    .productOptionTitle("HP5")
                     .productOptionStock(5)
                     .productOptionPrice(0)
                     .productStartDate(startDate2)
@@ -106,7 +106,7 @@ public class LoadDatabase {
 
             ProductOption option6 = ProductOption.builder()
                     .product(product2)
-                    .productOptionName("XP2 B&W")
+                    .productOptionTitle("XP2 B&W")
                     .productOptionStock(3)
                     .productOptionPrice(0)
                     .productStartDate(startDate2)

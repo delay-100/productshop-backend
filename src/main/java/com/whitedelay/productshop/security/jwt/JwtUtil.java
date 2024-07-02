@@ -1,5 +1,6 @@
 package com.whitedelay.productshop.security.jwt;
 
+import com.whitedelay.exception.TokenCreationException;
 import com.whitedelay.productshop.member.entity.MemberRoleEnum;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;
@@ -64,27 +65,35 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
 
     // 1. JWT 토큰 생성 -> 생성한 토큰을 반환하는 방법 2가지(1.그냥 헤더에 담아 보냄(Response객체의 header에 그냥 token넣어 보내기) 2. Cookie객체에 Response에 담는 방법(cookie.setToken해서 넣고 Response객체에 넣어 보내기))
     // Access/Refresh 토큰 생성
-    public String createAccessToken(String memberId, MemberRoleEnum role) {
-        Date date = new Date();
+    public String createAccessToken(String memberId, MemberRoleEnum role) throws TokenCreationException {
+        try {
+            Date date = new Date();
 
-        return BEARER_PREFIX + Jwts.builder() // jwt사용자의 권한 정보를 넣음, UserRole의 enum정보를 넣음, claim은 key, value로 데이터를 넣는 것
-                .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_TIME)) // 만료 시간
-                .setIssuedAt(date) // 발급일
-                .signWith(key, signatureAlgorithm)// 암호화 알고리즘(시크릿 키, 시크릿 알고리즘)을 넣어주면
-                .setSubject(memberId)  // 사용자 식별자값(ID)
-                .claim(TOKEN_KEY, role)
-                .compact();
+            return BEARER_PREFIX + Jwts.builder() // jwt사용자의 권한 정보를 넣음, UserRole의 enum정보를 넣음, claim은 key, value로 데이터를 넣는 것
+                    .setExpiration(new Date(date.getTime() + ACCESS_TOKEN_TIME)) // 만료 시간
+                    .setIssuedAt(date) // 발급일
+                    .signWith(key, signatureAlgorithm)// 암호화 알고리즘(시크릿 키, 시크릿 알고리즘)을 넣어주면
+                    .setSubject(memberId)  // 사용자 식별자값(ID)
+                    .claim(TOKEN_KEY, role)
+                    .compact();
+        } catch (Exception e) {
+            throw new TokenCreationException("AccessToken 생성에 실패했습니다.", e);
+        }
     }
 
-    public String createRefreshToken() {
-        Date date = new Date();
+    public String createRefreshToken() throws TokenCreationException {
+        try {
+            Date date = new Date();
 
-        return BEARER_PREFIX + Jwts.builder() // jwt사용자의 권한 정보를 넣음, UserRole의 enum정보를 넣음, claim은 key, value로 데이터를 넣는 것
-                .setExpiration(new Date(date.getTime() + REFRESH_TOKEN_TIME)) // 만료 시간
-                .setIssuedAt(date) // 발급일
-                .signWith(key, signatureAlgorithm)// 암호화 알고리즘(시크릿 키, 시크릿 알고리즘)을 넣어주면
-                .claim("UUID",  UUID.randomUUID().toString())
-                .compact();
+            return BEARER_PREFIX + Jwts.builder() // jwt사용자의 권한 정보를 넣음, UserRole의 enum정보를 넣음, claim은 key, value로 데이터를 넣는 것
+                    .setExpiration(new Date(date.getTime() + REFRESH_TOKEN_TIME)) // 만료 시간
+                    .setIssuedAt(date) // 발급일
+                    .signWith(key, signatureAlgorithm)// 암호화 알고리즘(시크릿 키, 시크릿 알고리즘)을 넣어주면
+                    .claim("UUID", UUID.randomUUID().toString())
+                    .compact();
+        } catch (Exception e) {
+            throw new TokenCreationException("RefreshToken 생성에 실패했습니다.", e);
+        }
     }
 
     // 3. 생성된 JWT를 Cookie에 저장

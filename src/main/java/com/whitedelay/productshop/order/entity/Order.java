@@ -46,7 +46,7 @@ public class Order extends Timestamped {
     private String orderMemberName;
 
     @Column(nullable = false)
-    private String orderZipCode;
+    private int orderZipCode;
 
     @Column(nullable = false)
     private String orderAddress;

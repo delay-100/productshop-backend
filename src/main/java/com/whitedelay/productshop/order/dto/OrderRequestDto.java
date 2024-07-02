@@ -23,7 +23,7 @@ public class OrderRequestDto {
 
     // 결제 완료 시 사용할 주소 정보
     private String orderMemberName;
-    private String orderZipCode;
+    private int orderZipCode;
     private String orderAddress;
     private String orderPhone;
     private String orderReq;

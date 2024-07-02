@@ -5,6 +5,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.Optional;
+
 public interface OrderRepository extends JpaRepository<Order, Long> {
 
     // JPQL 사용
@@ -17,5 +19,5 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     // SPRING DATA JPA 사용
     Page<Order> findByMemberMemberId(String memberId, Pageable pageable);
 
-    Order findByMemberMemberIdAndOrderId(String memberId, Long orderId);
+    Optional<Order> findByMemberMemberIdAndOrderId(String memberId, Long orderId);
 }

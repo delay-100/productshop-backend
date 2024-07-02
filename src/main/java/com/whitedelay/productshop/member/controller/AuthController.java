@@ -24,7 +24,7 @@ public class AuthController {
     @PostMapping(BASE_AUTH + "/signup")
     public ApiResponse<Boolean> signup(
             @RequestBody SignupRequestDto signupRequestDto
-    ) {
+        ) {
         return ApiResponse.createSuccess(authService.signup(signupRequestDto));
     }
 

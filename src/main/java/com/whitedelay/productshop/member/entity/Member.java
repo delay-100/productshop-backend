@@ -1,10 +1,12 @@
 package com.whitedelay.productshop.member.entity;
 
-import com.whitedelay.productshop.member.dto.MemberRequestDto;
+import com.whitedelay.productshop.member.dto.SignupRequestDto;
+import com.whitedelay.productshop.security.AES256Encoder;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Builder(access = AccessLevel.PRIVATE)
+//@Builder(access = AccessLevel.PRIVATE)
+@Builder
 @Getter
 @Entity
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
@@ -31,7 +33,7 @@ public class Member extends Timestamped {
     private String address;
 
     @Column(nullable = false)
-    private String zipCode;
+    private int zipCode;
 
     @Column(nullable = false)
     private String phone;
@@ -40,15 +42,15 @@ public class Member extends Timestamped {
     @Enumerated(EnumType.STRING)
     private MemberRoleEnum role;
 
-    public static Member from(MemberRequestDto member) {
+    public static Member from(SignupRequestDto member, AES256Encoder encoder) {
         return Member.builder()
                 .memberId(member.getMemberId())
                 .password(member.getPassword())
-                .address(member.getAddress())
+                .address(encoder.encodeString(member.getAddress()))
                 .zipCode(member.getZipCode())
-                .email(member.getEmail())
-                .memberName(member.getMemberName())
-                .phone(member.getPhone())
+                .email(encoder.encodeString(member.getEmail()))
+                .memberName(encoder.encodeString(member.getMemberName()))
+                .phone(encoder.encodeString(member.getPhone()))
                 .role(member.getRole())
                 .build();
     }

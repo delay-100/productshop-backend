@@ -70,7 +70,7 @@ public class CartService {
 
         if (productOption != null) {
             responseBuilder.productOptionId(productOptionId)
-                    .productOptionName(productOption.getProductOptionName())
+                    .productOptionTitle(productOption.getProductOptionTitle())
                     .productOptionPrice(productOption.getProductOptionPrice())
                     .productOptionStock(productOption.getProductOptionStock());
         }
@@ -105,7 +105,7 @@ public class CartService {
                     .productTitle(product.getProductTitle())
                     .quantity(cart.getCartProductStock())
                     .productOptionId(productOption != null ? productOption.getProductOptionId() : 0)
-                    .productOptionName(productOption != null ? productOption.getProductOptionName() : null)
+                    .productOptionTitle(productOption != null ? productOption.getProductOptionTitle() : null)
                     .productOptionPrice(productOption != null ? productOption.getProductOptionPrice() : 0)
                     .productOptionStock(productOption != null ? productOption.getProductOptionStock() : 0)
                     .build();

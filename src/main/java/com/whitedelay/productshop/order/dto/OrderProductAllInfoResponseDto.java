@@ -17,12 +17,12 @@ public class OrderProductAllInfoResponseDto {
 
     // 기본으로 사용할 주소 정보 - user에서 빼오기
     private String orderMemberName;
-    private String orderZipCode;
+    private int orderZipCode;
     private String orderAddress;
     private String orderPhone;
 
     // 결제 금액
-    private int totalOrderPrice;
+    private int productTotalPrice;
     private int orderShippingFee;
     private int orderPrice; // 총금액
 }

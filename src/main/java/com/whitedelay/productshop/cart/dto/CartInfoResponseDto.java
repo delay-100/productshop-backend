@@ -15,7 +15,7 @@ public class CartInfoResponseDto {
 
     // 상품 옵션 정보 (nullable)
     private Long productOptionId;
-    private String productOptionName;
+    private String productOptionTitle;
     private int productOptionPrice;
     private int productOptionStock;
 

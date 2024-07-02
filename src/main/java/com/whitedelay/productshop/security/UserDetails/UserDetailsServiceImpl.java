@@ -18,7 +18,6 @@ public class UserDetailsServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String memberId) throws UsernameNotFoundException {
         Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new UsernameNotFoundException("Not Found " + memberId));
-        System.out.println("member.getMemberid() = " + member.getMemberId());
         return new UserDetailsImpl(member);
     }
 }

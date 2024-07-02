@@ -18,7 +18,7 @@ public class OrderProductPayRequestDto {
 
     // 실제로 배송할 주소 정보
     private String orderMemberName;
-    private String orderZipCode;
+    private int orderZipCode;
     private String orderAddress;
     private String orderPhone;
     private String orderReq; // 배송 요청사항

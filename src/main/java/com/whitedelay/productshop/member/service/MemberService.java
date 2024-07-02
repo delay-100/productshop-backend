@@ -5,15 +5,14 @@ import com.whitedelay.productshop.member.dto.*;
 import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.member.repository.MemberRepository;
 import com.whitedelay.productshop.security.AES256Encoder;
-import com.whitedelay.productshop.security.jwt.JwtUtil;
 import jakarta.servlet.http.Cookie;
 import org.springframework.beans.factory.annotation.Value;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -42,38 +41,22 @@ public class MemberService {
         return true;
     }
 
-
     public MemberMyInfoResponseDto getMemberMyInfo(Member member) {
-        return MemberMyInfoResponseDto.builder()
-                .memberId(member.getMemberId())
-                .email(aes256Encoder.decodeString(member.getEmail()))
-                .memberName(aes256Encoder.decodeString(member.getMemberName()))
-                .address(aes256Encoder.decodeString(member.getAddress()))
-                .zipCode(aes256Encoder.decodeString(member.getZipCode()))
-                .phone(aes256Encoder.decodeString(member.getPhone()))
-                .build();
+        return MemberMyInfoResponseDto.from(member, aes256Encoder);
     }
 
-    public MemberMyInfoResponseDto updateMemberMyInfo(Member member, MemberMyInfoRequestDto memberMyinfoRequestDto) {
-        String encodedAddress = aes256Encoder.encodeString(memberMyinfoRequestDto.getAddress());
-        String encodedPhone = aes256Encoder.encodeString(memberMyinfoRequestDto.getPhone());
-
-        member.setAddress(encodedAddress);
-        member.setPhone(encodedPhone);
+    @Transactional
+    public MemberMyInfoResponseDto updateMemberMyInfo(Member member, MemberMyInfoRequestDto memberMyInfoRequestDto) {
+        member.setAddress(aes256Encoder.encodeString(memberMyInfoRequestDto.getAddress()));
+        member.setPhone(aes256Encoder.encodeString(memberMyInfoRequestDto.getPhone()));
 
         memberRepository.save(member);
 
-        return MemberMyInfoResponseDto.builder()
-                .memberId(member.getMemberId())
-                .email(aes256Encoder.decodeString(member.getEmail()))
-                .memberName(aes256Encoder.decodeString(member.getMemberName()))
-                .address(aes256Encoder.decodeString(member.getAddress()))
-                .phone(aes256Encoder.decodeString(member.getPhone()))
-                .build();
+        return MemberMyInfoResponseDto.from(member, aes256Encoder);
     }
 
+    @Transactional
     public boolean updateMemberPassword(Member member, MemberPasswordRequestDto memberPasswordRequestDto) {
-
         // 현재 비밀번호 검증
         if (!passwordEncoder.matches(memberPasswordRequestDto.getPrePassword(), member.getPassword())) {
             throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
@@ -93,8 +76,7 @@ public class MemberService {
         return true;
     }
 
-    private void deleteCookie(HttpServletResponse res) {
-
+    public void deleteCookie(HttpServletResponse res) {
         // 응답헤더 Cookie 비우기
         Cookie accessTokenCookie = new Cookie(AUTHORIZATION_HEADER, null);
         accessTokenCookie.setPath("/");

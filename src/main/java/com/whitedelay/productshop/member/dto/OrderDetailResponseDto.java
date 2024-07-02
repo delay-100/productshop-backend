@@ -5,6 +5,7 @@ import com.whitedelay.productshop.order.entity.Order;
 import com.whitedelay.productshop.order.entity.OrderCardCompanyEnum;
 import com.whitedelay.productshop.order.entity.OrderProduct;
 import com.whitedelay.productshop.order.entity.OrderStatusEnum;
+import com.whitedelay.productshop.security.AES256Encoder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,7 +29,7 @@ public class OrderDetailResponseDto {
     private int orderPrice;
 
     private String orderMemberName;
-    private String orderZipCode;
+    private int orderZipCode;
     private String orderAddress;
     private String orderPhone;
     private String orderReq;
@@ -36,7 +37,7 @@ public class OrderDetailResponseDto {
 
     private List<OrderProductDetailResponseDto> orderProductDetailResponseDto;
 
-    public static OrderDetailResponseDto from(Order order, List<OrderProductDetailResponseDto> orderProductDetailResponseDto) {
+    public static OrderDetailResponseDto from(Order order, List<OrderProductDetailResponseDto> orderProductDetailResponseDto, AES256Encoder aes256Encoder) {
         return OrderDetailResponseDto.builder()
                 .orderId(order.getOrderId())
                 .orderDate(order.getOrderDate())
@@ -45,11 +46,11 @@ public class OrderDetailResponseDto {
                 .orderPrice(order.getOrderPrice())
                 .orderCardCompany(order.getOrderCardCompany())
                 .orderPayYN(order.isOrderPayYN())
-                .orderMemberName(order.getOrderMemberName())
+                .orderMemberName(aes256Encoder.decodeString(order.getOrderMemberName()))
                 .orderZipCode(order.getOrderZipCode())
-                .orderAddress(order.getOrderAddress())
-                .orderPhone(order.getOrderPhone())
-                .orderReq(order.getOrderReq())
+                .orderAddress(aes256Encoder.decodeString(order.getOrderAddress()))
+                .orderPhone(aes256Encoder.decodeString(order.getOrderPhone()))
+                .orderReq(aes256Encoder.decodeString(order.getOrderReq()))
                 .orderProductDetailResponseDto(orderProductDetailResponseDto)
                 .build();
     }

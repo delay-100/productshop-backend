@@ -15,8 +15,8 @@ public class OrderProductResponseDto {
     private String productTitle;
     private int quantity;
     private Long productOptionId;
-    private String productOptionName;
+    private String productOptionTitle;
     private int productPrice; // 각 제품 가격
-    private int totalPrice; // 각 제품의 총 결제 금액(수량*가격)
+    private int productTotalPrice; // 각 제품의 총 결제 금액(수량*가격)
 
 }
