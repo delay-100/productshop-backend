@@ -21,43 +21,69 @@ import java.util.concurrent.TimeUnit;
 public class MailService {
 
     private final RedisTemplate<String, String> redisTemplate;
-
-    private static final String VERIFICATION_CODE_KEY_PREFIX = "verification-code:";
-    private static final String VERIFICATION_CODE_KEY_CHECK = "_checked";
-
     private final JavaMailSender javaMailSender;
     private final MemberRepository memberRepository;
-    private String authNum;
 
-    @Value("${spring.mail.username}")
+    @Value("${SIGNUP_CODE_KEY_PREFIX}")
+    private String SIGNUP_CODE_KEY_PREFIX;
+
+    @Value("${SIGNUP_CODE_KEY_CHECK}")
+    private String SIGNUP_CODE_KEY_CHECK;
+
+    @Value("${MAIL_USERNAME}")
     private String mailUsername;
 
+    public boolean postSignupVerificationEmail(String email) throws MessagingException, UnsupportedEncodingException {
+        if (memberRepository.findByEmail(email).isPresent()) {
+            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
+        }
 
-    public MimeMessage createMessage(String to) throws MessagingException, UnsupportedEncodingException {
+        String code = createCode();
+        MimeMessage message = createSignupMessage(email, code);
+
+        try {
+            javaMailSender.send(message);
+        } catch (MailException e) {
+            throw new IllegalArgumentException("이메일 전송에 실패했습니다.");
+        }
+
+        String key = SIGNUP_CODE_KEY_PREFIX + email;
+        redisTemplate.opsForValue().set(key, code, 10, TimeUnit.MINUTES);
+        return true;
+    }
+
+    public boolean checkSignupEmailCode(String email, String verificationCode) {
+        String key = SIGNUP_CODE_KEY_PREFIX + email;
+        String savedCode = redisTemplate.opsForValue().get(key);
+        if (savedCode != null && savedCode.equals(verificationCode)) {
+            redisTemplate.opsForValue().set(key, verificationCode + SIGNUP_CODE_KEY_CHECK, 10, TimeUnit.MINUTES);
+            return true;
+        }
+        return false;
+    }
+
+    public MimeMessage createSignupMessage(String to, String code) throws MessagingException, UnsupportedEncodingException {
         MimeMessage message = javaMailSender.createMimeMessage();
 
-        message.addRecipients(Message.RecipientType.TO, to);	//보내는 대상
-        message.setSubject("회원가입 이메일 인증");		//제목
-        System.out.println("MailService="+mailUsername);
+        message.addRecipients(Message.RecipientType.TO, to);
+        message.setSubject("회원가입 이메일 인증");
 
-        String msgg = "";
-        msgg += "<div style='margin:100px;'>";
-        msgg += "<h1> 안녕하세요</h1>";
-        msgg += "<br>";
-        msgg += "<p>아래 코드를 회원가입 창으로 돌아가 입력해주세요<p>";
-        msgg += "<br>";
-        msgg += "<div align='center' style='border:1px solid black; font-family:verdana';>";
-        msgg += "<h3 style='color:blue;'>회원가입 인증 코드입니다.</h3>";
-        msgg += "<div style='font-size:130%'>";
-        msgg += "CODE : <strong>";
-        msgg += authNum + "</strong>";	//메일 인증번호
-        msgg += "</div>";
-        message.setText(msgg, "utf-8", "html");
+        String msgText =
+                "<div style='margin:100px;'>"
+                + "<br>"
+                + "<p>아래 코드를 회원가입 창으로 돌아가 입력해주세요<p>"
+                + "<h3>회원가입 인증 코드입니다.</h3>"
+                + "<strong>"
+                + code
+                + "</strong></div>";
+
+        message.setText(msgText, "utf-8", "html");
         message.setFrom(new InternetAddress(mailUsername, "백지연"));
 
         return message;
     }
 
+    // 인증 코드 만들기
     public String createCode() {
         Random random = new Random();
         StringBuffer key = new StringBuffer();
@@ -71,47 +97,6 @@ public class MailService {
                 case 2 -> key.append(random.nextInt(9));
             }
         }
-        return authNum = key.toString();
-    }
-
-    public String sendSimpleMessage(String sendEmail) throws Exception {
-        if (memberRepository.findByEmail(sendEmail).isPresent()) {
-            throw new IllegalArgumentException("이미 가입된 이메일입니다.");
-        }
-
-        authNum = createCode();
-        MimeMessage message = createMessage(sendEmail);
-
-        try {
-            javaMailSender.send(message);
-        } catch (MailException e) {
-            e.printStackTrace();
-            throw new IllegalArgumentException("이메일 전송에 실패했습니다.");
-        }
-        return authNum;
-    }
-
-
-    public boolean saveVerificationCode(String email, String verificationCode) {
-        String key = VERIFICATION_CODE_KEY_PREFIX + email;
-        redisTemplate.opsForValue().set(key, verificationCode, 10, TimeUnit.MINUTES);
-        return true;
-    }
-
-    public boolean verifyEmail(String email, String verificationCode) {
-        String key = VERIFICATION_CODE_KEY_PREFIX + email;
-        String savedCode = redisTemplate.opsForValue().get(key);
-        System.out.println("key = " + key);
-        System.out.println("savedCode = " + savedCode);
-        if (savedCode != null && savedCode.equals(verificationCode)) {
-            redisTemplate.opsForValue().set(key, verificationCode + VERIFICATION_CODE_KEY_CHECK, 10, TimeUnit.MINUTES);
-            return true;
-        }
-        return false;
-    }
-    public boolean isEmailVerified(String email) {
-        String key = VERIFICATION_CODE_KEY_PREFIX + email;
-        String value = redisTemplate.opsForValue().get(key);
-        return value != null && value.endsWith(VERIFICATION_CODE_KEY_CHECK);
+        return key.toString();
     }
 }

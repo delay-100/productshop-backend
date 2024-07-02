@@ -42,10 +42,10 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
     public static final String BEARER_PREFIX = "Bearer ";
 
     @Value("${ACCESS_TOKEN_TIME}")
-    private long ACCESS_TOKEN_TIME;
+    private Long ACCESS_TOKEN_TIME;
 
     @Value("${REFRESH_TOKEN_TIME}")
-    private long REFRESH_TOKEN_TIME;
+    private Long REFRESH_TOKEN_TIME;
 
     // @Value는 Beansfactory에서 가져옴(위에 import확인)
     @Value("${JWT_SECRET_KEY}") // Base64 Encode 한 SecretKey

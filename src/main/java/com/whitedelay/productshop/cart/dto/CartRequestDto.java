@@ -10,7 +10,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public class CartRequestDto {
-    private long cartProductOptionId;
+    private Long cartProductOptionId;
     private int cartProductStock;
     private Member member;
     private Product product;

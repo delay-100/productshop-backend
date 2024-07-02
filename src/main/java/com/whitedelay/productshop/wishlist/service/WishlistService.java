@@ -27,7 +27,7 @@ public class WishlistService {
     private final ProductRepository productRepository;
 
     @Transactional
-    public Boolean createWishlistWish(Member member, long productId) {
+    public boolean createWishlistWish(Member member, Long productId) {
         try {
             // 상품 조회
             Product product = productRepository.findByProductId(productId)
@@ -60,7 +60,7 @@ public class WishlistService {
 
 
     @Transactional
-    public Boolean deleteWishlistWish(Member member, long productId) {
+    public boolean deleteWishlistWish(Member member, Long productId) {
         try {
             // 상품 조회
             Product product = productRepository.findByProductId(productId)

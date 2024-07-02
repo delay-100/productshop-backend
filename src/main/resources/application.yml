@@ -31,10 +31,10 @@
             ssl:
               enable: true
       protocol: smtp
-    data:
-      redis:
-        host: redis
-        port: 6379
+#    data:
+#      redis:
+#        host: redis
+#        port: 6379
 
   #    // debugger - 모든 로그 찍음(local환경), info(dev, 운영환경), warn, error
   # log level 설정

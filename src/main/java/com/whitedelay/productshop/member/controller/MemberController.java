@@ -1,63 +1,79 @@
 package com.whitedelay.productshop.member.controller;
 
-import com.whitedelay.productshop.member.dto.OrderCancelResponseDto;
-import com.whitedelay.productshop.member.dto.OrderDetailResponseDto;
-import com.whitedelay.productshop.member.dto.OrderListResponseDto;
-import com.whitedelay.productshop.member.dto.OrderReturnResponseDto;
-import com.whitedelay.productshop.member.entity.Member;
+import com.whitedelay.productshop.member.dto.MemberMyInfoRequestDto;
+import com.whitedelay.productshop.member.dto.MemberMyInfoResponseDto;
+import com.whitedelay.productshop.member.dto.MemberPasswordRequestDto;
 import com.whitedelay.productshop.member.service.MemberService;
 import com.whitedelay.productshop.security.UserDetails.UserDetailsImpl;
 import com.whitedelay.productshop.util.ApiResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.server.ResponseStatusException;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 public class MemberController {
     private final MemberService memberService;
 
-    // 주문 내역 리스트 확인
-    @GetMapping("/mypage/orderlist")
-    public ApiResponse<Page<OrderListResponseDto>> getOrderList(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @RequestParam int page,
-        @RequestParam int size
-    ) {
-        return ApiResponse.createSuccess(memberService.getOrderList(userDetails.getMember(), page, size));
-    }
+    private static final String BASE_MEMBER = "/member";
 
-    // 주문 내역 상세 확인
-    @GetMapping("/mypage/order")
-    public ApiResponse<OrderDetailResponseDto> getOrderDetail(
-        @AuthenticationPrincipal UserDetailsImpl userDetails,
-        @RequestParam long orderId
-    ) {
-        return ApiResponse.createSuccess(memberService.getOrderDetail(userDetails.getMember(), orderId));
-    }
-
-    // 상품 취소
-    @PatchMapping("/mypage/order/cancel")
-    public ApiResponse<OrderCancelResponseDto> updateOrderStatusCancel(
+    /**
+     * DELETE
+     * 로그아웃
+     * @param userDetails security의 회원 정보
+     * @param res 서블릿 응답 객체
+     * @return 로그아웃 성공 여부(T/F)
+     */
+    @DeleteMapping(BASE_MEMBER + "/logout")
+    public ApiResponse<Boolean> logout(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestParam long orderId
+            HttpServletResponse res
     ) {
-        return ApiResponse.createSuccess(memberService.updateOrderStatusCancel(userDetails.getMember(), orderId));
+        return ApiResponse.createSuccess(memberService.logout(userDetails.getMember(), res));
     }
 
-    // 상품 반품
-    @PatchMapping("/mypage/order/return")
-    public ApiResponse<OrderReturnResponseDto> updateOrderStatusReturn(
-            @AuthenticationPrincipal UserDetailsImpl userDetails,
-            @RequestParam long orderId
+    /**
+     * GET
+     * 회원 정보 업데이트
+     * @param userDetails security의 회원 정보
+     * @return 회원 정보 응답 객체 DTO
+     */
+    @GetMapping(BASE_MEMBER + "/myinfo")
+    public ApiResponse<MemberMyInfoResponseDto> getMemberMyInfo(
+            @AuthenticationPrincipal UserDetailsImpl userDetails
     ) {
-        return ApiResponse.createSuccess(memberService.updateOrderStatusReturn(userDetails.getMember(), orderId));
+        return ApiResponse.createSuccess(memberService.getMemberMyInfo(userDetails.getMember()));
+    }
+
+    /**
+     * PATCH
+     * 회원 정보 변경 1 - 주소, 전화번호
+     * @param userDetails security의 회원 정보
+     * @param memberMyInfoRequestDto 회원 정보 요청 객체 DTO
+     * @return 회원 정보 응답 객체 DTO
+     */
+    @PatchMapping(BASE_MEMBER + "/myinfo")
+    public ApiResponse<MemberMyInfoResponseDto> updateMemberMyInfo(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody MemberMyInfoRequestDto memberMyInfoRequestDto
+    ) {
+        return ApiResponse.createSuccess(memberService.updateMemberMyInfo(userDetails.getMember(), memberMyInfoRequestDto));
+    }
+
+    /**
+     * PATCH
+     * 회원 정보 변경 - 비밀번호
+     * @param userDetails security의 회원 정보
+     * @param memberPasswordRequestDto 회원 비밀번호 요청 DTO
+     * @return 비밀번호 변경 성공 여부(T/F)
+     */
+    @PatchMapping(BASE_MEMBER + "/modify/password")
+    public ApiResponse<Boolean> updateMemberPassword(
+            @AuthenticationPrincipal UserDetailsImpl userDetails,
+            @RequestBody MemberPasswordRequestDto memberPasswordRequestDto
+    ) {
+        return ApiResponse.createSuccess(memberService.updateMemberPassword(userDetails.getMember(), memberPasswordRequestDto));
     }
 
 }

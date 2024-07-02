@@ -25,12 +25,6 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
     private final JwtUtil jwtUtil;
     private final UserDetailsServiceImpl userDetailsService;
 
-    @Value("${ACCESS_TOKEN_NAME}")
-    private String access;
-
-    @Value("${REFRESH_TOKEN_NAME}")
-    private String refresh;
-
     public JwtAuthorizationFilter(JwtUtil jwtUtil, UserDetailsServiceImpl userDetailsService) {
         this.jwtUtil = jwtUtil;
         this.userDetailsService = userDetailsService;

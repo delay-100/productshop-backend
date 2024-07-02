@@ -9,12 +9,12 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CartInfoResponseDto {
     // 상품 정보
-    private long productId;
+    private Long productId;
     private String productTitle;
     private int quantity;
 
     // 상품 옵션 정보 (nullable)
-    private long productOptionId;
+    private Long productOptionId;
     private String productOptionName;
     private int productOptionPrice;
     private int productOptionStock;

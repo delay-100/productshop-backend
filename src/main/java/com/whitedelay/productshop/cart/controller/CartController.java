@@ -16,7 +16,16 @@ import org.springframework.web.bind.annotation.*;
 public class CartController {
     private final CartService cartService;
 
-    @PostMapping("/cart")
+    private static final String BASE_CART = "/cart";
+
+    /**
+     * POST
+     * 장바구니에 넣기
+     * @param userDetails security의 회원 정보
+     * @param cartInfoRequestDto 장바구니 담는 객체
+     * @return 담은 장바구니 DTO
+     */
+    @PostMapping(BASE_CART)
     public ApiResponse<CartInfoResponseDto> createCart(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody CartInfoRequestDto cartInfoRequestDto
@@ -24,7 +33,14 @@ public class CartController {
         return cartService.createCart(userDetails.getMember(), cartInfoRequestDto.getProductId(), cartInfoRequestDto.getProductOptionId(), cartInfoRequestDto.getQuantity());
     }
 
-    @DeleteMapping("/cart")
+    /**
+     * DELETE
+     * 장바구니에서 상품 삭제
+     * @param userDetails security의 회원 정보
+     * @param cartSimpleInfoRequestDto 장바구니에서 삭제할 정보
+     * @return 상품 삭제 여부(T/F)
+     */
+    @DeleteMapping(BASE_CART)
     public ApiResponse<Boolean> deleteCart(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody CartSimpleInfoRequestDto cartSimpleInfoRequestDto
@@ -32,7 +48,13 @@ public class CartController {
         return cartService.deleteCart(userDetails.getMember(), cartSimpleInfoRequestDto.getProductId(), cartSimpleInfoRequestDto.getProductOptionId());
     }
 
-    @GetMapping("/cart")
+    /**
+     * GET
+     * 장바구니 모든 상품 리스트
+     * @param userDetails security의 회원 정보
+     * @return 장바구니 모든 상품 리스트 DTO
+     */
+    @GetMapping(BASE_CART)
     public ApiResponse<CartAllInfoResponseDto> getCartAllInfo(
         @AuthenticationPrincipal UserDetailsImpl userDetails
     )   {

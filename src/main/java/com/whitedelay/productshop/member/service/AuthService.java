@@ -83,67 +83,6 @@ public class AuthService {
                 .build();
     }
 
-    public Boolean logout(Member member, HttpServletResponse res) {
-        // redis에서 memberId 찾아서 삭제
-        String refreshToken = redisTemplate.opsForValue().get(member.getMemberId());
-        if (refreshToken != null) {
-            redisTemplate.delete(member.getMemberId());
-        }
-        deleteCookie(res);
-
-        return true;
-    }
-
-    public MemberMyinfoResponseDto getMemberMyinfo(Member member) {
-        return MemberMyinfoResponseDto.builder()
-                .memberId(member.getMemberId())
-                .email(aes256Encoder.decodeString(member.getEmail()))
-                .memberName(aes256Encoder.decodeString(member.getMemberName()))
-                .address(aes256Encoder.decodeString(member.getAddress()))
-                .zipCode(aes256Encoder.decodeString(member.getZipCode()))
-                .phone(aes256Encoder.decodeString(member.getPhone()))
-                .build();
-    }
-
-    public MemberMyinfoResponseDto updateMemberMyinfo(Member member, MemberMyinfoRequestDto memberMyinfoRequestDto) {
-        String encodedAddress = aes256Encoder.encodeString(memberMyinfoRequestDto.getAddress());
-        String encodedPhone = aes256Encoder.encodeString(memberMyinfoRequestDto.getPhone());
-
-        member.setAddress(encodedAddress);
-        member.setPhone(encodedPhone);
-
-        memberRepository.save(member);
-
-        return MemberMyinfoResponseDto.builder()
-                .memberId(member.getMemberId())
-                .email(aes256Encoder.decodeString(member.getEmail()))
-                .memberName(aes256Encoder.decodeString(member.getMemberName()))
-                .address(aes256Encoder.decodeString(member.getAddress()))
-                .phone(aes256Encoder.decodeString(member.getPhone()))
-                .build();
-    }
-
-    public boolean updateMemberPassword(Member member, MemberpasswordRequestDto memberpasswordRequestDto) {
-
-        // 현재 비밀번호 검증
-        if (!passwordEncoder.matches(memberpasswordRequestDto.getPrePassword(), member.getPassword())) {
-            throw new IllegalArgumentException("현재 비밀번호가 일치하지 않습니다.");
-        }
-
-        // 새로운 비밀번호 확인
-        if (!memberpasswordRequestDto.getNewPassword().equals(memberpasswordRequestDto.getNewPasswordConfirm())) {
-            throw new IllegalArgumentException("새로운 비밀번호가 일치하지 않습니다.");
-        }
-
-        // 새로운 비밀번호 암호화 및 설정
-        String newPassword = passwordEncoder.encode(memberpasswordRequestDto.getNewPassword());
-        member.setPassword(newPassword);
-
-        memberRepository.save(member);
-
-        return true;
-    }
-
     public RefreshTokenResponseDto refreshToken(String memberId, String refreshToken, HttpServletResponse res) {
         Member member = memberRepository.findByMemberId(memberId)
                 .orElseThrow(() -> new UsernameNotFoundException("Not Found " + memberId));

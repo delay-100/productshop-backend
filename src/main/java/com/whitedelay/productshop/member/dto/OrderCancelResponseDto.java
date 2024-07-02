@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderCancelResponseDto {
-    private long orderId;
+    private Long orderId;
     private OrderStatusEnum orderStatus;
 
     public static OrderCancelResponseDto from(Order order) {

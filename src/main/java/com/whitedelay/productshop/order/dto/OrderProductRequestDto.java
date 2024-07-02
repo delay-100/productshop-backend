@@ -23,7 +23,7 @@ public class OrderProductRequestDto {
 
     private int orderProductQuantity;
     private int orderProductPrice;
-    private long orderProductOptionId;
+    private Long orderProductOptionId;
     private int orderProductOptionPrice;
     private Order order;
     private Product product;

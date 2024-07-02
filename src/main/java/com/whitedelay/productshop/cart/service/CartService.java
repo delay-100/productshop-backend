@@ -30,7 +30,7 @@ public class CartService {
     private final ProductOptionRepository productOptionRepository;
 
     @Transactional
-    public ApiResponse<CartInfoResponseDto> createCart(Member member, long productId, Long productOptionId, int quantity) {
+    public ApiResponse<CartInfoResponseDto> createCart(Member member, Long productId, Long productOptionId, int quantity) {
         // 상품 조회
         Product product = productRepository.findByProductId(productId)
                 .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
@@ -79,7 +79,7 @@ public class CartService {
     }
 
     @Transactional
-    public ApiResponse<Boolean> deleteCart(Member member, long productId, Long productOptionId) {
+    public ApiResponse<Boolean> deleteCart(Member member, Long productId, Long productOptionId) {
             // 카트에 있는 상품 조회
             Cart cart = cartRepository.findByMemberMemberIdAndProductProductIdAndCartProductOptionId(
                 member.getMemberId(), productId, Objects.requireNonNullElse(productOptionId, 0L))

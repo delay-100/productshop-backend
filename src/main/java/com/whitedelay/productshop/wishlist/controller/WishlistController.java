@@ -15,7 +15,14 @@ import org.springframework.web.bind.annotation.*;
 public class WishlistController {
     private final WishlistService wishlistService;
 
-    // wishlist에 특정 상품 추가
+    private static final String BASE_WISHLIST = "/wishlist";
+
+    /**
+     * 위시리스트 상품 추가
+     * @param userDetails security의 회원 정보
+     * @param wishlistWishRequestDto 추가할 상품 정보
+     * @return 상품 추가 성공 여부(T/F)
+     */
     @PostMapping("/wishlist")
     public ApiResponse<Boolean> createWishlistWish(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -24,7 +31,13 @@ public class WishlistController {
         return ApiResponse.createSuccess(wishlistService.createWishlistWish(userDetails.getMember(), wishlistWishRequestDto.getProductId()));
     }
 
-    // 위시리스트에서 특정 상품 삭제
+    /**
+     * DELETE
+     * 위시리스트 상품 삭제
+     * @param userDetails security의 회원 정보
+     * @param wishlistWishRequestDto 삭제할 상품 정보
+     * @return 상품 삭제 성공 여부(T/F)
+     */
     @DeleteMapping("/wishlist")
     public ApiResponse<Boolean> deleteWishlistWish(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
@@ -33,13 +46,20 @@ public class WishlistController {
         return ApiResponse.createSuccess(wishlistService.deleteWishlistWish(userDetails.getMember(), wishlistWishRequestDto.getProductId()));
     }
 
-    // 나의 wishlist 불러오기
+    /**
+     * GET
+     * 위시리스트 리스트
+     * @param userDetails security의 회원 정보
+     * @param page 페이지 번호
+     * @param size 한 페이지에 띄울 수
+     * @return 위시리스트 리스트 DTO
+     */
     @GetMapping("/wishlist")
     public ApiResponse<Page<WishlistResponseDto>> getAllWishlist(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestParam int page,
             @RequestParam int size
-        ) {
+    ) {
             return ApiResponse.createSuccess(wishlistService.getAllWishlist(userDetails.getMember(), page, size));
     }
 }

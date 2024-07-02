@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class WishlistWishRequestDto {
-    private int productId;
+    private Long productId;
 }
