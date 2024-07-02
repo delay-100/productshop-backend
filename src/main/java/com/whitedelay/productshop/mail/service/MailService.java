@@ -99,4 +99,10 @@ public class MailService {
         }
         return key.toString();
     }
+
+    public boolean isSignupEmailVerified(String email) {
+        String key = SIGNUP_CODE_KEY_PREFIX + email;
+        String value = redisTemplate.opsForValue().get(key);
+        return value != null && value.endsWith(SIGNUP_CODE_KEY_CHECK);
+    }
 }

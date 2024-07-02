@@ -37,7 +37,7 @@ public class AuthService {
 
     public boolean signup(SignupRequestDto signupRequestDto) {
         // 메일 검증
-        if (!mailService.isEmailVerified(signupRequestDto.getEmail())) {
+        if (!mailService.isSignupEmailVerified(signupRequestDto.getEmail())) {
             return false;
         }
         if (memberRepository.existsByEmail(signupRequestDto.getEmail())) {
