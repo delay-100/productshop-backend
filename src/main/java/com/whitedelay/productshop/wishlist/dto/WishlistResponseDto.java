@@ -14,22 +14,22 @@ import java.time.LocalDateTime;
 public class WishlistResponseDto {
     private Long productId;
     private String productTitle;
-    private String productStatus;
+    private ProductStatusEnum productStatus;
     private int productWishlistCount;
     private int productPrice;
     private int productStock;
-    private String productCategory;
+    private ProductCategoryEnum productCategory;
     private LocalDateTime productStartDate;
 
     public static WishlistResponseDto from(Wishlist wishlist) {
         return WishlistResponseDto.builder()
                 .productId(wishlist.getProduct().getProductId())
                 .productTitle(wishlist.getProduct().getProductTitle())
-                .productStatus(String.valueOf(wishlist.getProduct().getProductStatus()))
+                .productStatus(wishlist.getProduct().getProductStatus())
                 .productWishlistCount(wishlist.getProduct().getProductWishlistCount())
                 .productPrice(wishlist.getProduct().getProductPrice())
                 .productStock(wishlist.getProduct().getProductStock())
-                .productCategory(String.valueOf(wishlist.getProduct().getProductCategory()))
+                .productCategory(wishlist.getProduct().getProductCategory())
                 .productStartDate(wishlist.getProduct().getProductStartDate())
                 .build();
     }

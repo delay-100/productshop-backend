@@ -1,5 +1,7 @@
 package com.whitedelay.productshop.wishlist.controller;
 
+import com.whitedelay.productshop.product.entity.ProductCategoryEnum;
+import com.whitedelay.productshop.product.entity.ProductStatusEnum;
 import com.whitedelay.productshop.security.UserDetails.UserDetailsImpl;
 import com.whitedelay.productshop.util.ApiResponse;
 import com.whitedelay.productshop.wishlist.dto.WishlistWishRequestDto;
@@ -87,22 +89,22 @@ public class WishlistControllerTest {
         WishlistResponseDto wishlistResponseDto1 = WishlistResponseDto.builder()
                 .productId(1L)
                 .productTitle("샘플 상품1")
-                .productStatus("AVAILABLE")
+                .productStatus(ProductStatusEnum.AVAILABLE)
                 .productWishlistCount(100)
                 .productPrice(200)
                 .productStock(50)
-                .productCategory("FOOD")
+                .productCategory(ProductCategoryEnum.FOOD)
                 .productStartDate(LocalDateTime.now())
                 .build();
 
         WishlistResponseDto wishlistResponseDto2 = WishlistResponseDto.builder()
                 .productId(2L)
                 .productTitle("샘플 상품2")
-                .productStatus("AVAILABLE")
+                .productStatus(ProductStatusEnum.AVAILABLE)
                 .productWishlistCount(50)
                 .productPrice(300)
                 .productStock(30)
-                .productCategory("BOOKS")
+                .productCategory(ProductCategoryEnum.BOOKS)
                 .productStartDate(LocalDateTime.now())
                 .build();
 

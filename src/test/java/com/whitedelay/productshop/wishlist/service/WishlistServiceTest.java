@@ -47,18 +47,18 @@ class WishlistServiceTest {
     @BeforeEach
     void setUp() {
         member = Member.builder()
-                .memberId("testuser")
+                .memberId("testUser")
                 .build();
 
         product1 = Product.builder()
                 .productId(1L)
-                .productTitle("Sample Product 1")
+                .productTitle("샘플 상품1")
                 .productWishlistCount(0)
                 .build();
 
         product2 = Product.builder()
                 .productId(2L)
-                .productTitle("Sample Product 2")
+                .productTitle("샘플 상품2")
                 .productWishlistCount(0)
                 .build();
 
