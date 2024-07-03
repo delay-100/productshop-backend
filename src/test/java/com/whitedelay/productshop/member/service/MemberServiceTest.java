@@ -21,6 +21,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -55,7 +56,9 @@ class MemberServiceTest {
     @DisplayName("로그아웃")
     void logout_Success() {
         // given
-        Member member = Member.builder().memberId("testuser").build();
+        Member member = Member.builder()
+                .memberId("testuser")
+                .build();
 
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(member.getMemberId())).thenReturn("someToken");
@@ -66,14 +69,16 @@ class MemberServiceTest {
         boolean result = memberService.logout(member, httpServletResponse);
 
         // then
-        assertThat(result).isTrue();
-        verify(redisTemplate).delete(member.getMemberId());
-        verify(httpServletResponse).addCookie(argThat(cookie ->
-                cookie.getName().equals("Auth") && cookie.getMaxAge() == 0
-        ));
-        verify(httpServletResponse).addCookie(argThat(cookie ->
-                cookie.getName().equals("Refresh") && cookie.getMaxAge() == 0
-        ));
+        assertAll(
+                () -> assertThat(result).isTrue(),
+                () -> verify(redisTemplate).delete(member.getMemberId()),
+                () -> verify(httpServletResponse).addCookie(argThat(cookie ->
+                        cookie.getName().equals("Auth") && cookie.getMaxAge() == 0
+                )),
+                () -> verify(httpServletResponse).addCookie(argThat(cookie ->
+                        cookie.getName().equals("Refresh") && cookie.getMaxAge() == 0
+                ))
+        );
     }
 
     @Test
@@ -98,10 +103,12 @@ class MemberServiceTest {
         MemberMyInfoResponseDto responseDto = memberService.getMemberMyInfo(member);
 
         // then
-        assertThat(responseDto.getEmail()).isEqualTo("test@example.com");
-        assertThat(responseDto.getMemberName()).isEqualTo("홍길동");
-        assertThat(responseDto.getAddress()).isEqualTo("서울시 강남구");
-        assertThat(responseDto.getPhone()).isEqualTo("010-1234-5678");
+        assertAll(
+                () -> assertThat(responseDto.getEmail()).isEqualTo("test@example.com"),
+                () -> assertThat(responseDto.getMemberName()).isEqualTo("홍길동"),
+                () -> assertThat(responseDto.getAddress()).isEqualTo("서울시 강남구"),
+                () -> assertThat(responseDto.getPhone()).isEqualTo("010-1234-5678")
+        );
     }
 
     @Test
@@ -143,10 +150,12 @@ class MemberServiceTest {
         MemberMyInfoResponseDto responseDto = memberService.updateMemberMyInfo(member, requestDto);
 
         // then
-        assertThat(responseDto.getEmail()).isEqualTo("test@example.com");
-        assertThat(responseDto.getMemberName()).isEqualTo("홍길동");
-        assertThat(responseDto.getAddress()).isEqualTo("서울시 서초구");
-        assertThat(responseDto.getPhone()).isEqualTo("010-5678-1234");
+        assertAll(
+                () -> assertThat(responseDto.getEmail()).isEqualTo("test@example.com"),
+                () -> assertThat(responseDto.getMemberName()).isEqualTo("홍길동"),
+                () -> assertThat(responseDto.getAddress()).isEqualTo("서울시 서초구"),
+                () -> assertThat(responseDto.getPhone()).isEqualTo("010-5678-1234")
+        );
     }
 
     @Test
@@ -226,8 +235,10 @@ class MemberServiceTest {
         boolean result = memberService.updateMemberPassword(member, requestDto);
 
         // then
-        assertThat(result).isTrue();
-        assertThat(member.getPassword()).isEqualTo("newEncodedPassword");
+        assertAll(
+                () -> assertThat(result).isTrue(),
+                () -> assertThat(member.getPassword()).isEqualTo("newEncodedPassword")
+        );
     }
 
     @Test
@@ -241,11 +252,13 @@ class MemberServiceTest {
         memberService.deleteCookie(httpServletResponse);
 
         // then
-        verify(httpServletResponse).addCookie(argThat(cookie ->
-                cookie.getName().equals("Auth") && cookie.getMaxAge() == 0
-        ));
-        verify(httpServletResponse).addCookie(argThat(cookie ->
-                cookie.getName().equals("Refresh") && cookie.getMaxAge() == 0
-        ));
+        assertAll(
+                () -> verify(httpServletResponse).addCookie(argThat(cookie ->
+                        cookie.getName().equals("Auth") && cookie.getMaxAge() == 0
+                )),
+                () -> verify(httpServletResponse).addCookie(argThat(cookie ->
+                        cookie.getName().equals("Refresh") && cookie.getMaxAge() == 0
+                ))
+        );
     }
 }

@@ -29,6 +29,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.junit.jupiter.api.Assertions.assertAll;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -94,28 +95,34 @@ public class ProductServiceTest {
         Page<ProductResponseDto> result = productService.getAllProductList(0, 10, "");
 
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getContent()).hasSize(2);
+        assertAll(
+                () -> assertThat(result).isNotNull(),
+                () -> assertThat(result.getContent()).hasSize(2)
+        );
 
         ProductResponseDto dto1 = result.getContent().get(0);
-        assertThat(dto1.getProductId()).isEqualTo(1L);
-        assertThat(dto1.getProductTitle()).isEqualTo("샘플 상품1");
-        assertThat(dto1.getProductContent()).isEqualTo("샘플 상품 내용1");
-        assertThat(dto1.getProductStatus()).isEqualTo(ProductStatusEnum.AVAILABLE.getStatus());
-        assertThat(dto1.getProductWishlistCount()).isEqualTo(10);
-        assertThat(dto1.getProductPrice()).isEqualTo(1000);
-        assertThat(dto1.getProductStock()).isEqualTo(50);
-        assertThat(dto1.getProductCategory()).isEqualTo(ProductCategoryEnum.FOOD.getCategory());
+        assertAll(
+                () -> assertThat(dto1.getProductId()).isEqualTo(1L),
+                () -> assertThat(dto1.getProductTitle()).isEqualTo("샘플 상품1"),
+                () -> assertThat(dto1.getProductContent()).isEqualTo("샘플 상품 내용1"),
+                () -> assertThat(dto1.getProductStatus()).isEqualTo(ProductStatusEnum.AVAILABLE.getStatus()),
+                () -> assertThat(dto1.getProductWishlistCount()).isEqualTo(10),
+                () -> assertThat(dto1.getProductPrice()).isEqualTo(1000),
+                () -> assertThat(dto1.getProductStock()).isEqualTo(50),
+                () -> assertThat(dto1.getProductCategory()).isEqualTo(ProductCategoryEnum.FOOD.getCategory())
+        );
 
         ProductResponseDto dto2 = result.getContent().get(1);
-        assertThat(dto2.getProductId()).isEqualTo(2L);
-        assertThat(dto2.getProductTitle()).isEqualTo("샘플 상품2");
-        assertThat(dto2.getProductContent()).isEqualTo("샘플 상품 내용2");
-        assertThat(dto2.getProductStatus()).isEqualTo(ProductStatusEnum.AVAILABLE.getStatus());
-        assertThat(dto2.getProductWishlistCount()).isEqualTo(20);
-        assertThat(dto2.getProductPrice()).isEqualTo(20000);
-        assertThat(dto2.getProductStock()).isEqualTo(100);
-        assertThat(dto2.getProductCategory()).isEqualTo(ProductCategoryEnum.ELECTRONICS.getCategory());
+        assertAll(
+                () -> assertThat(dto2.getProductId()).isEqualTo(2L),
+                () -> assertThat(dto2.getProductTitle()).isEqualTo("샘플 상품2"),
+                () -> assertThat(dto2.getProductContent()).isEqualTo("샘플 상품 내용2"),
+                () -> assertThat(dto2.getProductStatus()).isEqualTo(ProductStatusEnum.AVAILABLE.getStatus()),
+                () -> assertThat(dto2.getProductWishlistCount()).isEqualTo(20),
+                () -> assertThat(dto2.getProductPrice()).isEqualTo(20000),
+                () -> assertThat(dto2.getProductStock()).isEqualTo(100),
+                () -> assertThat(dto2.getProductCategory()).isEqualTo(ProductCategoryEnum.ELECTRONICS.getCategory())
+        );
     }
 
     @Test
@@ -131,18 +138,22 @@ public class ProductServiceTest {
         Page<ProductResponseDto> result = productService.getAllProductList(0, 10, "상품2");
 
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getContent()).hasSize(1);
+        assertAll(
+                () -> assertThat(result).isNotNull(),
+                () -> assertThat(result.getContent()).hasSize(1)
+        );
 
         ProductResponseDto dto = result.getContent().get(0);
-        assertThat(dto.getProductId()).isEqualTo(2L);
-        assertThat(dto.getProductTitle()).isEqualTo("샘플 상품2");
-        assertThat(dto.getProductContent()).isEqualTo("샘플 상품 내용2");
-        assertThat(dto.getProductStatus()).isEqualTo(ProductStatusEnum.AVAILABLE.getStatus());
-        assertThat(dto.getProductWishlistCount()).isEqualTo(20);
-        assertThat(dto.getProductPrice()).isEqualTo(20000);
-        assertThat(dto.getProductStock()).isEqualTo(100);
-        assertThat(dto.getProductCategory()).isEqualTo(ProductCategoryEnum.ELECTRONICS.getCategory());
+        assertAll(
+                () -> assertThat(dto.getProductId()).isEqualTo(2L),
+                () -> assertThat(dto.getProductTitle()).isEqualTo("샘플 상품2"),
+                () -> assertThat(dto.getProductContent()).isEqualTo("샘플 상품 내용2"),
+                () -> assertThat(dto.getProductStatus()).isEqualTo(ProductStatusEnum.AVAILABLE.getStatus()),
+                () -> assertThat(dto.getProductWishlistCount()).isEqualTo(20),
+                () -> assertThat(dto.getProductPrice()).isEqualTo(20000),
+                () -> assertThat(dto.getProductStock()).isEqualTo(100),
+                () -> assertThat(dto.getProductCategory()).isEqualTo(ProductCategoryEnum.ELECTRONICS.getCategory())
+        );
     }
 
     @Test
@@ -156,23 +167,27 @@ public class ProductServiceTest {
         ProductDetailResponseDto result = productService.getProductDetail(1L);
 
         // Then
-        assertThat(result).isNotNull();
-        assertThat(result.getProductId()).isEqualTo(1L);
-        assertThat(result.getProductTitle()).isEqualTo("샘플 상품1");
-        assertThat(result.getProductContent()).isEqualTo("샘플 상품 내용1");
-        assertThat(result.getProductStatus()).isEqualTo(ProductStatusEnum.AVAILABLE.getStatus());
-        assertThat(result.getProductWishlistCount()).isEqualTo(10);
-        assertThat(result.getProductPrice()).isEqualTo(1000);
-        assertThat(result.getProductStock()).isEqualTo(50);
-        assertThat(result.getProductCategory()).isEqualTo(ProductCategoryEnum.FOOD.getCategory());
-        assertThat(result.getProductOptions()).hasSize(1);
+        assertAll(
+                () -> assertThat(result).isNotNull(),
+                () -> assertThat(result.getProductId()).isEqualTo(1L),
+                () -> assertThat(result.getProductTitle()).isEqualTo("샘플 상품1"),
+                () -> assertThat(result.getProductContent()).isEqualTo("샘플 상품 내용1"),
+                () -> assertThat(result.getProductStatus()).isEqualTo(ProductStatusEnum.AVAILABLE.getStatus()),
+                () -> assertThat(result.getProductWishlistCount()).isEqualTo(10),
+                () -> assertThat(result.getProductPrice()).isEqualTo(1000),
+                () -> assertThat(result.getProductStock()).isEqualTo(50),
+                () -> assertThat(result.getProductCategory()).isEqualTo(ProductCategoryEnum.FOOD.getCategory()),
+                () -> assertThat(result.getProductOptions()).hasSize(1)
+        );
 
         ProductOptionDetailResponseDto optionDto = result.getProductOptions().get(0);
-        assertThat(optionDto.getProductOptionId()).isEqualTo(1L);
-        assertThat(optionDto.getProductOptionTitle()).isEqualTo("옵션1");
-        assertThat(optionDto.getProductOptionStock()).isEqualTo(10);
-        assertThat(optionDto.getProductOptionPrice()).isEqualTo(500);
-        assertThat(optionDto.getProductStartDate()).isNotNull();
+        assertAll(
+                () -> assertThat(optionDto.getProductOptionId()).isEqualTo(1L),
+                () -> assertThat(optionDto.getProductOptionTitle()).isEqualTo("옵션1"),
+                () -> assertThat(optionDto.getProductOptionStock()).isEqualTo(10),
+                () -> assertThat(optionDto.getProductOptionPrice()).isEqualTo(500),
+                () -> assertThat(optionDto.getProductStartDate()).isNotNull()
+        );
     }
 
     @Test
