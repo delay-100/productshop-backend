@@ -1,6 +1,8 @@
 package com.whitedelay.productshop.mail.service;
 
+import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.member.repository.MemberRepository;
+import com.whitedelay.productshop.security.AES256Encoder;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;
@@ -13,6 +15,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Optional;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -23,6 +26,7 @@ public class MailService {
     private final RedisTemplate<String, String> redisTemplate;
     private final JavaMailSender javaMailSender;
     private final MemberRepository memberRepository;
+    private final AES256Encoder aes256Encoder;
 
     @Value("${SIGNUP_CODE_KEY_PREFIX}")
     private String SIGNUP_CODE_KEY_PREFIX;
@@ -34,7 +38,8 @@ public class MailService {
     private String mailUsername;
 
     public boolean postSignupVerificationEmail(String email) throws MessagingException, UnsupportedEncodingException {
-        if (memberRepository.findByEmail(email).isPresent()) {
+        Optional<Member> member = memberRepository.findByEmail(aes256Encoder.encodeString(email));
+        if (member.isPresent()) {
             throw new IllegalArgumentException("이미 가입된 이메일입니다.");
         }
 
