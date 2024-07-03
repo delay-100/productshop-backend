@@ -7,11 +7,13 @@ import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Builder(access = AccessLevel.PUBLIC)
+@Builder
 @Getter
 @Entity
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+//@AllArgsConstructor(access = AccessLevel.PRIVATE)
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "product")
 public class Product extends Timestamped {
     @Id
