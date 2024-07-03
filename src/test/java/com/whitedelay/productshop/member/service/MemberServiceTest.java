@@ -1,6 +1,5 @@
 package com.whitedelay.productshop.member.service;
 
-import com.whitedelay.productshop.mail.service.MailService;
 import com.whitedelay.productshop.member.dto.*;
 import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.member.repository.MemberRepository;
@@ -18,9 +17,10 @@ import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.util.ReflectionTestUtils;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class MemberServiceTest {
@@ -59,6 +59,8 @@ class MemberServiceTest {
 
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(member.getMemberId())).thenReturn("someToken");
+        ReflectionTestUtils.setField(memberService, "AUTHORIZATION_HEADER", "Auth");
+        ReflectionTestUtils.setField(memberService, "REFRESHTOKEN_HEADER", "Refresh");
 
         // when
         boolean result = memberService.logout(member, httpServletResponse);
@@ -67,10 +69,10 @@ class MemberServiceTest {
         assertThat(result).isTrue();
         verify(redisTemplate).delete(member.getMemberId());
         verify(httpServletResponse).addCookie(argThat(cookie ->
-                cookie.getName().equals("Authorization") && cookie.getMaxAge() == 0
+                cookie.getName().equals("Auth") && cookie.getMaxAge() == 0
         ));
         verify(httpServletResponse).addCookie(argThat(cookie ->
-                cookie.getName().equals("RefreshToken") && cookie.getMaxAge() == 0
+                cookie.getName().equals("Refresh") && cookie.getMaxAge() == 0
         ));
     }
 
@@ -80,11 +82,11 @@ class MemberServiceTest {
         // given
         Member member = Member.builder()
                 .memberId("testuser")
-                .email("test@example.com")
-                .memberName("홍길동")
-                .address("서울시 강남구")
+                .email("encodedEmail")
+                .memberName("encodedName")
+                .address("encodedAddress")
                 .zipCode(12345)
-                .phone("010-1234-5678")
+                .phone("encodedPhone")
                 .build();
 
         when(aes256Encoder.decodeString(member.getEmail())).thenReturn("test@example.com");
@@ -108,19 +110,21 @@ class MemberServiceTest {
         // given
         Member member = Member.builder()
                 .memberId("testuser")
-                .email("test@example.com")
-                .memberName("홍길동")
-                .address("서울시 강남구")
+                .email("encodedEmail")
+                .memberName("encodedName")
+                .address("encodedAddress")
                 .zipCode(12345)
-                .phone("010-1234-5678")
+                .phone("encodedPhone")
                 .build();
 
         MemberMyInfoRequestDto requestDto = MemberMyInfoRequestDto.builder()
                 .address("서울시 서초구")
                 .phone("010-5678-1234")
+                .zipCode(12345)
                 .build();
-        ReflectionTestUtils.setField(aes256Encoder, "ALG", "AES/CBC/PKCS5Padding");
-        ReflectionTestUtils.setField(aes256Encoder, "KEY", "80527431067289124593160847526013");
+
+        ReflectionTestUtils.setField(aes256Encoder, "ALG", "AES/GCM/NoPadding");
+        ReflectionTestUtils.setField(aes256Encoder, "KEY", "12345678901234567890123456789012");
 
         // AES256Encoder의 encodeString 메소드 모의 설정
         when(aes256Encoder.encodeString(requestDto.getAddress())).thenReturn("encodedAddress");
@@ -132,6 +136,9 @@ class MemberServiceTest {
         when(aes256Encoder.decodeString("encodedAddress")).thenReturn("서울시 서초구");
         when(aes256Encoder.decodeString("encodedPhone")).thenReturn("010-5678-1234");
 
+        // MemberRepository의 findByMemberId 메소드 모의 설정
+        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
+
         // when
         MemberMyInfoResponseDto responseDto = memberService.updateMemberMyInfo(member, requestDto);
 
@@ -140,7 +147,6 @@ class MemberServiceTest {
         assertThat(responseDto.getMemberName()).isEqualTo("홍길동");
         assertThat(responseDto.getAddress()).isEqualTo("서울시 서초구");
         assertThat(responseDto.getPhone()).isEqualTo("010-5678-1234");
-        verify(memberRepository).save(any(Member.class));
     }
 
     @Test
@@ -159,6 +165,9 @@ class MemberServiceTest {
                 .build();
 
         when(passwordEncoder.matches(requestDto.getPrePassword(), member.getPassword())).thenReturn(false);
+
+        // MemberRepository의 findByMemberId 메소드 모의 설정
+        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
 
         // when & then
         assertThatThrownBy(() -> memberService.updateMemberPassword(member, requestDto))
@@ -182,6 +191,9 @@ class MemberServiceTest {
                 .build();
 
         when(passwordEncoder.matches(requestDto.getPrePassword(), member.getPassword())).thenReturn(true);
+
+        // MemberRepository의 findByMemberId 메소드 모의 설정
+        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
 
         // when & then
         assertThatThrownBy(() -> memberService.updateMemberPassword(member, requestDto))
@@ -207,31 +219,33 @@ class MemberServiceTest {
         when(passwordEncoder.matches(requestDto.getPrePassword(), member.getPassword())).thenReturn(true);
         when(passwordEncoder.encode(requestDto.getNewPassword())).thenReturn("newEncodedPassword");
 
+        // MemberRepository의 findByMemberId 메소드 모의 설정
+        when(memberRepository.findByMemberId(member.getMemberId())).thenReturn(Optional.of(member));
+
         // when
         boolean result = memberService.updateMemberPassword(member, requestDto);
 
         // then
         assertThat(result).isTrue();
         assertThat(member.getPassword()).isEqualTo("newEncodedPassword");
-        verify(memberRepository).save(member);
     }
 
     @Test
     @DisplayName("쿠키 삭제")
     void deleteCookie_Success() {
         // given
-        ReflectionTestUtils.setField(memberService, "AUTHORIZATION_HEADER", "Authorization");
-        ReflectionTestUtils.setField(memberService, "REFRESHTOKEN_HEADER", "RefreshToken");
+        ReflectionTestUtils.setField(memberService, "AUTHORIZATION_HEADER", "Auth");
+        ReflectionTestUtils.setField(memberService, "REFRESHTOKEN_HEADER", "Refresh");
 
         // when
         memberService.deleteCookie(httpServletResponse);
 
         // then
         verify(httpServletResponse).addCookie(argThat(cookie ->
-                cookie.getName().equals("Authorization") && cookie.getMaxAge() == 0
+                cookie.getName().equals("Auth") && cookie.getMaxAge() == 0
         ));
         verify(httpServletResponse).addCookie(argThat(cookie ->
-                cookie.getName().equals("RefreshToken") && cookie.getMaxAge() == 0
+                cookie.getName().equals("Refresh") && cookie.getMaxAge() == 0
         ));
     }
 }
