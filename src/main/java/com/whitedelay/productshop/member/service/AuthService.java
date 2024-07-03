@@ -41,7 +41,7 @@ public class AuthService {
             throw new IllegalArgumentException("중복된 아이디입니다.");
         }
 
-        memberRepository.save(Member.from(signupRequestDto, aes256Encoder));
+        memberRepository.save(Member.from(signupRequestDto, passwordEncoder, aes256Encoder));
         return true;
     }
 

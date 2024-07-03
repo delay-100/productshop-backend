@@ -4,6 +4,7 @@ import com.whitedelay.productshop.member.dto.SignupRequestDto;
 import com.whitedelay.productshop.security.AES256Encoder;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 //@Builder(access = AccessLevel.PRIVATE)
 @Builder
@@ -42,15 +43,15 @@ public class Member extends Timestamped {
     @Enumerated(EnumType.STRING)
     private MemberRoleEnum role;
 
-    public static Member from(SignupRequestDto member, AES256Encoder encoder) {
+    public static Member from(SignupRequestDto member, PasswordEncoder passwordEncoder, AES256Encoder aesEncoder) {
         return Member.builder()
                 .memberId(member.getMemberId())
-                .password(member.getPassword())
-                .address(encoder.encodeString(member.getAddress()))
+                .password(passwordEncoder.encode(member.getPassword()))
+                .address(aesEncoder.encodeString(member.getAddress()))
                 .zipCode(member.getZipCode())
-                .email(encoder.encodeString(member.getEmail()))
-                .memberName(encoder.encodeString(member.getMemberName()))
-                .phone(encoder.encodeString(member.getPhone()))
+                .email(aesEncoder.encodeString(member.getEmail()))
+                .memberName(aesEncoder.encodeString(member.getMemberName()))
+                .phone(aesEncoder.encodeString(member.getPhone()))
                 .role(member.getRole())
                 .build();
     }
@@ -61,6 +62,10 @@ public class Member extends Timestamped {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public void setZipCode(int zipCode) {
+        this.zipCode = zipCode;
     }
 
     public void setPassword(String password) {

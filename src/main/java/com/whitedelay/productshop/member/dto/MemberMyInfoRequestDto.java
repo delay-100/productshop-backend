@@ -11,4 +11,6 @@ public class MemberMyInfoRequestDto {
     private String address;
     @NotBlank
     private String phone;
+    @NotBlank
+    private int zipCode;
 }
