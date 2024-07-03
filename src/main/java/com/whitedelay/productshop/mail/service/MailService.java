@@ -77,13 +77,12 @@ public class MailService {
                 "<div style='margin:100px;'>"
                 + "<br>"
                 + "<p>아래 코드를 회원가입 창으로 돌아가 입력해주세요<p>"
-                + "<h3>회원가입 인증 코드입니다.</h3>"
                 + "<strong>"
                 + code
                 + "</strong></div>";
 
         message.setText(msgText, "utf-8", "html");
-        message.setFrom(new InternetAddress(mailUsername, "백지연"));
+        message.setFrom(new InternetAddress(mailUsername, "ProductShop"));
 
         return message;
     }
