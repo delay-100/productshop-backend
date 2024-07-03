@@ -2,6 +2,7 @@ package com.whitedelay.productshop.order.dto;
 
 import com.whitedelay.productshop.order.entity.Order;
 import com.whitedelay.productshop.product.entity.Product;
+import com.whitedelay.productshop.product.entity.ProductOption;
 import jakarta.persistence.Column;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
@@ -20,11 +21,13 @@ public class OrderProductRequestDto {
 //    private int productPrice;
 //    private int optionPrice; // nullable, 없을수도 있음
 
+    private Order order;
+    private Product product;
 
     private int orderProductQuantity;
     private int orderProductPrice;
+
     private Long orderProductOptionId;
     private int orderProductOptionPrice;
-    private Order order;
-    private Product product;
+
 }

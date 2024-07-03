@@ -30,15 +30,15 @@ public class CartService {
     private final ProductOptionRepository productOptionRepository;
 
     @Transactional
-    public ApiResponse<CartInfoResponseDto> createCart(Member member, Long productId, Long productOptionId, int quantity) {
+    public CartInfoResponseDto createCart(Member member, Long productId, Long productOptionId, int quantity) {
         // 상품 조회
-        Product product = productRepository.findByProductId(productId)
+        Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
 
         ProductOption productOption = null;
         if (productOptionId != null && productOptionId > 0) {
             // 상품 옵션 조회
-            productOption = productOptionRepository.findByProductOptionId(productOptionId)
+            productOption = productOptionRepository.findById(productOptionId)
                     .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
         }
 
@@ -63,42 +63,40 @@ public class CartService {
         }
         cartRepository.save(cart);
 
-        CartInfoResponseDto.CartInfoResponseDtoBuilder responseBuilder = CartInfoResponseDto.builder()
+        return CartInfoResponseDto.builder()
                 .productId(productId)
                 .productTitle(product.getProductTitle())
-                .quantity(cart.getCartProductStock());
-
-        if (productOption != null) {
-            responseBuilder.productOptionId(productOptionId)
-                    .productOptionTitle(productOption.getProductOptionTitle())
-                    .productOptionPrice(productOption.getProductOptionPrice())
-                    .productOptionStock(productOption.getProductOptionStock());
-        }
-
-        return ApiResponse.createSuccess(responseBuilder.build());
+                .quantity(cart.getCartProductStock())
+                .productOptionId(productOption != null ? productOptionId : 0)
+                .productOptionTitle(productOption != null ? productOption.getProductOptionTitle() : null)
+                .productOptionPrice(productOption != null ? productOption.getProductOptionPrice() : 0)
+                .productOptionStock(productOption != null ? productOption.getProductOptionStock() : 0)
+                .build();
     }
 
     @Transactional
-    public ApiResponse<Boolean> deleteCart(Member member, Long productId, Long productOptionId) {
-            // 카트에 있는 상품 조회
-            Cart cart = cartRepository.findByMemberMemberIdAndProductProductIdAndCartProductOptionId(
-                member.getMemberId(), productId, Objects.requireNonNullElse(productOptionId, 0L))
-                    .orElseThrow(() -> new IllegalArgumentException("삭제할 항목이 없습니다."));
+    public Boolean deleteCart(Member member, Long productId, Long productOptionId) {
+        // 카트에 있는 상품 조회
+        Cart cart = cartRepository.findByMemberMemberIdAndProductProductIdAndCartProductOptionId(
+                        member.getMemberId(), productId, Objects.requireNonNullElse(productOptionId, 0L))
+                .orElseThrow(() -> new IllegalArgumentException("삭제할 상품이 없습니다."));
 
-            cartRepository.delete(cart);
+        cartRepository.delete(cart);
 
-            return ApiResponse.createSuccess(true);
-
+        return true;
     }
 
     @Transactional(readOnly = true)
-    public ApiResponse<CartAllInfoResponseDto> getCartAllInfo(Member member) {
+    public CartAllInfoResponseDto getCartAllInfo(Member member) {
         List<Cart> cartList = cartRepository.findByMemberMemberId(member.getMemberId());
 
         List<CartInfoResponseDto> cartInfoResponseDtoList = cartList.stream().map(cart -> {
             Product product = cart.getProduct();
-            ProductOption productOption = cart.getCartProductOptionId() != 0 ?
-                    product.getProductOptions().stream().filter(option -> option.getProductOptionId().equals(cart.getCartProductOptionId())).findFirst().orElse(null) : null;
+            ProductOption productOption = null;
+            if (cart.getCartProductOptionId() != 0) {
+                productOption = productOptionRepository.findById(cart.getCartProductOptionId())
+                        .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
+            }
 
             return CartInfoResponseDto.builder()
                     .productId(product.getProductId())
@@ -115,6 +113,6 @@ public class CartService {
                 .mapToInt(dto -> dto.getProductOptionPrice() * dto.getQuantity())
                 .sum();
 
-        return ApiResponse.createSuccess(CartAllInfoResponseDto.from(cartInfoResponseDtoList, totalPrice));
+        return CartAllInfoResponseDto.from(cartInfoResponseDtoList, totalPrice);
     }
 }

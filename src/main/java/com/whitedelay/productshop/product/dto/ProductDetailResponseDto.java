@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Getter;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Getter
 @Builder
@@ -20,7 +19,7 @@ public class ProductDetailResponseDto {
     private String productCategory;
     private List<ProductOptionDetailResponseDto> productOptions;
 
-    public static ProductDetailResponseDto from(Product product) {
+    public static ProductDetailResponseDto from(Product product, List<ProductOptionDetailResponseDto> productOptions) {
         return ProductDetailResponseDto.builder()
                 .productId(product.getProductId())
                 .productTitle(product.getProductTitle())
@@ -29,11 +28,11 @@ public class ProductDetailResponseDto {
                 .productWishlistCount(product.getProductWishlistCount())
                 .productPrice(product.getProductPrice())
                 .productStock(product.getProductStock())
-                .productStock(product.getProductStock())
                 .productCategory(product.getProductCategory().getCategory())
-                .productOptions(product.getProductOptions().stream()
-                        .map(ProductOptionDetailResponseDto::from)
-                        .collect(Collectors.toList()))
+                .productOptions(productOptions)
+//                .productOptions(product.getProductOptions().stream()
+//                        .map(ProductOptionDetailResponseDto::from)
+//                        .collect(Collectors.toList()))
                 .build();
     }
 }

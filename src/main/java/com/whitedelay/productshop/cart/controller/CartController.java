@@ -30,7 +30,7 @@ public class CartController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody CartInfoRequestDto cartInfoRequestDto
     ) {
-        return cartService.createCart(userDetails.getMember(), cartInfoRequestDto.getProductId(), cartInfoRequestDto.getProductOptionId(), cartInfoRequestDto.getQuantity());
+        return ApiResponse.createSuccess(cartService.createCart(userDetails.getMember(), cartInfoRequestDto.getProductId(), cartInfoRequestDto.getProductOptionId(), cartInfoRequestDto.getQuantity()));
     }
 
     /**
@@ -45,7 +45,7 @@ public class CartController {
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody CartSimpleInfoRequestDto cartSimpleInfoRequestDto
     ) {
-        return cartService.deleteCart(userDetails.getMember(), cartSimpleInfoRequestDto.getProductId(), cartSimpleInfoRequestDto.getProductOptionId());
+        return ApiResponse.createSuccess(cartService.deleteCart(userDetails.getMember(), cartSimpleInfoRequestDto.getProductId(), cartSimpleInfoRequestDto.getProductOptionId()));
     }
 
     /**
@@ -58,6 +58,6 @@ public class CartController {
     public ApiResponse<CartAllInfoResponseDto> getCartAllInfo(
         @AuthenticationPrincipal UserDetailsImpl userDetails
     )   {
-        return cartService.getCartAllInfo(userDetails.getMember());
+        return ApiResponse.createSuccess(cartService.getCartAllInfo(userDetails.getMember()));
     }
 }

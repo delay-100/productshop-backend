@@ -1,5 +1,7 @@
 package com.whitedelay.productshop.order.dto;
 
+import com.whitedelay.productshop.member.entity.Member;
+import com.whitedelay.productshop.security.AES256Encoder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,4 +27,24 @@ public class OrderProductAllInfoResponseDto {
     private int productTotalPrice;
     private int orderShippingFee;
     private int orderPrice; // 총금액
+
+    public static OrderProductAllInfoResponseDto from(
+            Member member,
+            AES256Encoder aes256Encoder,
+            List<OrderProductResponseDto> orderProducts,
+            int productTotalPrice,
+            int orderShippingFee,
+            int orderPrice
+            ) {
+        return OrderProductAllInfoResponseDto.builder()
+                .orderMemberName(aes256Encoder.decodeString(member.getMemberName()))
+                .orderZipCode(member.getZipCode())
+                .orderAddress(aes256Encoder.decodeString(member.getAddress()))
+                .orderPhone(aes256Encoder.decodeString(member.getPhone()))
+                .orderProducts(orderProducts)
+                .productTotalPrice(productTotalPrice)
+                .orderShippingFee(orderShippingFee)
+                .orderPrice(orderPrice)
+                .build();
+    }
 }

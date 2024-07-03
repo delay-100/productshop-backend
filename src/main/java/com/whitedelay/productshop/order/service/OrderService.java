@@ -41,7 +41,7 @@ public class OrderService {
     public OrderProductAllInfoResponseDto getOrderProductAllInfo(Member member, OrderProductAllInfoRequestDto orderProductAllInfoRequestDto) {
         // 각 주문 항목에 대해 상품 정보 조회
         List<OrderProductResponseDto> orderProducts = orderProductAllInfoRequestDto.getOrderProducts().stream().map(orderProduct -> {
-            Product product = productRepository.findByProductId(orderProduct.getProductId())
+            Product product = productRepository.findById(orderProduct.getProductId())
                     .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
 
             ProductOption productOption = null;
@@ -50,22 +50,12 @@ public class OrderService {
             int productTotalPrice = productPrice * orderProduct.getQuantity();
 
             if (orderProduct.getProductOptionId() != null) {
-                productOption = product.getProductOptions().stream()
-                        .filter(option -> option.getProductOptionId().equals(orderProduct.getProductOptionId()))
-                        .findFirst()
+                productOption = productOptionRepository.findById(orderProduct.getProductOptionId())
                         .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
                 productPrice += (productOption.getProductOptionPrice() * orderProduct.getQuantity());
             }
 
-            return OrderProductResponseDto.builder()
-                    .productId(product.getProductId())
-                    .productTitle(product.getProductTitle())
-                    .quantity(orderProduct.getQuantity())
-                    .productOptionId(productOption != null ? productOption.getProductOptionId() : null)
-                    .productOptionTitle(productOption != null ? productOption.getProductOptionTitle() : null)
-                    .productPrice(productPrice)
-                    .productTotalPrice(productTotalPrice)
-                    .build();
+            return OrderProductResponseDto.from(product, orderProduct.getQuantity(), productOption, productPrice, productTotalPrice);
         }).collect(Collectors.toList());
 
         // 총 결제 금액 계산
@@ -73,16 +63,7 @@ public class OrderService {
         int orderShippingFee = productTotalPrice >= 30000 ? 0 : 3000;
         int orderPrice = productTotalPrice + orderShippingFee;
 
-        return OrderProductAllInfoResponseDto.builder()
-                .orderMemberName(aes256Encoder.decodeString(member.getMemberName())) // 회원 이름
-                .orderZipCode(member.getZipCode()) // 회원 우편번호
-                .orderAddress(aes256Encoder.decodeString(member.getAddress())) // 회원 주소
-                .orderPhone(aes256Encoder.decodeString(member.getPhone())) // 회원 전화번호
-                .orderProducts(orderProducts)
-                .productTotalPrice(productTotalPrice)
-                .orderShippingFee(orderShippingFee)
-                .orderPrice(orderPrice)
-                .build();
+        return OrderProductAllInfoResponseDto.from(member ,aes256Encoder, orderProducts, productTotalPrice, orderShippingFee, orderPrice);
     }
 
     @Transactional
@@ -117,9 +98,7 @@ public class OrderService {
             ProductOption productOption = null;
             int optionPrice = 0;
             if (orderProductDto.getProductOptionId() != null) {
-                productOption = product.getProductOptions().stream()
-                        .filter(option -> option.getProductOptionId().equals(orderProductDto.getProductOptionId()))
-                        .findFirst()
+                productOption = productOptionRepository.findById(orderProductDto.getProductOptionId())
                         .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다.")); // 상품 옵션 조회
                 optionPrice = productOption.getProductOptionPrice(); // 상품 옵션 가격 설정
             }
@@ -205,15 +184,24 @@ public class OrderService {
         }
     }
 
-
-    /**
-     * 멤버의 주문 목록을 페이지네이션하여 조회하는 메서드
-     *
-     * @param member 멤버 객체
-     * @param page 페이지 번호 (0부터 시작)
-     * @param size 페이지 당 주문 수
-     * @return 주문 목록 페이지
-     */
+//    @Transactional(readOnly = true)
+//    public Page<OrderListResponseDto> getOrderList(Member member, int page, int size) {
+//        Pageable pageable = PageRequest.of(page, size);
+//        Page<Order> orders = orderRepository.findByMemberMemberId(member.getMemberId(), pageable);
+//
+//        return orders.map(order -> {
+//            List<OrderProduct> orderProducts = orderProductRepository.findByOrderOrderId(order.getOrderId());
+//            String productTitle = orderProducts.stream()
+//                    .map(orderProduct -> productRepository.findById(orderProduct.getProduct().getProductId())
+//                            .map(Product::getProductTitle)
+//                            .orElse("Unknown Product"))
+//                    .findFirst()
+//                    .orElse("Unknown Product");
+//            int orderProductCount = orderProducts.size(); // 총 orderProduct 수
+//
+//            return OrderListResponseDto.from(order, productTitle, orderProductCount);
+//        });
+//    }
     @Transactional(readOnly = true)
     public Page<OrderListResponseDto> getOrderList(Member member, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -221,56 +209,76 @@ public class OrderService {
 
         return orders.map(order -> {
             List<OrderProduct> orderProducts = orderProductRepository.findByOrderOrderId(order.getOrderId());
-            String productTitle = orderProducts.stream()
-                    .map(orderProduct -> productRepository.findByProductId(orderProduct.getProduct().getProductId())
-                            .map(Product::getProductTitle)
-                            .orElse("Unknown Product"))
-                    .findFirst()
-                    .orElse("Unknown Product");
+
+            if (orderProducts.isEmpty()) {
+                throw new IllegalArgumentException("해당 주문에 대한 상품이 없습니다.");
+            }
+
+            // 묶음 상품에 대해서 대표 상품에 대한 옵션만 출력함
+            Product product = productRepository.findById(orderProducts.getFirst().getProduct().getProductId())
+                    .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
+            String productTitle = product.getProductTitle();
             int orderProductCount = orderProducts.size(); // 총 orderProduct 수
 
             return OrderListResponseDto.from(order, productTitle, orderProductCount);
         });
     }
 
-    /**
-     * 멤버의 주문 상세 정보를 조회하는 메서드
-     *
-     * @param member 멤버 객체
-     * @param orderId 주문 ID
-     * @return 주문 상세 정보
-     * @throws IllegalArgumentException 주문이 존재하지 않을 경우 예외 발생
-     */
+
+//    @Transactional(readOnly = true)
+//    public OrderDetailResponseDto getOrderDetail(Member member, Long orderId) {
+//        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId)
+//                .orElseThrow(() -> new IllegalArgumentException("해당 주문이 없습니다."));
+//
+//        List<OrderProduct> orderProducts = Optional.ofNullable(orderProductRepository.findByOrderOrderId(orderId))
+//                .filter(products -> !products.isEmpty())
+//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "잘못된 주문이 존재:" + orderId));
+//
+//        List<OrderProductDetailResponseDto> orderProductDetailResponseDto = orderProducts.stream()
+//                .map(orderProduct -> {
+//                    Product product = productRepository.findById(orderProduct.getProduct().getProductId())
+//                            .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
+//
+//                    ProductOption productOption = productOptionRepository.findById(orderProduct.getOrderProductOptionId())
+//                            .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
+//                    String productOptionTitle = productOption.map(ProductOption::getProductOptionTitle).orElse("Unknown Option");
+//                    return OrderProductDetailResponseDto.from(orderProduct, product.getProductTitle(), productOptionTitle);
+//                }).collect(Collectors.toList());
+//
+//        return OrderDetailResponseDto.from(order, orderProductDetailResponseDto, aes256Encoder);
+//    }
+
     @Transactional(readOnly = true)
     public OrderDetailResponseDto getOrderDetail(Member member, Long orderId) {
-        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId).orElseThrow(() -> new IllegalArgumentException("해당 주문이 없습니다."));
-        
-        List<OrderProduct> orderProducts = Optional.ofNullable(orderProductRepository.findByOrderOrderId(orderId))
-                .filter(products -> !products.isEmpty())
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "잘못된 주문이 존재:" + orderId));
+        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 주문이 없습니다."));
 
+        List<OrderProduct> orderProducts = orderProductRepository.findByOrderOrderId(orderId);
+        if (orderProducts.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "잘못된 주문이 존재:" + orderId);
+        }
         List<OrderProductDetailResponseDto> orderProductDetailResponseDto = orderProducts.stream()
                 .map(orderProduct -> {
-                    Product product = productRepository.findByProductId(orderProduct.getProduct().getProductId()).orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
+                    Product product = productRepository.findById(orderProduct.getProduct().getProductId())
+                            .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
 
-                    Optional<ProductOption> productOption = productOptionRepository.findByProductOptionId(orderProduct.getOrderProductOptionId());
-                    String productOptionTitle = productOption.map(ProductOption::getProductOptionTitle).orElse("Unknown Option");
+                    String productOptionTitle = null;
+                    if (orderProduct.getOrderProductOptionId() != 0) {
+                        ProductOption productOption = productOptionRepository.findById(orderProduct.getOrderProductOptionId())
+                                .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
+                        productOptionTitle = productOption.getProductOptionTitle();
+                    }
+
                     return OrderProductDetailResponseDto.from(orderProduct, product.getProductTitle(), productOptionTitle);
                 }).collect(Collectors.toList());
 
         return OrderDetailResponseDto.from(order, orderProductDetailResponseDto, aes256Encoder);
     }
 
-    /**
-     * 멤버의 주문 상태를 취소로 업데이트하는 메서드
-     *
-     * @param member 멤버 객체
-     * @param orderId 주문 ID
-     * @return 주문 취소 응답 DTO
-     */
     @Transactional
     public OrderCancelResponseDto updateOrderStatusCancel(Member member, Long orderId) {
-        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId).orElseThrow(() -> new IllegalArgumentException("해당 주문이 없습니다."));
+        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 주문이 없습니다."));
 
         // 취소 가능 상태인지 확인
         if (!order.getOrderStatus().isCancellable()) {
@@ -284,6 +292,13 @@ public class OrderService {
             Product product = orderProduct.getProduct();
             product.setProductStock(product.getProductStock() + orderProduct.getOrderProductQuantity());
             productRepository.save(product);
+
+            if (orderProduct.getOrderProductOptionId() != 0) {
+                ProductOption productOption = productOptionRepository.findById(orderProduct.getOrderProductOptionId())
+                        .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
+                productOption.setProductOptionStock(productOption.getProductOptionStock() + orderProduct.getOrderProductQuantity());
+                productOptionRepository.save(productOption);
+            }
         }
 
         orderRepository.save(order);
@@ -291,17 +306,10 @@ public class OrderService {
         return OrderCancelResponseDto.from(order);
     }
 
-
-    /**
-     * 멤버의 주문 상태를 반품으로 업데이트하는 메서드
-     *
-     * @param member 멤버 객체
-     * @param orderId 주문 ID
-     * @return 주문 반품 응답 DTO
-     */
     @Transactional
     public OrderReturnResponseDto updateOrderStatusReturn(Member member, Long orderId) {
-        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId).orElseThrow(() -> new IllegalArgumentException("해당 주문이 없습니다."));
+        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId)
+                .orElseThrow(() -> new IllegalArgumentException("해당 주문이 없습니다."));
 
         // 반품 가능 상태인지 확인
         if (!order.getOrderStatus().isReturnable()) {
@@ -318,7 +326,4 @@ public class OrderService {
 
         return OrderReturnResponseDto.from(order);
     }
-
 }
-
-
