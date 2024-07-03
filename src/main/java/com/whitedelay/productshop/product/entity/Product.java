@@ -44,9 +44,6 @@ public class Product extends Timestamped {
     @Column(nullable = false)
     private LocalDateTime productStartDate;
 
-//    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
-//    private List<ProductOption> productOptions;
-
     public static Product from(ProductRequestDto product) {
         return Product.builder()
                 .productTitle(product.getProductTitle())

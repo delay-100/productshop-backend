@@ -11,7 +11,17 @@ import lombok.Getter;
 @AllArgsConstructor
 public class CartRequestDto {
     private Long cartProductOptionId;
-    private int cartProductStock;
+    private int cartProductQuantity;
     private Member member;
     private Product product;
+
+
+    public static CartRequestDto from (Long productOptionId, int quantity, Member member, Product product) {
+        return CartRequestDto.builder()
+                .cartProductOptionId(productOptionId != null ? productOptionId : 0L)
+                .cartProductQuantity(quantity)
+                .member(member)
+                .product(product)
+                .build();
+    }
 }

@@ -10,8 +10,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Builder
 @Getter
 @Entity
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+//@AllArgsConstructor(access = AccessLevel.PRIVATE)
+//@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name= "member")
 public class Member extends Timestamped {
     @Id

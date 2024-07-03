@@ -47,13 +47,14 @@ public class OrderService {
             ProductOption productOption = null;
 
             int productPrice = product.getProductPrice();
-            int productTotalPrice = productPrice * orderProduct.getQuantity();
-
+            int productOptionPrice = 0;
             if (orderProduct.getProductOptionId() != null) {
                 productOption = productOptionRepository.findById(orderProduct.getProductOptionId())
                         .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
-                productPrice += (productOption.getProductOptionPrice() * orderProduct.getQuantity());
+                productOptionPrice = productOption.getProductOptionPrice();
             }
+
+            int productTotalPrice = (productPrice + productOptionPrice) * orderProduct.getQuantity();
 
             return OrderProductResponseDto.from(product, orderProduct.getQuantity(), productOption, productPrice, productTotalPrice);
         }).collect(Collectors.toList());
@@ -96,11 +97,9 @@ public class OrderService {
                     .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다.")); // 상품 조회
 
             ProductOption productOption = null;
-            int optionPrice = 0;
             if (orderProductDto.getProductOptionId() != null) {
                 productOption = productOptionRepository.findById(orderProductDto.getProductOptionId())
                         .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다.")); // 상품 옵션 조회
-                optionPrice = productOption.getProductOptionPrice(); // 상품 옵션 가격 설정
             }
 
             OrderProduct orderProduct = OrderProduct.from(OrderProductRequestDto.builder()
@@ -109,7 +108,7 @@ public class OrderService {
                     .orderProductQuantity(orderProductDto.getQuantity()) // 주문 상품 수량 설정
                     .orderProductPrice(product.getProductPrice()) // 주문 상품 가격 설정
                     .orderProductOptionId(productOption != null ? productOption.getProductOptionId() : 0) // 주문 상품 옵션 설정
-                    .orderProductOptionPrice(optionPrice) // 주문 상품 옵션 가격 설정
+                    .orderProductOptionPrice(productOption != null ? productOption.getProductOptionPrice() : 0) // 주문 상품 옵션 가격 설정
                     .build());
 
             orderProducts.add(orderProduct);
@@ -184,24 +183,6 @@ public class OrderService {
         }
     }
 
-//    @Transactional(readOnly = true)
-//    public Page<OrderListResponseDto> getOrderList(Member member, int page, int size) {
-//        Pageable pageable = PageRequest.of(page, size);
-//        Page<Order> orders = orderRepository.findByMemberMemberId(member.getMemberId(), pageable);
-//
-//        return orders.map(order -> {
-//            List<OrderProduct> orderProducts = orderProductRepository.findByOrderOrderId(order.getOrderId());
-//            String productTitle = orderProducts.stream()
-//                    .map(orderProduct -> productRepository.findById(orderProduct.getProduct().getProductId())
-//                            .map(Product::getProductTitle)
-//                            .orElse("Unknown Product"))
-//                    .findFirst()
-//                    .orElse("Unknown Product");
-//            int orderProductCount = orderProducts.size(); // 총 orderProduct 수
-//
-//            return OrderListResponseDto.from(order, productTitle, orderProductCount);
-//        });
-//    }
     @Transactional(readOnly = true)
     public Page<OrderListResponseDto> getOrderList(Member member, int page, int size) {
         Pageable pageable = PageRequest.of(page, size);
@@ -223,30 +204,6 @@ public class OrderService {
             return OrderListResponseDto.from(order, productTitle, orderProductCount);
         });
     }
-
-
-//    @Transactional(readOnly = true)
-//    public OrderDetailResponseDto getOrderDetail(Member member, Long orderId) {
-//        Order order = orderRepository.findByMemberMemberIdAndOrderId(member.getMemberId(), orderId)
-//                .orElseThrow(() -> new IllegalArgumentException("해당 주문이 없습니다."));
-//
-//        List<OrderProduct> orderProducts = Optional.ofNullable(orderProductRepository.findByOrderOrderId(orderId))
-//                .filter(products -> !products.isEmpty())
-//                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "잘못된 주문이 존재:" + orderId));
-//
-//        List<OrderProductDetailResponseDto> orderProductDetailResponseDto = orderProducts.stream()
-//                .map(orderProduct -> {
-//                    Product product = productRepository.findById(orderProduct.getProduct().getProductId())
-//                            .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
-//
-//                    ProductOption productOption = productOptionRepository.findById(orderProduct.getOrderProductOptionId())
-//                            .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
-//                    String productOptionTitle = productOption.map(ProductOption::getProductOptionTitle).orElse("Unknown Option");
-//                    return OrderProductDetailResponseDto.from(orderProduct, product.getProductTitle(), productOptionTitle);
-//                }).collect(Collectors.toList());
-//
-//        return OrderDetailResponseDto.from(order, orderProductDetailResponseDto, aes256Encoder);
-//    }
 
     @Transactional(readOnly = true)
     public OrderDetailResponseDto getOrderDetail(Member member, Long orderId) {

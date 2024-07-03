@@ -9,9 +9,9 @@ import lombok.*;
 @Entity
 @Table(name = "cart")
 @Getter
-@Builder(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Cart extends Timestamped {
 
     @Id
@@ -21,7 +21,7 @@ public class Cart extends Timestamped {
     private Long cartProductOptionId; // 상품 옵션이 없을 수도 있음
 
     @Column(nullable = false)
-    private int cartProductStock; // 카트에 담은 수
+    private int cartProductQuantity; // 카트에 담은 수
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_id", nullable = false)
@@ -34,13 +34,13 @@ public class Cart extends Timestamped {
     public static Cart from(CartRequestDto cart) {
         return Cart.builder()
                 .cartProductOptionId(cart.getCartProductOptionId())
-                .cartProductStock(cart.getCartProductStock())
+                .cartProductQuantity(cart.getCartProductQuantity())
                 .member(cart.getMember())
                 .product(cart.getProduct())
                 .build();
     }
 
-    public void setCartProductStock(int cartProductStock) {
-        this.cartProductStock = cartProductStock;
+    public void setCartProductQuantity(int cartProductStock) {
+        this.cartProductQuantity = cartProductStock;
     }
 }

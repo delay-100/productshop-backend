@@ -49,29 +49,15 @@ public class CartService {
         Cart cart;
         if (optionalCart.isEmpty()) {
             // 카트에 없는 상품이라면 새로 생성
-            CartRequestDto cartRequestDto = CartRequestDto.builder()
-                    .cartProductOptionId(productOptionId != null ? productOptionId : 0L)
-                    .cartProductStock(quantity)
-                    .member(member)
-                    .product(product)
-                    .build();
-            cart = Cart.from(cartRequestDto);
+            cart = Cart.from(CartRequestDto.from(productOptionId, quantity, member, product));
+            cartRepository.save(cart);
         } else {
             // 카트에 있는 상품이라면 수량을 증가시킴
             cart = optionalCart.get();
-            cart.setCartProductStock(cart.getCartProductStock() + quantity);
+            cart.setCartProductQuantity(cart.getCartProductQuantity() + quantity);
         }
-        cartRepository.save(cart);
-
-        return CartInfoResponseDto.builder()
-                .productId(productId)
-                .productTitle(product.getProductTitle())
-                .quantity(cart.getCartProductStock())
-                .productOptionId(productOption != null ? productOptionId : 0)
-                .productOptionTitle(productOption != null ? productOption.getProductOptionTitle() : null)
-                .productOptionPrice(productOption != null ? productOption.getProductOptionPrice() : 0)
-                .productOptionStock(productOption != null ? productOption.getProductOptionStock() : 0)
-                .build();
+        int productTotalPrice = (product.getProductPrice() + (productOption != null ? productOption.getProductOptionPrice() : 0)) * cart.getCartProductQuantity();
+        return CartInfoResponseDto.from(productId, product.getProductTitle(), product.getProductPrice(), cart.getCartProductQuantity(), productOption, productTotalPrice);
     }
 
     @Transactional
@@ -98,19 +84,12 @@ public class CartService {
                         .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
             }
 
-            return CartInfoResponseDto.builder()
-                    .productId(product.getProductId())
-                    .productTitle(product.getProductTitle())
-                    .quantity(cart.getCartProductStock())
-                    .productOptionId(productOption != null ? productOption.getProductOptionId() : 0)
-                    .productOptionTitle(productOption != null ? productOption.getProductOptionTitle() : null)
-                    .productOptionPrice(productOption != null ? productOption.getProductOptionPrice() : 0)
-                    .productOptionStock(productOption != null ? productOption.getProductOptionStock() : 0)
-                    .build();
+            int productTotalPrice = (product.getProductPrice() + (productOption != null ? productOption.getProductOptionPrice() : 0)) * cart.getCartProductQuantity();
+            return CartInfoResponseDto.from(product.getProductId(), product.getProductTitle(), product.getProductPrice(), cart.getCartProductQuantity(), productOption, productTotalPrice);
         }).collect(Collectors.toList());
 
         int totalPrice = cartInfoResponseDtoList.stream()
-                .mapToInt(dto -> dto.getProductOptionPrice() * dto.getQuantity())
+                .mapToInt(CartInfoResponseDto::getProductTotalPrice)
                 .sum();
 
         return CartAllInfoResponseDto.from(cartInfoResponseDtoList, totalPrice);

@@ -68,7 +68,7 @@ public class LoadDatabase {
                     .product(product1)
                     .productOptionTitle("화이트/ S")
                     .productOptionStock(10)
-                    .productOptionPrice(0)
+                    .productOptionPrice(100)
                     .productStartDate(startDate1)
                     .build();
 
@@ -76,7 +76,7 @@ public class LoadDatabase {
                     .product(product1)
                     .productOptionTitle("블랙/ S")
                     .productOptionStock(5)
-                    .productOptionPrice(0)
+                    .productOptionPrice(200)
                     .productStartDate(startDate1)
                     .build();
 
@@ -84,7 +84,7 @@ public class LoadDatabase {
                     .product(product1)
                     .productOptionTitle("블랙/ M")
                     .productOptionStock(5)
-                    .productOptionPrice(0)
+                    .productOptionPrice(300)
                     .productStartDate(startDate1)
                     .build();
 
@@ -92,7 +92,7 @@ public class LoadDatabase {
                     .product(product2)
                     .productOptionTitle("XP2_RED")
                     .productOptionStock(7)
-                    .productOptionPrice(0)
+                    .productOptionPrice(10)
                     .productStartDate(startDate2)
                     .build();
 
@@ -100,7 +100,7 @@ public class LoadDatabase {
                     .product(product2)
                     .productOptionTitle("HP5")
                     .productOptionStock(5)
-                    .productOptionPrice(0)
+                    .productOptionPrice(30)
                     .productStartDate(startDate2)
                     .build();
 
@@ -108,7 +108,7 @@ public class LoadDatabase {
                     .product(product2)
                     .productOptionTitle("XP2 B&W")
                     .productOptionStock(3)
-                    .productOptionPrice(0)
+                    .productOptionPrice(50)
                     .productStartDate(startDate2)
                     .build();
 
