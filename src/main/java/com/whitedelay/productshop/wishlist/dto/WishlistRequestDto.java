@@ -12,4 +12,11 @@ import lombok.Getter;
 public class WishlistRequestDto {
     private Member member;
     private Product product;
+
+    public static WishlistRequestDto from(Member member, Product product) {
+        return WishlistRequestDto.builder()
+                .member(member)
+                .product(product)
+                .build();
+    }
 }

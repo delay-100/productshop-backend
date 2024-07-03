@@ -9,9 +9,9 @@ import lombok.*;
 @Entity
 @Table(name = "wishlist")
 @Getter
-@Builder(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class Wishlist extends Timestamped {
 
     @Id
