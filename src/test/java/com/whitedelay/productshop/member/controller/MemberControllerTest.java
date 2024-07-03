@@ -54,7 +54,7 @@ public class MemberControllerTest {
 
     @Test
     @DisplayName("로그아웃 성공")
-    public void Logout_Success() {
+    public void logout_Success() {
         // Given
         when(memberService.logout(any(Member.class), any(HttpServletResponse.class))).thenReturn(true);
 
@@ -69,7 +69,7 @@ public class MemberControllerTest {
 
     @Test
     @DisplayName("회원 정보 조회 성공")
-    public void GetMemberMyInfo_Success() {
+    public void getMemberMyInfo_Success() {
         // Given
         MemberMyInfoResponseDto memberMyInfoResponseDto = MemberMyInfoResponseDto.builder()
                 .memberId(member.getMemberId())
@@ -92,7 +92,7 @@ public class MemberControllerTest {
 
     @Test
     @DisplayName("회원 정보 업데이트 성공")
-    public void UpdateMemberMyInfo_Success() {
+    public void updateMemberMyInfo_Success() {
         // Given
         MemberMyInfoRequestDto memberMyInfoRequestDto = MemberMyInfoRequestDto.builder()
                 .address("new address")
@@ -120,7 +120,7 @@ public class MemberControllerTest {
 
     @Test
     @DisplayName("비밀번호 업데이트 성공")
-    public void UpdateMemberPassword_Success() {
+    public void updateMemberPassword_Success() {
         // Given
         MemberPasswordRequestDto memberPasswordRequestDto = MemberPasswordRequestDto.builder()
                 .prePassword("oldPassword")

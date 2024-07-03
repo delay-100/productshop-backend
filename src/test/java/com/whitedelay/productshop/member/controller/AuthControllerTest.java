@@ -35,7 +35,7 @@ public class AuthControllerTest {
 
     @Test
     @DisplayName("회원가입")
-    public void Signup_Success() {
+    public void signup_Success() {
         // Given
         SignupRequestDto signupRequestDto = SignupRequestDto.builder()
                 .memberId("testUser")
@@ -61,7 +61,7 @@ public class AuthControllerTest {
 
     @Test
     @DisplayName("로그인")
-    public void Login_Success() {
+    public void login_Success() {
         // Given
         LoginRequestDto loginRequestDto = LoginRequestDto.builder()
                 .memberId("testUser")
@@ -82,7 +82,7 @@ public class AuthControllerTest {
 
     @Test
     @DisplayName("RefreshToken 재발급")
-    public void RefreshToken_Success() {
+    public void refreshToken_Success() {
         // Given
         RefreshTokenRequestDto refreshTokenRequestDto = RefreshTokenRequestDto.builder()
                 .memberId("testUser")

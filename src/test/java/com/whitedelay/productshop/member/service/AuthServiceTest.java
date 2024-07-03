@@ -9,7 +9,6 @@ import com.whitedelay.productshop.member.dto.SignupRequestDto;
 import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.member.entity.MemberRoleEnum;
 import com.whitedelay.productshop.member.repository.MemberRepository;
-import com.whitedelay.productshop.security.AES256Encoder;
 import com.whitedelay.productshop.security.jwt.JwtUtil;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolation;
