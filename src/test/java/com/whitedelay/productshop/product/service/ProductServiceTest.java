@@ -204,6 +204,6 @@ public class ProductServiceTest {
         // When / Then
         assertThatThrownBy(() -> productService.getProductDetail(1L))
                 .isInstanceOf(RuntimeException.class)
-                .hasMessage("Product not found");
+                .hasMessage("상품을 찾을 수 없습니다.");
     }
 }

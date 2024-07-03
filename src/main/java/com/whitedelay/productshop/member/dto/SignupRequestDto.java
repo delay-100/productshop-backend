@@ -11,6 +11,7 @@ import lombok.*;
 @Getter
 @Builder
 @AllArgsConstructor
+@NoArgsConstructor
 public class SignupRequestDto {
     @NotBlank(message = "아이디를 입력해주세요.")
     @Pattern(regexp = "^[a-zA-Z0-9]{4,20}$", message = "아이디는 영문자와 숫자로 이루어진 4-20자여야 합니다.")
