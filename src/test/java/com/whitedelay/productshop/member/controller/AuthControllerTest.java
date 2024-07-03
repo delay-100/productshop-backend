@@ -48,7 +48,8 @@ public class AuthControllerTest {
                 .role(MemberRoleEnum.USER)
                 .emailCode("12345678")
                 .build();
-        when(authService.signup(any(SignupRequestDto.class))).thenReturn(true);
+        when(authService.signup(any(SignupRequestDto.class)))
+                .thenReturn(true);
 
         // When
         ApiResponse<Boolean> response = authController.signup(signupRequestDto);
@@ -69,7 +70,8 @@ public class AuthControllerTest {
                 .build();
 
         LoginResponseDto loginResponseDto = LoginResponseDto.from("testUser", "refreshToken123");
-        when(authService.login(any(LoginRequestDto.class), any(HttpServletResponse.class))).thenReturn(loginResponseDto);
+        when(authService.login(any(LoginRequestDto.class), any(HttpServletResponse.class)))
+                .thenReturn(loginResponseDto);
 
         // When
         ApiResponse<LoginResponseDto> response = authController.login(loginRequestDto, this.response);

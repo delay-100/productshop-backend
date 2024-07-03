@@ -89,7 +89,8 @@ public class ProductServiceTest {
         // Given
         Pageable pageable = PageRequest.of(0, 10);
         Page<Product> productPage = new PageImpl<>(Arrays.asList(product1, product2), pageable, 2);
-        when(productRepository.findAll(pageable)).thenReturn(productPage);
+        when(productRepository.findAll(pageable))
+                .thenReturn(productPage);
 
         // When
         Page<ProductResponseDto> result = productService.getAllProductList(0, 10, "");
@@ -132,7 +133,8 @@ public class ProductServiceTest {
         Pageable pageable = PageRequest.of(0, 10);
         List<Product> products = Collections.singletonList(product2);
         Page<Product> productPage = new PageImpl<>(products, pageable, 1);
-        when(productRepository.findByProductTitleContaining(eq("상품2"), any(Pageable.class))).thenReturn(productPage);
+        when(productRepository.findByProductTitleContaining(eq("상품2"), any(Pageable.class)))
+                .thenReturn(productPage);
 
         // When
         Page<ProductResponseDto> result = productService.getAllProductList(0, 10, "상품2");
@@ -160,8 +162,10 @@ public class ProductServiceTest {
     @DisplayName("상품 상세 정보 조회 성공")
     void getProductDetail_Success() {
         // Given
-        when(productRepository.findByProductId(any(Long.class))).thenReturn(Optional.of(product1));
-        when(productOptionRepository.findByProduct(product1)).thenReturn(Collections.singletonList(productOption1));
+        when(productRepository.findByProductId(any(Long.class)))
+                .thenReturn(Optional.of(product1));
+        when(productOptionRepository.findByProduct(product1))
+                .thenReturn(Collections.singletonList(productOption1));
 
         // When
         ProductDetailResponseDto result = productService.getProductDetail(1L);
@@ -194,7 +198,8 @@ public class ProductServiceTest {
     @DisplayName("상품 상세 정보 조회 실패")
     void getProductDetail_NotFound() {
         // Given
-        when(productRepository.findByProductId(any(Long.class))).thenReturn(Optional.empty());
+        when(productRepository.findByProductId(any(Long.class)))
+                .thenReturn(Optional.empty());
 
         // When / Then
         assertThatThrownBy(() -> productService.getProductDetail(1L))

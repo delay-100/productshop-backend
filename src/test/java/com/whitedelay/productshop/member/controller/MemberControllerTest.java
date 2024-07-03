@@ -49,14 +49,16 @@ public class MemberControllerTest {
                 .phone("encodedPhone")
                 .role(MemberRoleEnum.USER)
                 .build();
-        when(userDetails.getMember()).thenReturn(member);
+        when(userDetails.getMember())
+                .thenReturn(member);
     }
 
     @Test
     @DisplayName("로그아웃 성공")
     public void logout_Success() {
         // Given
-        when(memberService.logout(any(Member.class), any(HttpServletResponse.class))).thenReturn(true);
+        when(memberService.logout(any(Member.class), any(HttpServletResponse.class)))
+                .thenReturn(true);
 
         // When
         ApiResponse<Boolean> response = memberController.logout(userDetails, this.response);
@@ -79,7 +81,8 @@ public class MemberControllerTest {
                 .zipCode(member.getZipCode())
                 .phone(member.getPhone())
                 .build();
-        when(memberService.getMemberMyInfo(any(Member.class))).thenReturn(memberMyInfoResponseDto);
+        when(memberService.getMemberMyInfo(any(Member.class)))
+                .thenReturn(memberMyInfoResponseDto);
 
         // When
         ApiResponse<MemberMyInfoResponseDto> response = memberController.getMemberMyInfo(userDetails);
@@ -107,7 +110,8 @@ public class MemberControllerTest {
                 .zipCode(memberMyInfoRequestDto.getZipCode())
                 .phone(memberMyInfoRequestDto.getPhone())
                 .build();
-        when(memberService.updateMemberMyInfo(any(Member.class), any(MemberMyInfoRequestDto.class))).thenReturn(memberMyInfoResponseDto);
+        when(memberService.updateMemberMyInfo(any(Member.class), any(MemberMyInfoRequestDto.class)))
+                .thenReturn(memberMyInfoResponseDto);
 
         // When
         ApiResponse<MemberMyInfoResponseDto> response = memberController.updateMemberMyInfo(userDetails, memberMyInfoRequestDto);
@@ -127,7 +131,8 @@ public class MemberControllerTest {
                 .newPassword("newPassword123")
                 .newPasswordConfirm("newPassword123")
                 .build();
-        when(memberService.updateMemberPassword(any(Member.class), any(MemberPasswordRequestDto.class))).thenReturn(true);
+        when(memberService.updateMemberPassword(any(Member.class), any(MemberPasswordRequestDto.class)))
+                .thenReturn(true);
 
         // When
         ApiResponse<Boolean> response = memberController.updateMemberPassword(userDetails, memberPasswordRequestDto);
