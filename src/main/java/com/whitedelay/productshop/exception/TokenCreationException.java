@@ -1,4 +1,4 @@
-package com.whitedelay.exception;
+package com.whitedelay.productshop.exception;
 
 public class TokenCreationException extends RuntimeException {
     public TokenCreationException(String message) {

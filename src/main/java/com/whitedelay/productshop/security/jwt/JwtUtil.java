@@ -1,6 +1,6 @@
 package com.whitedelay.productshop.security.jwt;
 
-import com.whitedelay.exception.TokenCreationException;
+import com.whitedelay.productshop.exception.TokenCreationException;
 import com.whitedelay.productshop.member.entity.MemberRoleEnum;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.Keys;

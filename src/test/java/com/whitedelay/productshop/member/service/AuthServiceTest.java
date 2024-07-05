@@ -1,6 +1,6 @@
 package com.whitedelay.productshop.member.service;
 
-import com.whitedelay.exception.TokenCreationException;
+import com.whitedelay.productshop.exception.TokenCreationException;
 import com.whitedelay.productshop.mail.service.MailService;
 import com.whitedelay.productshop.member.dto.LoginRequestDto;
 import com.whitedelay.productshop.member.dto.LoginResponseDto;
