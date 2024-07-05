@@ -202,7 +202,7 @@ class AuthServiceTest {
                 () -> assertThat(response.getRefreshToken()).isEqualTo("refreshToken")
         );
         verify(jwtUtil).addJwtToCookie("accessToken", httpServletResponse);
-        verify(valueOperations).set("testuser", "refreshToken", 123456L, TimeUnit.MINUTES); // 이 부분 변경
+        verify(valueOperations).set("testuser", "refreshToken", 123456L, TimeUnit.MINUTES);
     }
 
     @Test

@@ -36,7 +36,7 @@ public class LoadDatabase {
                     .productPrice(41100)
                     .productCategory(ProductCategoryEnum.CLOTHING)
                     .productStartDate(startDate1)
-                    .productStock(20)
+                    .productStock(300)
                     .build();
 
             Product product2 = Product.builder()
@@ -47,7 +47,7 @@ public class LoadDatabase {
                     .productPrice(22900)
                     .productCategory(ProductCategoryEnum.ELECTRONICS)
                     .productStartDate(startDate2)
-                    .productStock(20)
+                    .productStock(300)
                     .build();
 
             // 옵션이 없는 상품
@@ -59,7 +59,7 @@ public class LoadDatabase {
                     .productPrice(1500000)
                     .productCategory(ProductCategoryEnum.ELECTRONICS)
                     .productStartDate(startDate3)
-                    .productStock(10)
+                    .productStock(100)
                     .build();
 
             productRepository.saveAll(Arrays.asList(product1, product2, product3));
@@ -67,7 +67,7 @@ public class LoadDatabase {
             ProductOption option1 = ProductOption.builder()
                     .product(product1)
                     .productOptionTitle("화이트/ S")
-                    .productOptionStock(10)
+                    .productOptionStock(100)
                     .productOptionPrice(100)
                     .productStartDate(startDate1)
                     .build();
@@ -75,7 +75,7 @@ public class LoadDatabase {
             ProductOption option2 = ProductOption.builder()
                     .product(product1)
                     .productOptionTitle("블랙/ S")
-                    .productOptionStock(5)
+                    .productOptionStock(100)
                     .productOptionPrice(200)
                     .productStartDate(startDate1)
                     .build();
@@ -83,7 +83,7 @@ public class LoadDatabase {
             ProductOption option3 = ProductOption.builder()
                     .product(product1)
                     .productOptionTitle("블랙/ M")
-                    .productOptionStock(5)
+                    .productOptionStock(100)
                     .productOptionPrice(300)
                     .productStartDate(startDate1)
                     .build();
@@ -91,7 +91,7 @@ public class LoadDatabase {
             ProductOption option4 = ProductOption.builder()
                     .product(product2)
                     .productOptionTitle("XP2_RED")
-                    .productOptionStock(7)
+                    .productOptionStock(100)
                     .productOptionPrice(10)
                     .productStartDate(startDate2)
                     .build();
@@ -99,7 +99,7 @@ public class LoadDatabase {
             ProductOption option5 = ProductOption.builder()
                     .product(product2)
                     .productOptionTitle("HP5")
-                    .productOptionStock(5)
+                    .productOptionStock(100)
                     .productOptionPrice(30)
                     .productStartDate(startDate2)
                     .build();
@@ -107,7 +107,7 @@ public class LoadDatabase {
             ProductOption option6 = ProductOption.builder()
                     .product(product2)
                     .productOptionTitle("XP2 B&W")
-                    .productOptionStock(3)
+                    .productOptionStock(100)
                     .productOptionPrice(50)
                     .productStartDate(startDate2)
                     .build();
