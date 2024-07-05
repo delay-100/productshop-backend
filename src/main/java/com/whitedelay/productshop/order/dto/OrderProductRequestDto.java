@@ -15,11 +15,6 @@ import lombok.Setter;
 @Setter
 @Builder
 public class OrderProductRequestDto {
-//    private int quantity;
-//    private Long productOptionId; // nullable, 옵션이 없을 수도 있음
-//
-//    private int productPrice;
-//    private int optionPrice; // nullable, 없을수도 있음
 
     private Order order;
     private Product product;
@@ -29,5 +24,21 @@ public class OrderProductRequestDto {
 
     private Long orderProductOptionId;
     private int orderProductOptionPrice;
+
+    public static OrderProductRequestDto from(
+        Order order,
+        Product product,
+        int orderProductQuantity,
+        ProductOption productOption
+    ) {
+        return OrderProductRequestDto.builder()
+                .order(order)
+                .product(product)
+                .orderProductQuantity(orderProductQuantity)
+                .orderProductPrice(product.getProductPrice()) // 주문 상품 가격 설정
+                .orderProductOptionId(productOption != null ? productOption.getProductOptionId() : 0)
+                .orderProductOptionPrice(productOption != null ? productOption.getProductOptionPrice() : 0)
+                .build();
+    }
 
 }

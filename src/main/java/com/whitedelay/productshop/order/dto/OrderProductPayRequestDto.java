@@ -1,5 +1,6 @@
 package com.whitedelay.productshop.order.dto;
 
+import com.whitedelay.productshop.order.entity.OrderCardCompanyEnum;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -24,7 +25,7 @@ public class OrderProductPayRequestDto {
     private String orderReq; // 배송 요청사항
 
     // 결제
-    private String orderCardCompany;
+    private OrderCardCompanyEnum orderCardCompany;
     private int totalOrderPrice;
     private int orderShippingFee;
     private int orderPrice; // 총금액

@@ -3,6 +3,7 @@ package com.whitedelay.productshop.order.dto;
 import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.order.entity.OrderCardCompanyEnum;
 import com.whitedelay.productshop.order.entity.OrderStatusEnum;
+import com.whitedelay.productshop.util.AES256Encoder;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,4 +30,26 @@ public class OrderRequestDto {
     private String orderReq;
 
     private Member member;
+
+    public static OrderRequestDto from(
+        OrderProductPayRequestDto requestDto,
+        OrderStatusEnum orderStatus,
+        AES256Encoder aes256Encoder,
+        Member member
+    ) {
+        return OrderRequestDto.builder()
+                .orderDate(LocalDateTime.now())
+                .orderStatus(orderStatus)
+                .orderPayYN(false)
+                .orderShippingFee(requestDto.getOrderShippingFee())
+                .orderPrice(requestDto.getOrderPrice())
+                .orderCardCompany(requestDto.getOrderCardCompany())
+                .orderMemberName(aes256Encoder.encodeString(requestDto.getOrderMemberName()))
+                .orderZipCode(requestDto.getOrderZipCode())
+                .orderAddress(aes256Encoder.encodeString(requestDto.getOrderAddress()))
+                .orderPhone(aes256Encoder.encodeString(requestDto.getOrderPhone()))
+                .orderReq(aes256Encoder.encodeString(requestDto.getOrderReq()))
+                .member(member)
+                .build();
+    }
 }

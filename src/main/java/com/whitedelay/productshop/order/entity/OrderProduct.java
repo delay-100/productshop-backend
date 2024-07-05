@@ -5,11 +5,11 @@ import com.whitedelay.productshop.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.*;
 
-@Builder(access = AccessLevel.PRIVATE)
+@Builder
 @Getter
 @Entity
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "order_product")
 public class OrderProduct extends Timestamped {
 

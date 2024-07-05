@@ -1,7 +1,7 @@
 package com.whitedelay.productshop.order.dto;
 
 import com.whitedelay.productshop.member.entity.Member;
-import com.whitedelay.productshop.security.AES256Encoder;
+import com.whitedelay.productshop.util.AES256Encoder;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

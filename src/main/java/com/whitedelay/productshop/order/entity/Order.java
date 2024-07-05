@@ -7,11 +7,11 @@ import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Builder(access = AccessLevel.PRIVATE)
+@Builder
 @Getter
 @Entity
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "`order`")
 public class Order extends Timestamped {
 
