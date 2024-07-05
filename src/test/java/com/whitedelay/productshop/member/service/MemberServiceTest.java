@@ -94,6 +94,7 @@ class MemberServiceTest {
                 .phone("encodedPhone")
                 .build();
 
+        when(memberRepository.findByMemberId("testuser")).thenReturn(Optional.of(member));
         when(aes256Encoder.decodeString(member.getEmail())).thenReturn("test@example.com");
         when(aes256Encoder.decodeString(member.getMemberName())).thenReturn("홍길동");
         when(aes256Encoder.decodeString(member.getAddress())).thenReturn("서울시 강남구");
