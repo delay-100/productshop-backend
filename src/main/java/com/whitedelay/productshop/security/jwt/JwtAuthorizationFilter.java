@@ -1,6 +1,8 @@
 package com.whitedelay.productshop.security.jwt;
 
+import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.member.entity.MemberRoleEnum;
+import com.whitedelay.productshop.security.UserDetails.UserDetailsImpl;
 import com.whitedelay.productshop.security.UserDetails.UserDetailsServiceImpl;
 import io.jsonwebtoken.Claims;
 import jakarta.servlet.FilterChain;
@@ -46,7 +48,7 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
             }
             Claims info = jwtUtil.getMemberInfoFromToken(accessToken);
             try {
-                setAuthentication(info.getSubject());
+                setAuthentication(info.get("id", Long.class), info.getSubject(), MemberRoleEnum.valueOf(info.get("ROLE", String.class)));
             } catch (Exception e) {
                 log.error(e.getMessage());
                 res.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Authentication failed");
@@ -57,15 +59,26 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
         filterChain.doFilter(req, res);
     }
 
-        private void setAuthentication(String memberId) {
+        private void setAuthentication(Long id, String memberId, MemberRoleEnum memberRoleEnum) {
             SecurityContext context = SecurityContextHolder.createEmptyContext();
-            Authentication authentication = createAuthentication(memberId);
+            Authentication authentication = createAuthentication(id, memberId, memberRoleEnum);
             context.setAuthentication(authentication);
             SecurityContextHolder.setContext(context);
         }
 
-        private Authentication createAuthentication(String memberId) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(memberId);
+        private Authentication createAuthentication(Long id, String memberId, MemberRoleEnum memberRoleEnum) {
+//            UserDetails userDetails = userDetailsService.loadUserByUsername(memberId); // 인증에는 들어오고 인가에는 안들어오게
+
+            Member member = Member.builder()
+                    .id(id)
+                    .memberId(memberId)
+                    .role(memberRoleEnum)
+                    .build();
+
+            UserDetails userDetails = UserDetailsImpl.builder()
+                    .member(member)
+                    .build();
+
             return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         }
 

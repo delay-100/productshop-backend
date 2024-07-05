@@ -55,7 +55,7 @@ public class AuthService {
 
         try {
             // accessToken 발급
-            String accessToken = jwtUtil.createAccessToken(member.getMemberId(), member.getRole());
+            String accessToken = jwtUtil.createAccessToken(member.getId(), member.getMemberId(), member.getRole());
             jwtUtil.addJwtToCookie(accessToken, res);
 
             // refreshToken 발급
@@ -87,7 +87,7 @@ public class AuthService {
         }
 
         // AccessToken 재발급
-        String accessToken = jwtUtil.createAccessToken(member.getMemberId(), member.getRole());
+        String accessToken = jwtUtil.createAccessToken(member.getId(), member.getMemberId(), member.getRole());
         jwtUtil.addJwtToCookie(accessToken, res);
 
         return RefreshTokenResponseDto.from(memberId, accessToken);

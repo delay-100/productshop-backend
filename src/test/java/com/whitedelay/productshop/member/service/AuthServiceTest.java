@@ -180,6 +180,7 @@ class AuthServiceTest {
                 .build();
 
         Member member = Member.builder()
+                .id(1L)
                 .memberId("testuser")
                 .password("encodedPassword")
                 .role(MemberRoleEnum.USER)
@@ -188,7 +189,7 @@ class AuthServiceTest {
 
         when(memberRepository.findByMemberId(loginRequestDto.getMemberId())).thenReturn(Optional.of(member));
         when(passwordEncoder.matches(loginRequestDto.getPassword(), member.getPassword())).thenReturn(true);
-        when(jwtUtil.createAccessToken(ArgumentMatchers.anyString(), any(MemberRoleEnum.class))).thenReturn("accessToken");
+        when(jwtUtil.createAccessToken(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString(), any(MemberRoleEnum.class))).thenReturn("accessToken");
         when(jwtUtil.createRefreshToken()).thenReturn("refreshToken");
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
 
@@ -231,6 +232,7 @@ class AuthServiceTest {
                 .build();
 
         Member member = Member.builder()
+                .id(1L)
                 .memberId("testuser")
                 .password("encodedPassword")
                 .role(MemberRoleEnum.USER)
@@ -255,6 +257,7 @@ class AuthServiceTest {
                 .build();
 
         Member member = Member.builder()
+                .id(1L)
                 .memberId("testuser")
                 .password("encodedPassword")
                 .role(MemberRoleEnum.USER)
@@ -262,7 +265,7 @@ class AuthServiceTest {
 
         when(memberRepository.findByMemberId(loginRequestDto.getMemberId())).thenReturn(Optional.of(member));
         when(passwordEncoder.matches(loginRequestDto.getPassword(), member.getPassword())).thenReturn(true);
-        when(jwtUtil.createAccessToken(ArgumentMatchers.anyString(), any(MemberRoleEnum.class))).thenThrow(new TokenCreationException("Access token creation failed"));
+        when(jwtUtil.createAccessToken(ArgumentMatchers.anyLong(), ArgumentMatchers.anyString(), any(MemberRoleEnum.class))).thenThrow(new TokenCreationException("Access token creation failed"));
 
         // when & then
         assertThatThrownBy(() -> authService.login(loginRequestDto, httpServletResponse))
@@ -277,6 +280,7 @@ class AuthServiceTest {
         String memberId = "testuser";
         String validRefreshToken = "validRefreshToken";
         Member member = Member.builder()
+                .id(1L)
                 .memberId(memberId)
                 .role(MemberRoleEnum.USER)
                 .build();
@@ -286,7 +290,7 @@ class AuthServiceTest {
         when(jwtUtil.validateToken(validRefreshToken)).thenReturn(true);
         when(redisTemplate.opsForValue()).thenReturn(valueOperations);
         when(valueOperations.get(memberId)).thenReturn(validRefreshToken);
-        when(jwtUtil.createAccessToken(memberId, member.getRole())).thenReturn("newAccessToken");
+        when(jwtUtil.createAccessToken(ArgumentMatchers.anyLong(), ArgumentMatchers.eq(memberId), ArgumentMatchers.eq(member.getRole()))).thenReturn("newAccessToken");
 
         // when
         RefreshTokenResponseDto response = authService.refreshToken(memberId, validRefreshToken, httpServletResponse);

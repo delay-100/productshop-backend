@@ -37,9 +37,6 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
     @Value("${REFRESHTOKEN_HEADER}")
     public String REFRESHTOKEN_HEADER;
 
-    @Value("${TOKEN_KEY}")
-    public String TOKEN_KEY;
-
     public static final String BEARER_PREFIX = "Bearer ";
 
     @Value("${ACCESS_TOKEN_TIME}")
@@ -65,7 +62,7 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
 
     // 1. JWT 토큰 생성 -> 생성한 토큰을 반환하는 방법 2가지(1.그냥 헤더에 담아 보냄(Response객체의 header에 그냥 token넣어 보내기) 2. Cookie객체에 Response에 담는 방법(cookie.setToken해서 넣고 Response객체에 넣어 보내기))
     // Access/Refresh 토큰 생성
-    public String createAccessToken(String memberId, MemberRoleEnum role) throws TokenCreationException {
+    public String createAccessToken(Long id, String memberId, MemberRoleEnum role) throws TokenCreationException {
         try {
             Date date = new Date();
 
@@ -74,7 +71,8 @@ public class JwtUtil { // util 클래스: 다른 객체에 의존하지 않고 �
                     .setIssuedAt(date) // 발급일
                     .signWith(key, signatureAlgorithm)// 암호화 알고리즘(시크릿 키, 시크릿 알고리즘)을 넣어주면
                     .setSubject(memberId)  // 사용자 식별자값(ID)
-                    .claim(TOKEN_KEY, role)
+                    .claim("ROLE", role)
+                    .claim("id", id)
                     .compact();
         } catch (Exception e) {
             throw new TokenCreationException("AccessToken 생성에 실패했습니다.", e);

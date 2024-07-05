@@ -57,10 +57,11 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     protected void successfulAuthentication(HttpServletRequest request, HttpServletResponse response, FilterChain chain, Authentication authResult) throws IOException, ServletException {
         log.info("로그인 성공 및 JWT 생성"); // 로그인이 성공(id, pw가 맞으면)하면 jwt를 생성해줘야함
         // 이 메소드는 Authentication 인증 객체를 받아오는데, 이 안에 UserDetails가 들어있음 UserDetails랑 UserDetailsService를 AuthenticationManger가 사용함
+        Long id = ((UserDetailsImpl) authResult.getPrincipal()).getId();
         String memberId = ((UserDetailsImpl) authResult.getPrincipal()).getUsername(); // /api/products에서 @AuthenticationPrinciple로 UserDetails를 받아올 수 있었음, 그걸 코드로 작성한거임이거는
         MemberRoleEnum role = ((UserDetailsImpl) authResult.getPrincipal()).getMember().getRole();
 
-        String accessToken = jwtUtil.createAccessToken(memberId, role); // 토큰 생성 시 2번째 파라미터로 role을 넣어주기 위함
+        String accessToken = jwtUtil.createAccessToken(id, memberId, role); // 토큰 생성 시 2번째 파라미터로 role을 넣어주기 위함
 
         jwtUtil.addJwtToCookie(accessToken, response); // 쿠키생성하고 token을 넣어주는 메소드
         // 이후에 response객체에 자동으로 담김

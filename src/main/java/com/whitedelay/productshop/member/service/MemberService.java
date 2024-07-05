@@ -39,6 +39,9 @@ public class MemberService {
     }
 
     public MemberMyInfoResponseDto getMemberMyInfo(Member member) {
+        member = memberRepository.findByMemberId(member.getMemberId())
+                .orElseThrow(() -> new IllegalArgumentException("잘못된 사용자 아이디 또는 비밀번호입니다."));
+
         return MemberMyInfoResponseDto.from(member, aes256Encoder);
     }
 
