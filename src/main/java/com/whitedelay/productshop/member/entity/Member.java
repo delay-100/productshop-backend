@@ -1,7 +1,7 @@
 package com.whitedelay.productshop.member.entity;
 
 import com.whitedelay.productshop.member.dto.SignupRequestDto;
-import com.whitedelay.productshop.security.AES256Encoder;
+import com.whitedelay.productshop.util.AES256Encoder;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.security.crypto.password.PasswordEncoder;

@@ -3,7 +3,7 @@ package com.whitedelay.productshop.member.service;
 import com.whitedelay.productshop.member.dto.*;
 import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.member.repository.MemberRepository;
-import com.whitedelay.productshop.security.AES256Encoder;
+import com.whitedelay.productshop.util.AES256Encoder;
 import jakarta.servlet.http.HttpServletResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;

@@ -2,7 +2,7 @@ package com.whitedelay.productshop.mail.service;
 
 import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.member.repository.MemberRepository;
-import com.whitedelay.productshop.security.AES256Encoder;
+import com.whitedelay.productshop.util.AES256Encoder;
 import jakarta.mail.Message;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.InternetAddress;

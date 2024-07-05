@@ -1,8 +1,7 @@
 package com.whitedelay.productshop.member.dto;
 
 import com.whitedelay.productshop.member.entity.Member;
-import com.whitedelay.productshop.security.AES256Encoder;
-import jakarta.validation.constraints.NotBlank;
+import com.whitedelay.productshop.util.AES256Encoder;
 import lombok.*;
 
 @Getter

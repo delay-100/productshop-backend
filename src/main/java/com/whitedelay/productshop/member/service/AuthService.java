@@ -5,7 +5,7 @@ import com.whitedelay.productshop.mail.service.MailService;
 import com.whitedelay.productshop.member.dto.*;
 import com.whitedelay.productshop.member.entity.Member;
 import com.whitedelay.productshop.member.repository.MemberRepository;
-import com.whitedelay.productshop.security.AES256Encoder;
+import com.whitedelay.productshop.util.AES256Encoder;
 import com.whitedelay.productshop.security.jwt.JwtUtil;
 import org.springframework.beans.factory.annotation.Value;
 import jakarta.servlet.http.HttpServletResponse;
