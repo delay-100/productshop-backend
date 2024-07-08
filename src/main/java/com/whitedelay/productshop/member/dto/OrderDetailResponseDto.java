@@ -22,7 +22,6 @@ public class OrderDetailResponseDto {
     private OrderStatusEnum orderStatus;
     private int orderShippingFee;
     private OrderCardCompanyEnum orderCardCompany;
-    private boolean orderPayYN;
     private int orderPrice;
 
     private String orderMemberName;
@@ -42,7 +41,6 @@ public class OrderDetailResponseDto {
                 .orderShippingFee(order.getOrderShippingFee())
                 .orderPrice(order.getOrderPrice())
                 .orderCardCompany(order.getOrderCardCompany())
-                .orderPayYN(order.isOrderPayYN())
                 .orderMemberName(aes256Encoder.decodeString(order.getOrderMemberName()))
                 .orderZipCode(order.getOrderZipCode())
                 .orderAddress(aes256Encoder.decodeString(order.getOrderAddress()))

@@ -26,13 +26,13 @@ public class OrderProductRequestDto {
     private int orderProductOptionPrice;
 
     public static OrderProductRequestDto from(
-        Order order,
+//        Order order,
         Product product,
         int orderProductQuantity,
         ProductOption productOption
     ) {
         return OrderProductRequestDto.builder()
-                .order(order)
+//                .order(order)
                 .product(product)
                 .orderProductQuantity(orderProductQuantity)
                 .orderProductPrice(product.getProductPrice()) // 주문 상품 가격 설정
@@ -40,5 +40,4 @@ public class OrderProductRequestDto {
                 .orderProductOptionPrice(productOption != null ? productOption.getProductOptionPrice() : 0)
                 .build();
     }
-
 }

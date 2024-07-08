@@ -135,7 +135,7 @@ class OrderServiceTest {
     void postOrderProductPay_Success() {
         // Given
         OrderProductPayRequestDto requestDto = OrderProductPayRequestDto.builder()
-                .orderProducts(Arrays.asList(
+                .orderProductList(Arrays.asList(
                         OrderProductResponseDto.builder()
                                 .productId(product.getProductId())
                                 .productOptionId(productOption.getProductOptionId())
@@ -191,7 +191,7 @@ class OrderServiceTest {
     void postOrderProductPay_Failure_InsufficientStock() {
         // Given
         OrderProductPayRequestDto requestDto = OrderProductPayRequestDto.builder()
-                .orderProducts(Arrays.asList(
+                .orderProductList(Arrays.asList(
                         OrderProductResponseDto.builder()
                                 .productId(product.getProductId())
                                 .productOptionId(productOption.getProductOptionId())

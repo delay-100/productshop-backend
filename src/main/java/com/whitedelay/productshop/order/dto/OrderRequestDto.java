@@ -40,7 +40,6 @@ public class OrderRequestDto {
         return OrderRequestDto.builder()
                 .orderDate(LocalDateTime.now())
                 .orderStatus(orderStatus)
-                .orderPayYN(false)
                 .orderShippingFee(requestDto.getOrderShippingFee())
                 .orderPrice(requestDto.getOrderPrice())
                 .orderCardCompany(requestDto.getOrderCardCompany())

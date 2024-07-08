@@ -27,9 +27,6 @@ public class Order extends Timestamped {
     @Column(nullable = false)
     private OrderStatusEnum orderStatus;
 
-    @Column(nullable = false)
-    private boolean orderPayYN;
-
     // 백 -> 프 -> 백
     @Column(nullable = false)
     private int orderShippingFee;
@@ -69,7 +66,6 @@ public class Order extends Timestamped {
                 .orderShippingFee(order.getOrderShippingFee())
                 .orderPrice(order.getOrderPrice())
                 .orderCardCompany(order.getOrderCardCompany())
-                .orderPayYN(order.isOrderPayYN())
                 .orderMemberName(order.getOrderMemberName())
                 .orderZipCode(order.getOrderZipCode())
                 .orderAddress(order.getOrderAddress())
@@ -83,7 +79,4 @@ public class Order extends Timestamped {
         this.orderStatus = orderStatusEnum;
     }
 
-    public void setOrderPayYN(boolean orderPayYN) {
-        this.orderPayYN = orderPayYN;
-    }
 }

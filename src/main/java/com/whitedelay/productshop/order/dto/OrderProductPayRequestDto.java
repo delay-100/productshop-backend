@@ -15,7 +15,7 @@ import java.util.List;
 public class OrderProductPayRequestDto {
 
     // 주문할 상품
-    private List<OrderProductResponseDto> orderProducts;
+    private List<OrderProductResponseDto> orderProductList;
 
     // 실제로 배송할 주소 정보
     private String orderMemberName;

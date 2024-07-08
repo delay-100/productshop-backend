@@ -1,7 +1,7 @@
 package com.whitedelay.productshop.order.entity;
 
 public enum OrderStatusEnum {
-    PAYING(OrderStatusEnum.Status.PAYING),
+//    PAYING(OrderStatusEnum.Status.PAYING),
     PAYMENT_COMPLETED(OrderStatusEnum.Status.PAYMENT_COMPLETED),
     PAYMENT_FAILED(OrderStatusEnum.Status.PAYMENT_FAILED),
     PREPARING_SHIPMENT(OrderStatusEnum.Status.PREPARING_SHIPMENT),
@@ -32,7 +32,7 @@ public enum OrderStatusEnum {
     }
 
     public static class Status {
-        public static final String PAYING = "결제중";
+//        public static final String PAYING = "결제중";
         public static final String PAYMENT_COMPLETED = "결제완료";
         public static final String PAYMENT_FAILED = "결제실패";
         public static final String PREPARING_SHIPMENT = "배송준비중";

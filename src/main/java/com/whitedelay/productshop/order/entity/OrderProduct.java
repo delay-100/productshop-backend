@@ -27,7 +27,6 @@ public class OrderProduct extends Timestamped {
 
     private int orderProductOptionPrice;// 현재 productOption에 붙어있는 Option에 가격 대한 값
 
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
@@ -47,5 +46,8 @@ public class OrderProduct extends Timestamped {
                 .build();
     }
 
+    public void setOrder(Order order) {
+        this.order = order;
+    }
 
 }
