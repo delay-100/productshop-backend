@@ -23,9 +23,11 @@ public class OrderProduct extends Timestamped {
     @Column(nullable = false)
     private int orderProductPrice;
 
-    private Long orderProductOptionId; // 현재 productOption에 붙어있는 Option에 대한 값
+    @Column(nullable = false)
+    private Long orderProductOptionId;
 
-    private int orderProductOptionPrice;// 현재 productOption에 붙어있는 Option에 가격 대한 값
+    @Column(nullable = false)
+    private int orderProductOptionPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)

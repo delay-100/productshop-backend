@@ -47,14 +47,11 @@ public class OrderService {
                     .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
 
             int productPrice = product.getProductPrice();
-            int productOptionPrice = 0;
-            ProductOption productOption = null;
 
-            if (orderProduct.getProductOptionId() != null) {
-                productOption = productOptionRepository.findByProductOptionId(orderProduct.getProductOptionId())
+            ProductOption productOption = productOptionRepository.findByProductOptionId(orderProduct.getProductOptionId())
                         .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
-                productOptionPrice = productOption.getProductOptionPrice();
-            }
+            int productOptionPrice = productOption.getProductOptionPrice();
+
 
             int productTotalPrice = (productPrice + productOptionPrice) * orderProduct.getQuantity();
 
@@ -75,7 +72,7 @@ public class OrderService {
 //            1. List, Map의 형태에서 단위 item을 기준으로 주문 생성, 재고 차감, 결제하는 메소드 구현
 //            2. 재고 차감만 row level lock이 적용되도록 구현(해결코드 1의 pessimistic write를 이용)
 //            트랜잭션을 걸어두고, 락걸기 ...!!!
-            
+
             // 요청의 상품 리스트에 대해 productOptionId, productId 가 오름차순 정렬되어있다고 가정해야함. => 데드락 방지
             // 아니면 여기서 정렬을 해야함,,! 정렬이 안되어있으면 아래와 같은 예외 발생
             // ex) productId가 3 -> 5, 5 -> 3인 요청이 동시에 들어온 경우 데드락 발생.
@@ -83,27 +80,21 @@ public class OrderService {
             List<OrderProduct> orderProductList = new ArrayList<>();
             orderProductPayRequestDto.getOrderProductList().forEach(orderProduct -> {
                 // 트랜잭션이 끝나기 전까지 productId(+ productOptionId)에 대한 점유를 얘가 하고 있어야 함
-                ProductOption productOption = null;
-                if(orderProduct.getProductOptionId() != null) {
-                    productOption = productOptionRepository.findByIdForUpdate(orderProduct.getProductOptionId())
+                ProductOption productOption = productOptionRepository.findByIdForUpdate(orderProduct.getProductOptionId())
                             .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
-                    if (productOption.getProductOptionStock() < orderProduct.getQuantity()) {
-                        throw new IllegalArgumentException("상품 옵션의 재고가 부족합니다.");
-                    }
-                    // 상품 옵션 재고 변경
-//                    productOption.setProductOptionStock(productOption.getProductOptionStock() - orderProduct.getQuantity());
-                    // 상품 옵션 재고 변경 쿼리 실행
-                    productOptionRepository.updateStock(orderProduct.getProductOptionId(), productOption.getProductOptionStock() - orderProduct.getQuantity());
+                if (productOption.getProductOptionStock() < orderProduct.getQuantity()) {
+                    throw new IllegalArgumentException("상품 옵션의 재고가 부족합니다.");
                 }
+                // 상품 옵션 재고 변경
+//                    productOption.setProductOptionStock(productOption.getProductOptionStock() - orderProduct.getQuantity());
+                // 상품 옵션 재고 변경 쿼리 실행
+                productOptionRepository.updateStock(orderProduct.getProductOptionId(), productOption.getProductOptionStock() - orderProduct.getQuantity());
+
                 Product product = productRepository.findByIdForUpdate(orderProduct.getProductId())
                         .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
-                if (product.getProductStock() < orderProduct.getQuantity()) {
-                    throw new IllegalArgumentException("상품의 재고가 부족합니다.");
-                }
                 // 상품 재고 변경
                 // 같은 품목이 2개이상 들어온 경우
 //                product.setProductStock(product.getProductStock() - orderProduct.getQuantity());
-                productRepository.updateStock(orderProduct.getProductId(), product.getProductStock() - orderProduct.getQuantity());
                 orderProductList.add(OrderProduct.from(OrderProductRequestDto.from(product, orderProduct.getQuantity(), productOption)));
             });
 
@@ -170,12 +161,7 @@ public class OrderService {
                     Product product = productRepository.findById(orderProduct.getProduct().getProductId())
                             .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
 
-                    String productOptionTitle = null;
-                    if (orderProduct.getOrderProductOptionId() != 0) {
-                        ProductOption productOption = productOptionRepository.findById(orderProduct.getOrderProductOptionId())
-                                .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
-                        productOptionTitle = productOption.getProductOptionTitle();
-                    }
+                    String productOptionTitle = productOptionRepository.findProductOptionTitleById(orderProduct.getOrderProductOptionId());
 
                     return OrderProductDetailResponseDto.from(orderProduct, product.getProductTitle(), productOptionTitle);
                 }).collect(Collectors.toList());
@@ -197,16 +183,10 @@ public class OrderService {
 
         List<OrderProduct> orderProducts = orderProductRepository.findByOrderOrderId(orderId);
         for (OrderProduct orderProduct : orderProducts) {
-            Product product = orderProduct.getProduct();
-            product.setProductStock(product.getProductStock() + orderProduct.getOrderProductQuantity());
-            productRepository.save(product);
-
-            if (orderProduct.getOrderProductOptionId() != 0) {
-                ProductOption productOption = productOptionRepository.findById(orderProduct.getOrderProductOptionId())
-                        .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
-                productOption.setProductOptionStock(productOption.getProductOptionStock() + orderProduct.getOrderProductQuantity());
-                productOptionRepository.save(productOption);
-            }
+            ProductOption productOption = productOptionRepository.findById(orderProduct.getOrderProductOptionId())
+                    .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
+            productOption.setProductOptionStock(productOption.getProductOptionStock() + orderProduct.getOrderProductQuantity());
+            productOptionRepository.save(productOption);
         }
 
         orderRepository.save(order);

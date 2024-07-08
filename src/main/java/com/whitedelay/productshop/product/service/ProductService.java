@@ -31,15 +31,16 @@ public class ProductService {
 
         return productRepository.findByProductTitleContaining(productTitle, pageable).map(ProductResponseDto::from);
     }
-@Transactional(readOnly = true)
-public ProductDetailResponseDto getProductDetail(Long productId) {
-    Product product = productRepository.findByProductId(productId)
-            .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
 
-    List<ProductOptionDetailResponseDto> productOptions = productOptionRepository.findByProduct(product).stream()
-            .map(ProductOptionDetailResponseDto::from)
-            .collect(Collectors.toList());
+    @Transactional(readOnly = true)
+    public ProductDetailResponseDto getProductDetail(Long productId) {
+        Product product = productRepository.findByProductId(productId)
+                .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
 
-    return ProductDetailResponseDto.from(product, productOptions);
-}
+        List<ProductOptionDetailResponseDto> productOptions = productOptionRepository.findByProduct(product).stream()
+                .map(ProductOptionDetailResponseDto::from)
+                .collect(Collectors.toList());
+
+        return ProductDetailResponseDto.from(product, productOptions);
+    }
 }

@@ -17,7 +17,6 @@ public class WishlistResponseDto {
     private ProductStatusEnum productStatus;
     private int productWishlistCount;
     private int productPrice;
-    private int productStock;
     private ProductCategoryEnum productCategory;
     private LocalDateTime productStartDate;
 
@@ -28,7 +27,6 @@ public class WishlistResponseDto {
                 .productStatus(wishlist.getProduct().getProductStatus())
                 .productWishlistCount(wishlist.getProduct().getProductWishlistCount())
                 .productPrice(wishlist.getProduct().getProductPrice())
-                .productStock(wishlist.getProduct().getProductStock())
                 .productCategory(wishlist.getProduct().getProductCategory())
                 .productStartDate(wishlist.getProduct().getProductStartDate())
                 .build();

@@ -32,10 +32,10 @@ public class OrderProductResponseDto {
                 .productId(product.getProductId())
                 .productTitle(product.getProductTitle())
                 .quantity(quantity)
-                .productOptionId(productOption != null ? productOption.getProductOptionId() : null)
-                .productOptionTitle(productOption != null ? productOption.getProductOptionTitle() : null)
+                .productOptionId(productOption.getProductOptionId())
+                .productOptionTitle(productOption.getProductOptionTitle())
                 .productPrice(productPrice)
-                .productOptionPrice(productOption != null ? productOption.getProductOptionPrice() : 0)
+                .productOptionPrice(productOption.getProductOptionPrice())
                 .productTotalPrice(productTotalPrice)
                 .build();
     }

@@ -92,7 +92,6 @@ public class WishlistControllerTest {
                 .productStatus(ProductStatusEnum.AVAILABLE)
                 .productWishlistCount(100)
                 .productPrice(200)
-                .productStock(50)
                 .productCategory(ProductCategoryEnum.FOOD)
                 .productStartDate(LocalDateTime.now())
                 .build();
@@ -103,7 +102,6 @@ public class WishlistControllerTest {
                 .productStatus(ProductStatusEnum.AVAILABLE)
                 .productWishlistCount(50)
                 .productPrice(300)
-                .productStock(30)
                 .productCategory(ProductCategoryEnum.BOOKS)
                 .productStartDate(LocalDateTime.now())
                 .build();

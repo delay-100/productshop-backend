@@ -36,9 +36,6 @@ public class Product extends Timestamped {
     @Column(nullable = false)
     private int productPrice;
 
-    @Column(nullable = false)
-    private int productStock;
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private ProductCategoryEnum productCategory;
@@ -53,14 +50,9 @@ public class Product extends Timestamped {
                 .productStatus(ProductStatusEnum.valueOf(product.getProductStatus().toUpperCase()))
                 .productWishlistCount(product.getProductWishlistCount())
                 .productPrice(product.getProductPrice())
-                .productStock(product.getProductStock())
                 .productCategory(ProductCategoryEnum.valueOf(product.getProductCategory().toUpperCase()))
                 .productStartDate(product.getProductStartDate())
                 .build();
-    }
-
-    public void setProductStock(int stock) {
-        this.productStock = stock;
     }
 
     public void setProductWishlistCount(int wishlistCount) {

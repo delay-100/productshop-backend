@@ -13,7 +13,6 @@ public class ProductResponseDto {
     private String productStatus;
     private int productWishlistCount;
     private int productPrice;
-    private int productStock;
     private String productCategory;
 
     public static ProductResponseDto from(Product product) {
@@ -23,7 +22,6 @@ public class ProductResponseDto {
                 .productContent(product.getProductContent())
                 .productStatus(product.getProductStatus().getStatus())
                 .productWishlistCount(product.getProductWishlistCount())
-                .productStock(product.getProductStock())
                 .productPrice(product.getProductPrice())
                 .productCategory(product.getProductCategory().getCategory())
                 .build();

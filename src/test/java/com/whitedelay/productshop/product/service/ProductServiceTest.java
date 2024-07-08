@@ -58,7 +58,6 @@ public class ProductServiceTest {
                 .productStatus(ProductStatusEnum.AVAILABLE)
                 .productWishlistCount(10)
                 .productPrice(1000)
-                .productStock(50)
                 .productCategory(ProductCategoryEnum.FOOD)
                 .build();
 
@@ -78,7 +77,6 @@ public class ProductServiceTest {
                 .productStatus(ProductStatusEnum.AVAILABLE)
                 .productWishlistCount(20)
                 .productPrice(20000)
-                .productStock(100)
                 .productCategory(ProductCategoryEnum.ELECTRONICS)
                 .build();
     }
@@ -109,7 +107,6 @@ public class ProductServiceTest {
                 () -> assertThat(dto1.getProductStatus()).isEqualTo(ProductStatusEnum.AVAILABLE.getStatus()),
                 () -> assertThat(dto1.getProductWishlistCount()).isEqualTo(10),
                 () -> assertThat(dto1.getProductPrice()).isEqualTo(1000),
-                () -> assertThat(dto1.getProductStock()).isEqualTo(50),
                 () -> assertThat(dto1.getProductCategory()).isEqualTo(ProductCategoryEnum.FOOD.getCategory())
         );
 
@@ -121,7 +118,6 @@ public class ProductServiceTest {
                 () -> assertThat(dto2.getProductStatus()).isEqualTo(ProductStatusEnum.AVAILABLE.getStatus()),
                 () -> assertThat(dto2.getProductWishlistCount()).isEqualTo(20),
                 () -> assertThat(dto2.getProductPrice()).isEqualTo(20000),
-                () -> assertThat(dto2.getProductStock()).isEqualTo(100),
                 () -> assertThat(dto2.getProductCategory()).isEqualTo(ProductCategoryEnum.ELECTRONICS.getCategory())
         );
     }
@@ -153,7 +149,6 @@ public class ProductServiceTest {
                 () -> assertThat(dto.getProductStatus()).isEqualTo(ProductStatusEnum.AVAILABLE.getStatus()),
                 () -> assertThat(dto.getProductWishlistCount()).isEqualTo(20),
                 () -> assertThat(dto.getProductPrice()).isEqualTo(20000),
-                () -> assertThat(dto.getProductStock()).isEqualTo(100),
                 () -> assertThat(dto.getProductCategory()).isEqualTo(ProductCategoryEnum.ELECTRONICS.getCategory())
         );
     }
@@ -179,7 +174,6 @@ public class ProductServiceTest {
                 () -> assertThat(result.getProductStatus()).isEqualTo(ProductStatusEnum.AVAILABLE.getStatus()),
                 () -> assertThat(result.getProductWishlistCount()).isEqualTo(10),
                 () -> assertThat(result.getProductPrice()).isEqualTo(1000),
-                () -> assertThat(result.getProductStock()).isEqualTo(50),
                 () -> assertThat(result.getProductCategory()).isEqualTo(ProductCategoryEnum.FOOD.getCategory()),
                 () -> assertThat(result.getProductOptions()).hasSize(1)
         );

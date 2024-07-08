@@ -29,9 +29,9 @@ public class CartInfoResponseDto {
                 .productTitle(productTitle)
                 .productPrice(productPrice)
                 .quantity(quantity)
-                .productOptionId(productOption != null ? productOption.getProductOptionId() : 0)
-                .productOptionTitle(productOption != null ? productOption.getProductOptionTitle() : null)
-                .productOptionPrice(productOption != null ? productOption.getProductOptionPrice() : 0)
+                .productOptionId(productOption.getProductOptionId())
+                .productOptionTitle(productOption.getProductOptionTitle())
+                .productOptionPrice(productOption.getProductOptionPrice())
                 .productTotalPrice(productTotalPrice)
                 .build();
     }

@@ -140,38 +140,44 @@ class CartServiceTest {
                 .productPrice(41100)
                 .build();
         ProductOption productOption1 = ProductOption.builder()
-                .productOptionId(2L)
+                .productOptionId(1L)
                 .productOptionTitle("블랙/ S")
                 .productOptionPrice(200)
                 .build();
-        Cart cart1 = Cart.builder() // 옵션이 있는 경우
+        Cart cart1 = Cart.builder()
                 .member(member)
                 .product(product1)
-                .cartProductOptionId(2L)
+                .cartProductOptionId(1L)
                 .cartProductQuantity(12)
                 .build();
 
         Product product2 = Product.builder()
-                .productId(3L)
+                .productId(2L)
                 .productTitle("노트북")
                 .productPrice(1500000)
+                .build();
+        ProductOption productOption2 = ProductOption.builder()
+                .productOptionId(2L)
+                .productOptionTitle("기본")
+                .productOptionPrice(200)
                 .build();
         Cart cart2 = Cart.builder() // 옵션이 없는 경우
                 .member(member)
                 .product(product2)
-                .cartProductOptionId(0L)
+                .cartProductOptionId(2L)
                 .cartProductQuantity(4)
                 .build();
 
         when(cartRepository.findByMemberMemberId(member.getMemberId())).thenReturn(Arrays.asList(cart1, cart2));
-        when(productOptionRepository.findById(2L)).thenReturn(Optional.of(productOption1));
+        when(productOptionRepository.findById(1L)).thenReturn(Optional.of(productOption1));
+        when(productOptionRepository.findById(2L)).thenReturn(Optional.of(productOption2));
 
         // when
         CartAllInfoResponseDto responseDto = cartService.getCartAllInfo(member);
 
         // then
         assertAll(
-                () -> assertThat(responseDto.getTotalPrice()).isEqualTo(6495600),
+                () -> assertThat(responseDto.getTotalPrice()).isEqualTo(6496400),
                 () -> assertThat(responseDto.getCartInfoResponseDtoList()).hasSize(2),
                 () -> {
                     CartInfoResponseDto cartInfo1 = responseDto.getCartInfoResponseDtoList().get(0);
@@ -180,7 +186,7 @@ class CartServiceTest {
                             () -> assertThat(cartInfo1.getProductTitle()).isEqualTo("반팔"),
                             () -> assertThat(cartInfo1.getQuantity()).isEqualTo(12),
                             () -> assertThat(cartInfo1.getProductPrice()).isEqualTo(41100),
-                            () -> assertThat(cartInfo1.getProductOptionId()).isEqualTo(2L),
+                            () -> assertThat(cartInfo1.getProductOptionId()).isEqualTo(1L),
                             () -> assertThat(cartInfo1.getProductOptionTitle()).isEqualTo("블랙/ S"),
                             () -> assertThat(cartInfo1.getProductOptionPrice()).isEqualTo(200),
                             () -> assertThat(cartInfo1.getProductTotalPrice()).isEqualTo(495600)
@@ -188,14 +194,14 @@ class CartServiceTest {
 
                     CartInfoResponseDto cartInfo2 = responseDto.getCartInfoResponseDtoList().get(1);
                     assertAll(
-                            () -> assertThat(cartInfo2.getProductId()).isEqualTo(3L),
+                            () -> assertThat(cartInfo2.getProductId()).isEqualTo(2L),
                             () -> assertThat(cartInfo2.getProductTitle()).isEqualTo("노트북"),
                             () -> assertThat(cartInfo2.getQuantity()).isEqualTo(4),
                             () -> assertThat(cartInfo2.getProductPrice()).isEqualTo(1500000),
-                            () -> assertThat(cartInfo2.getProductOptionId()).isEqualTo(0L),
-                            () -> assertThat(cartInfo2.getProductOptionTitle()).isNull(),
-                            () -> assertThat(cartInfo2.getProductOptionPrice()).isEqualTo(0),
-                            () -> assertThat(cartInfo2.getProductTotalPrice()).isEqualTo(6000000)
+                            () -> assertThat(cartInfo2.getProductOptionId()).isEqualTo(2L),
+                            () -> assertThat(cartInfo2.getProductOptionTitle()).isEqualTo("기본"),
+                            () -> assertThat(cartInfo2.getProductOptionPrice()).isEqualTo(200),
+                            () -> assertThat(cartInfo2.getProductTotalPrice()).isEqualTo(6000800)
                     );
                 }
         );

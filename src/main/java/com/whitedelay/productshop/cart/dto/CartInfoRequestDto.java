@@ -7,6 +7,6 @@ import lombok.Getter;
 @Getter
 public class CartInfoRequestDto {
     private Long productId;
-    private Long productOptionId; // nullable
+    private Long productOptionId;
     private int quantity;
 }

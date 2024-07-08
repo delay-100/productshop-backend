@@ -6,6 +6,8 @@ import com.whitedelay.productshop.order.entity.OrderStatusEnum;
 import com.whitedelay.productshop.order.repository.OrderProductRepository;
 import com.whitedelay.productshop.order.repository.OrderRepository;
 import com.whitedelay.productshop.product.entity.Product;
+import com.whitedelay.productshop.product.entity.ProductOption;
+import com.whitedelay.productshop.product.repository.ProductOptionRepository;
 import com.whitedelay.productshop.product.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -21,7 +23,7 @@ public class OrderStatusUpdateService {
 
     private final OrderRepository orderRepository;
     private final OrderProductRepository orderProductRepository;
-    private final ProductRepository productRepository;
+    private final ProductOptionRepository productOptionRepository;
 
     @Scheduled(cron = "0 0 0 * * ?") // 자정(00시)마다 스케줄 실행
     @Transactional
@@ -42,9 +44,10 @@ public class OrderStatusUpdateService {
             if (order.getOrderStatus() == OrderStatusEnum.RETURN_REQUESTED && order.getOrderDate().plusDays(3).isBefore(now)) {
                 List<OrderProduct> orderProducts = orderProductRepository.findByOrderOrderId(order.getOrderId());
                 for (OrderProduct orderProduct : orderProducts) {
-                    Product product = orderProduct.getProduct();
-                    product.setProductStock(product.getProductStock() + orderProduct.getOrderProductQuantity());
-                    productRepository.save(product);
+                    ProductOption productOption = productOptionRepository.findById(orderProduct.getOrderProductOptionId())
+                            .orElseThrow(() -> new RuntimeException("상품 옵션을 찾지 못했습니다."));
+                    productOption.setProductOptionStock(productOption.getProductOptionStock() + orderProduct.getOrderProductQuantity());
+                    productOptionRepository.save(productOption);
                 }
                 order.setOrderStatus(OrderStatusEnum.RETURN_COMPLETED);
             }

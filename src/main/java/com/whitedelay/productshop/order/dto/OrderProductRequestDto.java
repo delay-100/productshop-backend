@@ -36,8 +36,8 @@ public class OrderProductRequestDto {
                 .product(product)
                 .orderProductQuantity(orderProductQuantity)
                 .orderProductPrice(product.getProductPrice()) // 주문 상품 가격 설정
-                .orderProductOptionId(productOption != null ? productOption.getProductOptionId() : 0)
-                .orderProductOptionPrice(productOption != null ? productOption.getProductOptionPrice() : 0)
+                .orderProductOptionId(productOption.getProductOptionId())
+                .orderProductOptionPrice(productOption.getProductOptionPrice())
                 .build();
     }
 }

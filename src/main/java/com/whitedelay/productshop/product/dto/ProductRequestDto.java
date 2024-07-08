@@ -16,7 +16,6 @@ public class ProductRequestDto {
     private String productStatus;
     private int productWishlistCount;
     private int productPrice;
-    private int productStock;
     private String productCategory;
     private LocalDateTime productStartDate;
 

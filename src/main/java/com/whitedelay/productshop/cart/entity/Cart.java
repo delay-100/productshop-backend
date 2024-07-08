@@ -18,7 +18,8 @@ public class Cart extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long cartId;
 
-    private Long cartProductOptionId; // 상품 옵션이 없을 수도 있음
+    @Column(nullable = false)
+    private Long cartProductOptionId;
 
     @Column(nullable = false)
     private int cartProductQuantity; // 카트에 담은 수

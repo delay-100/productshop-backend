@@ -35,16 +35,12 @@ public class CartService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
 
-        ProductOption productOption = null;
-        if (productOptionId != null && productOptionId > 0) {
-            // 상품 옵션 조회
-            productOption = productOptionRepository.findById(productOptionId)
+        ProductOption productOption = productOptionRepository.findById(productOptionId)
                     .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
-        }
 
         // 카트에 있는 상품 조회
         Optional<Cart> optionalCart = cartRepository.findByMemberMemberIdAndProductProductIdAndCartProductOptionId(
-                member.getMemberId(), productId, productOptionId != null ? productOptionId : 0L);
+                member.getMemberId(), productId, productOptionId);
 
         Cart cart;
         if (optionalCart.isEmpty()) {
@@ -56,7 +52,7 @@ public class CartService {
             cart = optionalCart.get();
             cart.setCartProductQuantity(cart.getCartProductQuantity() + quantity);
         }
-        int productTotalPrice = (product.getProductPrice() + (productOption != null ? productOption.getProductOptionPrice() : 0)) * cart.getCartProductQuantity();
+        int productTotalPrice = (product.getProductPrice() + productOption.getProductOptionPrice()) * cart.getCartProductQuantity();
         return CartInfoResponseDto.from(productId, product.getProductTitle(), product.getProductPrice(), cart.getCartProductQuantity(), productOption, productTotalPrice);
     }
 
@@ -64,7 +60,7 @@ public class CartService {
     public Boolean deleteCart(Member member, Long productId, Long productOptionId) {
         // 카트에 있는 상품 조회
         Cart cart = cartRepository.findByMemberMemberIdAndProductProductIdAndCartProductOptionId(
-                        member.getMemberId(), productId, Objects.requireNonNullElse(productOptionId, 0L))
+                        member.getMemberId(), productId, productOptionId)
                 .orElseThrow(() -> new IllegalArgumentException("삭제할 상품이 없습니다."));
 
         cartRepository.delete(cart);
@@ -78,13 +74,10 @@ public class CartService {
 
         List<CartInfoResponseDto> cartInfoResponseDtoList = cartList.stream().map(cart -> {
             Product product = cart.getProduct();
-            ProductOption productOption = null;
-            if (cart.getCartProductOptionId() != 0) {
-                productOption = productOptionRepository.findById(cart.getCartProductOptionId())
+            ProductOption productOption = productOptionRepository.findById(cart.getCartProductOptionId())
                         .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
-            }
 
-            int productTotalPrice = (product.getProductPrice() + (productOption != null ? productOption.getProductOptionPrice() : 0)) * cart.getCartProductQuantity();
+            int productTotalPrice = (product.getProductPrice() + productOption.getProductOptionPrice()) * cart.getCartProductQuantity();
             return CartInfoResponseDto.from(product.getProductId(), product.getProductTitle(), product.getProductPrice(), cart.getCartProductQuantity(), productOption, productTotalPrice);
         }).collect(Collectors.toList());
 

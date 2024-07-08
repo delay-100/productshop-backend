@@ -15,7 +15,6 @@ public class CartRequestDto {
     private Member member;
     private Product product;
 
-
     public static CartRequestDto from (Long productOptionId, int quantity, Member member, Product product) {
         return CartRequestDto.builder()
                 .cartProductOptionId(productOptionId != null ? productOptionId : 0L)

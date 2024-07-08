@@ -26,6 +26,7 @@ public class LoadDatabase {
             LocalDateTime startDate1 = LocalDateTime.of(2024, 6, 26, 9, 0);
             LocalDateTime startDate2 = LocalDateTime.of(2024, 6, 26, 10, 0);
             LocalDateTime startDate3 = LocalDateTime.of(2024, 6, 27, 11, 0); // 새로운 시작 날짜 추가
+            LocalDateTime startDate4 = LocalDateTime.of(2024, 7, 7, 1, 0); // 새로운 시작 날짜 추가
 
             // 옵션이 있는 상품
             Product product1 = Product.builder()
@@ -36,7 +37,7 @@ public class LoadDatabase {
                     .productPrice(41100)
                     .productCategory(ProductCategoryEnum.CLOTHING)
                     .productStartDate(startDate1)
-                    .productStock(300000)
+//                    .productStock(300000)
                     .build();
 
             Product product2 = Product.builder()
@@ -47,7 +48,7 @@ public class LoadDatabase {
                     .productPrice(22900)
                     .productCategory(ProductCategoryEnum.ELECTRONICS)
                     .productStartDate(startDate2)
-                    .productStock(300000)
+//                    .productStock(300000)
                     .build();
 
             // 옵션이 없는 상품
@@ -59,7 +60,7 @@ public class LoadDatabase {
                     .productPrice(1500000)
                     .productCategory(ProductCategoryEnum.ELECTRONICS)
                     .productStartDate(startDate3)
-                    .productStock(100000)
+//                    .productStock(100000)
                     .build();
 
             productRepository.saveAll(Arrays.asList(product1, product2, product3));
@@ -112,7 +113,16 @@ public class LoadDatabase {
                     .productStartDate(startDate2)
                     .build();
 
-            productOptionRepository.saveAll(Arrays.asList(option1, option2, option3, option4, option5, option6));
+
+            ProductOption option7 = ProductOption.builder()
+                    .product(product3)
+                    .productOptionTitle("기본")
+                    .productOptionStock(100000)
+                    .productOptionPrice(0)
+                    .productStartDate(startDate4)
+                    .build();
+
+            productOptionRepository.saveAll(Arrays.asList(option1, option2, option3, option4, option5, option6, option7));
         };
     }
 }

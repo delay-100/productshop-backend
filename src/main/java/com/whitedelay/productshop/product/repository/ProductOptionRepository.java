@@ -25,10 +25,12 @@ public interface ProductOptionRepository extends JpaRepository<ProductOption, Lo
     Optional<ProductOption> findByIdForUpdate(@Param("productOptionId") Long productOptionId);
 
     @Modifying
-    @Query("UPDATE ProductOption po SET po.productOptionStock = :quantity WHERE po.productOptionId = :productOptionId AND po.productOptionStock >= :quantity")
+    @Query("UPDATE ProductOption po SET po.productOptionStock = :quantity WHERE po.productOptionId = :productOptionId")
     int updateStock(@Param("productOptionId") Long productOptionId, @Param("quantity") int quantity);
 
-//
+    @Query("SELECT po.productOptionTitle FROM ProductOption po WHERE po.productOptionId = :orderProductOptionId")
+    String findProductOptionTitleById(@Param("orderProductOptionId") Long orderProductOptionId);
+
 //    return jpaQueryFactory.select(
 //            new QMemberDto(
 //            member.userId,
