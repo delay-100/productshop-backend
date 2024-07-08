@@ -90,10 +90,11 @@ public class OrderService {
                 // 상품 옵션 재고 변경 쿼리 실행
                 productOptionRepository.updateStock(orderProduct.getProductOptionId(), productOption.getProductOptionStock() - orderProduct.getQuantity());
 
-                Product product = productRepository.findByIdForUpdate(orderProduct.getProductId())
+//                Product product = productRepository.findByIdForUpdate(orderProduct.getProductId())
+//                        .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
+                Product product = productRepository.findByProductId(orderProduct.getProductId())
                         .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
                 // 상품 재고 변경
-                // 같은 품목이 2개이상 들어온 경우
 //                product.setProductStock(product.getProductStock() - orderProduct.getQuantity());
                 orderProductList.add(OrderProduct.from(OrderProductRequestDto.from(product, orderProduct.getQuantity(), productOption)));
             });

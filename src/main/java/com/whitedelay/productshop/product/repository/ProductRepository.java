@@ -15,9 +15,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
         Page<Product> findByProductTitleContaining(String productTitle, Pageable pageable);
         Optional<Product> findByProductId(Long productId);
 
-        @Lock(LockModeType.PESSIMISTIC_WRITE)
-        @Query("SELECT p FROM Product p WHERE p.productId = :productId")
-        Optional<Product> findByIdForUpdate(@Param("productId") Long productId);
+//        @Lock(LockModeType.PESSIMISTIC_WRITE)
+//        @Query("SELECT p FROM Product p WHERE p.productId = :productId")
+//        Optional<Product> findByIdForUpdate(@Param("productId") Long productId);
 
 //        @Modifying
 //        @Query("UPDATE Product p SET p.productStock = :quantity WHERE p.productId = :productId")
