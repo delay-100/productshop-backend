@@ -6,6 +6,7 @@ import com.whitedelay.productshop.product.entity.ProductOption;
 import com.whitedelay.productshop.product.entity.ProductStatusEnum;
 import com.whitedelay.productshop.product.repository.ProductRepository;
 import com.whitedelay.productshop.product.repository.ProductOptionRepository;
+import com.whitedelay.productshop.redis.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
@@ -13,16 +14,20 @@ import org.springframework.context.annotation.Configuration;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @RequiredArgsConstructor
 public class LoadDatabase {
     private final ProductRepository productRepository;
     private final ProductOptionRepository productOptionRepository;
+    private final RedisService redisService; // RedisService 주입
 
     @Bean
     CommandLineRunner initDatabase() {
         return args -> {
+            redisService.clearAllProductOptions();
+
             LocalDateTime startDate1 = LocalDateTime.of(2024, 6, 26, 9, 0);
             LocalDateTime startDate2 = LocalDateTime.of(2024, 6, 26, 10, 0);
             LocalDateTime startDate3 = LocalDateTime.of(2024, 6, 27, 11, 0); // 새로운 시작 날짜 추가
@@ -76,7 +81,7 @@ public class LoadDatabase {
             ProductOption option2 = ProductOption.builder()
                     .product(product1)
                     .productOptionTitle("블랙/ S")
-                    .productOptionStock(100000)
+                    .productOptionStock(200000)
                     .productOptionPrice(200)
                     .productStartDate(startDate1)
                     .build();
@@ -84,7 +89,7 @@ public class LoadDatabase {
             ProductOption option3 = ProductOption.builder()
                     .product(product1)
                     .productOptionTitle("블랙/ M")
-                    .productOptionStock(100000)
+                    .productOptionStock(300000)
                     .productOptionPrice(300)
                     .productStartDate(startDate1)
                     .build();
@@ -92,7 +97,7 @@ public class LoadDatabase {
             ProductOption option4 = ProductOption.builder()
                     .product(product2)
                     .productOptionTitle("XP2_RED")
-                    .productOptionStock(100000)
+                    .productOptionStock(400000)
                     .productOptionPrice(10)
                     .productStartDate(startDate2)
                     .build();
@@ -100,7 +105,7 @@ public class LoadDatabase {
             ProductOption option5 = ProductOption.builder()
                     .product(product2)
                     .productOptionTitle("HP5")
-                    .productOptionStock(100000)
+                    .productOptionStock(500000)
                     .productOptionPrice(30)
                     .productStartDate(startDate2)
                     .build();
@@ -108,7 +113,7 @@ public class LoadDatabase {
             ProductOption option6 = ProductOption.builder()
                     .product(product2)
                     .productOptionTitle("XP2 B&W")
-                    .productOptionStock(100000)
+                    .productOptionStock(600000)
                     .productOptionPrice(50)
                     .productStartDate(startDate2)
                     .build();
@@ -117,12 +122,20 @@ public class LoadDatabase {
             ProductOption option7 = ProductOption.builder()
                     .product(product3)
                     .productOptionTitle("기본")
-                    .productOptionStock(100000)
+                    .productOptionStock(700000)
                     .productOptionPrice(0)
                     .productStartDate(startDate4)
                     .build();
 
             productOptionRepository.saveAll(Arrays.asList(option1, option2, option3, option4, option5, option6, option7));
+
+            saveProductOptionStockToRedis(Arrays.asList(option1, option2, option3, option4, option5, option6, option7));
         };
+    }
+
+    private void saveProductOptionStockToRedis(List<ProductOption> options) {
+        for (ProductOption option : options) {
+            redisService.setInitialStock(option.getProductOptionId(), option.getProductOptionStock());
+        }
     }
 }

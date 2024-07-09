@@ -13,6 +13,7 @@ import com.whitedelay.productshop.product.entity.Product;
 import com.whitedelay.productshop.product.entity.ProductOption;
 import com.whitedelay.productshop.product.repository.ProductOptionRepository;
 import com.whitedelay.productshop.product.repository.ProductRepository;
+import com.whitedelay.productshop.redis.service.RedisService;
 import com.whitedelay.productshop.util.AES256Encoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -37,6 +38,7 @@ public class OrderService {
     private final ProductRepository productRepository;
     private final ProductOptionRepository productOptionRepository;
     private final AES256Encoder aes256Encoder;
+    private final RedisService redisService;
 
     @Transactional(readOnly = true)
     public OrderProductAllInfoResponseDto getOrderProductAllInfo(Member member, OrderProductAllInfoRequestDto orderProductAllInfoRequestDto) {
@@ -79,6 +81,9 @@ public class OrderService {
 
             List<OrderProduct> orderProductList = new ArrayList<>();
             orderProductPayRequestDto.getOrderProductList().forEach(orderProduct -> {
+                if (!redisService.deductStock(orderProduct.getProductOptionId(), orderProduct.getQuantity())) {
+                    throw new IllegalArgumentException("상품 옵션의 재고가 부족합니다.");
+                }
                 // 트랜잭션이 끝나기 전까지 productId(+ productOptionId)에 대한 점유를 얘가 하고 있어야 함
                 ProductOption productOption = productOptionRepository.findByIdForUpdate(orderProduct.getProductOptionId())
                             .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
