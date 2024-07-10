@@ -13,6 +13,7 @@ import com.whitedelay.productshop.product.entity.Product;
 import com.whitedelay.productshop.product.entity.ProductOption;
 import com.whitedelay.productshop.product.repository.ProductOptionRepository;
 import com.whitedelay.productshop.product.repository.ProductRepository;
+import com.whitedelay.productshop.redis.service.RedisService;
 import com.whitedelay.productshop.util.AES256Encoder;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -37,7 +38,6 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertAll;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -60,6 +60,12 @@ class OrderServiceTest {
 
     @Mock
     private MemberRepository memberRepository;
+
+    @Mock
+    private RedisService redisService;
+
+    @Mock
+    private OrderProductService orderProductService;
 
     @Mock
     private AES256Encoder aes256Encoder;
@@ -106,6 +112,65 @@ class OrderServiceTest {
 
 
     @Test
+    @DisplayName("주문 성공")
+    void postOrderProductPay_Success() {
+        // Given
+        OrderProductPayRequestDto requestDto = OrderProductPayRequestDto.builder()
+                .orderProductList(Arrays.asList(
+                        OrderProductResponseDto.builder()
+                                .productId(product.getProductId())
+                                .productOptionId(productOption.getProductOptionId())
+                                .quantity(2)
+                                .build()
+                ))
+                .totalOrderPrice(2200)
+                .orderShippingFee(0)
+                .orderPrice(2200)
+                .build();
+
+        when(redisService.deductStock(productOption.getProductOptionId(), 2)).thenReturn(true);
+        doNothing().when(orderProductService).postOrderProductPay(member, requestDto);
+
+        // When
+        OrderProductPayResponseDto response = orderService.postOrderProductPay(member, requestDto);
+
+        // Then
+        assertAll(
+                () -> assertThat(response).isNotNull(),
+                () -> assertThat(response.getTotalOrderPrice()).isEqualTo(2200),
+                () -> assertThat(response.getPaymentStatus()).isEqualTo(OrderStatusEnum.PAYMENT_COMPLETED)
+        );
+
+        // Verify that the orderProductService.postOrderProductPay was called
+        verify(orderProductService, times(1)).postOrderProductPay(member, requestDto);
+    }
+
+    @Test
+    @DisplayName("주문 실패 - 재고 부족")
+    void postOrderProductPay_Failure_StockNotAvailable() {
+        // Given
+        OrderProductPayRequestDto requestDto = OrderProductPayRequestDto.builder()
+                .orderProductList(Arrays.asList(
+                        OrderProductResponseDto.builder()
+                                .productId(product.getProductId())
+                                .productOptionId(productOption.getProductOptionId())
+                                .quantity(2)
+                                .build()
+                ))
+                .totalOrderPrice(2200)
+                .orderShippingFee(0)
+                .orderPrice(2200)
+                .build();
+
+        when(redisService.deductStock(productOption.getProductOptionId(), 2)).thenReturn(false);
+
+        // When / Then
+        assertThatThrownBy(() -> orderService.postOrderProductPay(member, requestDto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("상품 옵션의 재고가 부족합니다.");
+    }
+
+    @Test
     @DisplayName("주문 상품 정보 조회")
     void getOrderProductAllInfo_Success() {
         // Given
@@ -134,90 +199,6 @@ class OrderServiceTest {
                 () -> assertThat(responseDto.getOrderPrice()).isEqualTo((product.getProductPrice() + productOption.getProductOptionPrice()) * 2 + (responseDto.getProductTotalPrice() >= 30000 ? 0 : 3000))
         );
     }
-
-//    @Test
-//    @DisplayName("주문 결제")
-//    void postOrderProductPay_Success() {
-//        // Given
-//        OrderProductPayRequestDto requestDto = OrderProductPayRequestDto.builder()
-//                .orderProductList(Arrays.asList(
-//                        OrderProductResponseDto.builder()
-//                                .productId(product.getProductId())
-//                                .productOptionId(productOption.getProductOptionId())
-//                                .quantity(1) // 테스트 데이터에 맞는 수량으로 설정
-//                                .productPrice(product.getProductPrice())
-//                                .productOptionPrice(productOption.getProductOptionPrice())
-//                                .productTotalPrice((product.getProductPrice() + productOption.getProductOptionPrice()))
-//                                .build()
-//                ))
-//                .totalOrderPrice((product.getProductPrice() + productOption.getProductOptionPrice()))
-//                .orderShippingFee(0)
-//                .orderPrice((product.getProductPrice() + productOption.getProductOptionPrice()))
-//                .build();
-//
-//        when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-//        when(productOptionRepository.findById(productOption.getProductOptionId())).thenReturn(Optional.of(productOption));
-//
-//        // When
-//        OrderProductPayResponseDto response = orderService.postOrderProductPay(member, requestDto);
-//
-//        // Then
-//        assertAll(
-//                () -> assertThat(response.getTotalOrderPrice()).isEqualTo(requestDto.getTotalOrderPrice()),
-//                () -> assertThat(response.getOrderShippingFee()).isEqualTo(requestDto.getOrderShippingFee()),
-//                () -> assertThat(response.getOrderPrice()).isEqualTo(requestDto.getOrderPrice())
-//        );
-//    }
-//
-//    @Test
-//    @DisplayName("주문 상품 정보 조회 실패 - 상품 없음")
-//    void getOrderProductAllInfo_Failure_ProductNotFound() {
-//        // Given
-//        OrderProductAllInfoRequestDto requestDto = OrderProductAllInfoRequestDto.builder()
-//                .orderProducts(Arrays.asList(
-//                        OrderProductInfoRequestDto.builder()
-//                                .productId(999L) // 존재하지 않는 상품 ID
-//                                .productOptionId(productOption.getProductOptionId())
-//                                .quantity(2)
-//                                .build()
-//                ))
-//                .build();
-//
-//        when(productRepository.findById(999L)).thenReturn(Optional.empty());
-//
-//        // When / Then
-//        assertThatThrownBy(() -> orderService.getOrderProductAllInfo(member, requestDto))
-//                .isInstanceOf(IllegalArgumentException.class)
-//                .hasMessageContaining("찾는 상품이 없습니다.");
-//    }
-//
-//    @Test
-//    @DisplayName("주문 결제 실패 - 재고 부족")
-//    void postOrderProductPay_Failure_InsufficientStock() {
-//        // Given
-//        OrderProductPayRequestDto requestDto = OrderProductPayRequestDto.builder()
-//                .orderProductList(Arrays.asList(
-//                        OrderProductResponseDto.builder()
-//                                .productId(product.getProductId())
-//                                .productOptionId(productOption.getProductOptionId())
-//                                .productPrice(product.getProductPrice())
-//                                .productOptionPrice(productOption.getProductOptionPrice())
-//                                .productTotalPrice((product.getProductPrice() + productOption.getProductOptionPrice()) * 20)
-//                                .build()
-//                ))
-//                .totalOrderPrice((product.getProductPrice() + productOption.getProductOptionPrice()) * 20)
-//                .orderShippingFee(0)
-//                .orderPrice((product.getProductPrice() + productOption.getProductOptionPrice()) * 20)
-//                .build();
-//
-//        when(productRepository.findById(product.getProductId())).thenReturn(Optional.of(product));
-//        when(productOptionRepository.findById(productOption.getProductOptionId())).thenReturn(Optional.of(productOption));
-//
-//        // When / Then
-//        assertThrows(ResponseStatusException.class, () -> {
-//            orderService.postOrderProductPay(member, requestDto);
-//        });
-//    }
 
     @Test
     @DisplayName("주문 목록 조회")

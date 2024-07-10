@@ -30,7 +30,6 @@ public class RedisConfig {
         return Redisson.create(config);
     }
 
-
     @Bean
     @Primary
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory redisConnectionFactory) {

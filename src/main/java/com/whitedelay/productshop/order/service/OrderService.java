@@ -69,69 +69,6 @@ public class OrderService {
         return OrderProductAllInfoResponseDto.from(member ,aes256Encoder, orderProducts, productTotalPrice, orderShippingFee, orderPrice);
     }
 
-//    @Transactional
-//    public OrderProductPayResponseDto postOrderProductPay(Member member, OrderProductPayRequestDto orderProductPayRequestDto) {
-//        try {
-////            1. List, Map의 형태에서 단위 item을 기준으로 주문 생성, 재고 차감, 결제하는 메소드 구현
-////            2. 재고 차감만 row level lock이 적용되도록 구현(해결코드 1의 pessimistic write를 이용)
-////            트랜잭션을 걸어두고, 락걸기 ...!!!
-//
-//            // 요청의 상품 리스트에 대해 productOptionId, productId 가 오름차순 정렬되어있다고 가정해야함. => 데드락 방지
-//            // 아니면 여기서 정렬을 해야함,,! 정렬이 안되어있으면 아래와 같은 예외 발생
-//            // ex) productId가 3 -> 5, 5 -> 3인 요청이 동시에 들어온 경우 데드락 발생.
-//
-//            List<OrderProduct> orderProductList = new ArrayList<>();
-//            orderProductPayRequestDto.getOrderProductList().forEach(orderProduct -> {
-//                if (!redisService.deductStock(orderProduct.getProductOptionId(), orderProduct.getQuantity())) {
-//                    throw new IllegalArgumentException("상품 옵션의 재고가 부족합니다.");
-//                }
-//                // 트랜잭션이 끝나기 전까지 productId(+ productOptionId)에 대한 점유를 얘가 하고 있어야 함
-//                ProductOption productOption = productOptionRepository.findByIdForUpdate(orderProduct.getProductOptionId())
-//                            .orElseThrow(() -> new IllegalArgumentException("찾는 상품 옵션이 없습니다."));
-//                if (productOption.getProductOptionStock() < orderProduct.getQuantity()) {
-//                    throw new IllegalArgumentException("상품 옵션의 재고가 부족합니다.");
-//                }
-//                // 상품 옵션 재고 변경
-////                    productOption.setProductOptionStock(productOption.getProductOptionStock() - orderProduct.getQuantity());
-//                // 상품 옵션 재고 변경 쿼리 실행
-//                productOptionRepository.updateStock(orderProduct.getProductOptionId(), productOption.getProductOptionStock() - orderProduct.getQuantity());
-//
-////                Product product = productRepository.findByIdForUpdate(orderProduct.getProductId())
-////                        .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
-//                Product product = productRepository.findByProductId(orderProduct.getProductId())
-//                        .orElseThrow(() -> new IllegalArgumentException("찾는 상품이 없습니다."));
-//                // 상품 재고 변경
-////                product.setProductStock(product.getProductStock() - orderProduct.getQuantity());
-//                orderProductList.add(OrderProduct.from(OrderProductRequestDto.from(product, orderProduct.getQuantity(), productOption)));
-//            });
-//
-//            Order order = Order.from(OrderRequestDto.from(orderProductPayRequestDto, OrderStatusEnum.PAYMENT_COMPLETED, aes256Encoder, member));
-//            orderRepository.save(order);
-//            orderProductList.forEach(orderProduct -> orderProduct.setOrder(order));
-//
-//            orderProductRepository.saveAll(orderProductList);
-//
-//            return OrderProductPayResponseDto.from(
-//                    orderProductPayRequestDto.getTotalOrderPrice(),
-//                    orderProductPayRequestDto.getOrderShippingFee(),
-//                    orderProductPayRequestDto.getOrderPrice(),
-//                    OrderStatusEnum.PAYMENT_COMPLETED
-//            );
-//
-//        } catch (Exception e) {
-//            System.out.println("e = " + e);
-////            orderRepository.save(Order.from(OrderRequestDto.from(orderProductPayRequestDto, OrderStatusEnum.PAYMENT_FAILED, aes256Encoder, member)));
-////            return OrderProductPayResponseDto.from(
-////                        orderProductPayRequestDto.getTotalOrderPrice(),
-////                        orderProductPayRequestDto.getOrderShippingFee(),
-////                        orderProductPayRequestDto.getOrderPrice(),
-////                        OrderStatusEnum.PAYMENT_FAILED
-////            );
-////            throw new IllegalArgumentException("상품 주문 실패");
-//            throw e;
-//        }
-//    }
-
     @Transactional
     public OrderProductPayResponseDto postOrderProductPay(Member member, OrderProductPayRequestDto orderProductPayRequestDto) {
         try {
@@ -150,14 +87,6 @@ public class OrderService {
 
         } catch (Exception e) {
             System.out.println("e = " + e);
-//            orderRepository.save(Order.from(OrderRequestDto.from(orderProductPayRequestDto, OrderStatusEnum.PAYMENT_FAILED, aes256Encoder, member)));
-//            return OrderProductPayResponseDto.from(
-//                        orderProductPayRequestDto.getTotalOrderPrice(),
-//                        orderProductPayRequestDto.getOrderShippingFee(),
-//                        orderProductPayRequestDto.getOrderPrice(),
-//                        OrderStatusEnum.PAYMENT_FAILED
-//            );
-//            throw new IllegalArgumentException("상품 주문 실패");
             throw e;
         }
     }
