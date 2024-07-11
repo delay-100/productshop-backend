@@ -77,6 +77,7 @@ public class OrderService {
                     throw new IllegalArgumentException("상품 옵션의 재고가 부족합니다.");
                 }
             });
+            // redis에서 락이 걸리면 db쪽에 내려오지 못함
             orderProductService.postOrderProductPay(member, orderProductPayRequestDto);
             return OrderProductPayResponseDto.from(
                     orderProductPayRequestDto.getTotalOrderPrice(),
@@ -90,11 +91,6 @@ public class OrderService {
             throw e;
         }
     }
-    // order만들고
-    // order save
-    // cart에서 결제목록 가져오고
-    // cart에서 가져온 결제목록을 orderdetails를 만드는데, 만드는 과정에서 재고안맞으면 exception발생
-
 
     @Transactional(readOnly = true)
     public Page<OrderListResponseDto> getOrderList(Member member, int page, int size) {
