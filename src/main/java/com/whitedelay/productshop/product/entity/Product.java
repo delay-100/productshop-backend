@@ -58,4 +58,8 @@ public class Product extends Timestamped {
     public void setProductWishlistCount(int wishlistCount) {
         this.productWishlistCount = wishlistCount;
     }
+
+    public void setProductStatus(ProductStatusEnum productStatusEnum) {
+        this.productStatus = productStatusEnum;
+    }
 }

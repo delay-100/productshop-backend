@@ -32,6 +32,7 @@ public class LoadDatabase {
             LocalDateTime startDate2 = LocalDateTime.of(2024, 6, 26, 10, 0);
             LocalDateTime startDate3 = LocalDateTime.of(2024, 6, 27, 11, 0); // 새로운 시작 날짜 추가
             LocalDateTime startDate4 = LocalDateTime.of(2024, 7, 7, 1, 0); // 새로운 시작 날짜 추가
+            LocalDateTime startDate5 = LocalDateTime.of(2024, 7, 12, 1, 38); // COMING_SOON 시작 날짜 추가
 
             // 옵션이 있는 상품
             Product product1 = Product.builder()
@@ -42,7 +43,6 @@ public class LoadDatabase {
                     .productPrice(41100)
                     .productCategory(ProductCategoryEnum.CLOTHING)
                     .productStartDate(startDate1)
-//                    .productStock(300000)
                     .build();
 
             Product product2 = Product.builder()
@@ -53,7 +53,6 @@ public class LoadDatabase {
                     .productPrice(22900)
                     .productCategory(ProductCategoryEnum.ELECTRONICS)
                     .productStartDate(startDate2)
-//                    .productStock(300000)
                     .build();
 
             // 옵션이 없는 상품
@@ -65,10 +64,20 @@ public class LoadDatabase {
                     .productPrice(1500000)
                     .productCategory(ProductCategoryEnum.ELECTRONICS)
                     .productStartDate(startDate3)
-//                    .productStock(100000)
                     .build();
 
-            productRepository.saveAll(Arrays.asList(product1, product2, product3));
+            // COMING_SOON 상태의 상품
+            Product product4 = Product.builder()
+                    .productTitle("스마트워치")
+                    .productContent("최신 스마트워치")
+                    .productStatus(ProductStatusEnum.COMING_SOON)
+                    .productWishlistCount(0)
+                    .productPrice(250000)
+                    .productCategory(ProductCategoryEnum.ELECTRONICS)
+                    .productStartDate(startDate5)
+                    .build();
+
+            productRepository.saveAll(Arrays.asList(product1, product2, product3, product4));
 
             ProductOption option1 = ProductOption.builder()
                     .product(product1)
@@ -127,9 +136,25 @@ public class LoadDatabase {
                     .productStartDate(startDate4)
                     .build();
 
-            productOptionRepository.saveAll(Arrays.asList(option1, option2, option3, option4, option5, option6, option7));
+            ProductOption option8 = ProductOption.builder()
+                    .product(product4)
+                    .productOptionTitle("실버")
+                    .productOptionStock(10000)
+                    .productOptionPrice(0)
+                    .productStartDate(startDate5)
+                    .build();
 
-            saveProductOptionStockToRedis(Arrays.asList(option1, option2, option3, option4, option5, option6, option7));
+            ProductOption option9 = ProductOption.builder()
+                    .product(product4)
+                    .productOptionTitle("골드")
+                    .productOptionStock(15000)
+                    .productOptionPrice(0)
+                    .productStartDate(startDate5)
+                    .build();
+
+            productOptionRepository.saveAll(Arrays.asList(option1, option2, option3, option4, option5, option6, option7, option8, option9));
+
+            saveProductOptionStockToRedis(Arrays.asList(option1, option2, option3, option4, option5, option6, option7, option8, option9));
         };
     }
 

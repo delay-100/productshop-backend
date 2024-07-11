@@ -1,6 +1,7 @@
 package com.whitedelay.productshop.product.repository;
 
 import com.whitedelay.productshop.product.entity.Product;
+import com.whitedelay.productshop.product.entity.ProductStatusEnum;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -9,11 +10,15 @@ import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 public interface ProductRepository extends JpaRepository<Product, Long> {
         Page<Product> findByProductTitleContaining(String productTitle, Pageable pageable);
         Optional<Product> findByProductId(Long productId);
+
+        List<Product> findByProductStatusAndProductStartDateBefore(ProductStatusEnum productStatusEnum, LocalDateTime now);
 
 //        @Lock(LockModeType.PESSIMISTIC_WRITE)
 //        @Query("SELECT p FROM Product p WHERE p.productId = :productId")
