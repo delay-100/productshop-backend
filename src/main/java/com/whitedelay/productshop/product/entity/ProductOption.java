@@ -26,19 +26,16 @@ public class ProductOption {
     @Column(nullable = false)
     private int productOptionPrice;
 
-    @Column(nullable = false)
-    private LocalDateTime productStartDate;
-
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="product_id", nullable = false)
     private Product product;
 
-    public static ProductOption from(ProductOptionRequestDto productOption) {
+    public static ProductOption from(ProductOptionRequestDto productOption, Product product) {
         return ProductOption.builder()
                 .productOptionTitle(productOption.getProductOptionTitle())
                 .productOptionStock(productOption.getProductOptionStock())
                 .productOptionPrice(productOption.getProductOptionPrice())
-                .product(productOption.getProduct())
+                .product(product)
                 .build();
     }
 
@@ -46,3 +43,4 @@ public class ProductOption {
         this.productOptionStock = stock;
     }
 }
+

@@ -26,8 +26,8 @@ public class Product extends Timestamped {
     @Column(nullable = false)
     private String productContent;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private ProductStatusEnum productStatus;
 
     @Column(nullable = false)
@@ -36,8 +36,8 @@ public class Product extends Timestamped {
     @Column(nullable = false)
     private int productPrice;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private ProductCategoryEnum productCategory;
 
     @Column(nullable = false)

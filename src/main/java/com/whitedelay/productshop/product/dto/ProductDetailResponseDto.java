@@ -1,5 +1,6 @@
 package com.whitedelay.productshop.product.dto;
 
+import com.whitedelay.productshop.image.dto.ImageResponseDto;
 import com.whitedelay.productshop.product.entity.Product;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,9 +17,10 @@ public class ProductDetailResponseDto {
     private int productWishlistCount;
     private int productPrice;
     private String productCategory;
-    private List<ProductOptionDetailResponseDto> productOptions;
+    private List<ProductOptionDetailResponseDto> productOptionList;
+    private List<ImageResponseDto> imageResponseDtoList;
 
-    public static ProductDetailResponseDto from(Product product, List<ProductOptionDetailResponseDto> productOptions) {
+    public static ProductDetailResponseDto from(Product product, List<ProductOptionDetailResponseDto> productOptionList, List<ImageResponseDto> imageResponseDtoList) {
         return ProductDetailResponseDto.builder()
                 .productId(product.getProductId())
                 .productTitle(product.getProductTitle())
@@ -27,7 +29,8 @@ public class ProductDetailResponseDto {
                 .productWishlistCount(product.getProductWishlistCount())
                 .productPrice(product.getProductPrice())
                 .productCategory(product.getProductCategory().getCategory())
-                .productOptions(productOptions)
+                .productOptionList(productOptionList)
+                .imageResponseDtoList(imageResponseDtoList)
                 .build();
     }
 }

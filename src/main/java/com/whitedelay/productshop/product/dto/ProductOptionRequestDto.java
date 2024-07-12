@@ -10,6 +10,4 @@ public class ProductOptionRequestDto {
     private String productOptionTitle;
     private int productOptionStock;
     private int productOptionPrice;
-    private Long productId;
-    private Product product;
 }

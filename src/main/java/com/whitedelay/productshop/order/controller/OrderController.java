@@ -47,11 +47,11 @@ public class OrderController {
      * @return 결제 성공/실패 결과 객체 DTO
      */
     @PostMapping(BASE_ORDER + "/pay")
-    public ApiResponse<OrderProductPayResponseDto> postOrderProductPay(
+    public ApiResponse<OrderProductPayResponseDto> createOrderProductPay(
             @AuthenticationPrincipal UserDetailsImpl userDetails,
             @RequestBody OrderProductPayRequestDto orderProductPayRequestDto
         ) {
-        return ApiResponse.createSuccess(orderService.postOrderProductPay(userDetails.getMember(), orderProductPayRequestDto));
+        return ApiResponse.createSuccess(orderService.createOrderProductPay(userDetails.getMember(), orderProductPayRequestDto));
     }
 
 

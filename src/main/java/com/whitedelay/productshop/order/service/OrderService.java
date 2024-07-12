@@ -70,7 +70,7 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderProductPayResponseDto postOrderProductPay(Member member, OrderProductPayRequestDto orderProductPayRequestDto) {
+    public OrderProductPayResponseDto createOrderProductPay(Member member, OrderProductPayRequestDto orderProductPayRequestDto) {
         try {
             orderProductPayRequestDto.getOrderProductList().forEach(orderProduct -> {
                 if (!redisService.deductStock(orderProduct.getProductOptionId(), orderProduct.getQuantity())) {
@@ -78,7 +78,7 @@ public class OrderService {
                 }
             });
             // redis에서 락이 걸리면 db쪽에 내려오지 못함
-            orderProductService.postOrderProductPay(member, orderProductPayRequestDto);
+            orderProductService.createOrderProductPay(member, orderProductPayRequestDto);
             return OrderProductPayResponseDto.from(
                     orderProductPayRequestDto.getTotalOrderPrice(),
                     orderProductPayRequestDto.getOrderShippingFee(),

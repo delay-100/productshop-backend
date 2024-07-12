@@ -13,7 +13,6 @@ public class ProductOptionDetailResponseDto {
     private String productOptionTitle;
     private int productOptionStock;
     private int productOptionPrice;
-    private LocalDateTime productStartDate;
 
     public static ProductOptionDetailResponseDto from(ProductOption productOption) {
         return ProductOptionDetailResponseDto.builder()
@@ -21,7 +20,6 @@ public class ProductOptionDetailResponseDto {
                 .productOptionTitle(productOption.getProductOptionTitle())
                 .productOptionStock(productOption.getProductOptionStock())
                 .productOptionPrice(productOption.getProductOptionPrice())
-                .productStartDate(productOption.getProductStartDate())
                 .build();
     }
 }

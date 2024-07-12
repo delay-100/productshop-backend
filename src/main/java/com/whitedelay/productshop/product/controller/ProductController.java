@@ -1,15 +1,14 @@
 package com.whitedelay.productshop.product.controller;
 
-import com.whitedelay.productshop.product.dto.ProductDetailResponseDto;
-import com.whitedelay.productshop.product.dto.ProductResponseDto;
+import com.whitedelay.productshop.product.dto.*;
 import com.whitedelay.productshop.product.service.ProductService;
 import com.whitedelay.productshop.util.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +26,7 @@ public class ProductController {
      * @return 상품 정보 리스트 DTO
      */
     @GetMapping(BASE_PRODUCT)
-    public ApiResponse<Page<ProductResponseDto>> getAllProductList(
+    public ApiResponse<Page<ProductListResponseDto>> getAllProductList(
             @RequestParam int page,
             @RequestParam int size,
             @RequestParam(required = false) String productTitle
@@ -47,4 +46,34 @@ public class ProductController {
     ) {
         return ApiResponse.createSuccess(productService.getProductDetail(productId));
     }
+
+    /**
+     * POST
+     * 상품 및 상품 옵션 추가
+     * @param productWithOptionsRequestDto 추가할 상품, 상품 옵션 정보
+     * @return 추가된 상품 정보 DTO
+     */
+    @PostMapping(BASE_PRODUCT) // 권한 처리 추가
+    public ApiResponse<ProductResponseDto> createProduct(
+            @RequestPart ProductWithOptionsRequestDto productWithOptionsRequestDto,
+            @RequestPart List<MultipartFile> imageFileList
+            ) {
+        return ApiResponse.createSuccess(productService.createProduct(productWithOptionsRequestDto.getProductRequestDto(), imageFileList, productWithOptionsRequestDto.getProductOptionRequestDto()));
+    }
+
+    /**
+     * POST
+     * 상품 옵션 추가
+     * @param productId 옵션을 추가할 상품 아이디
+     * @param productOptionRequestDtoList 추가할 옵션 리스트
+     * @return 추가된 상품
+     */
+    @PostMapping(BASE_PRODUCT + "/{productId}")
+    public ApiResponse<List<ProductOptionResponseDto>> createProductOption(
+            @PathVariable Long productId,
+            @RequestBody List<ProductOptionRequestDto> productOptionRequestDtoList
+    ) {
+        return ApiResponse.createSuccess(productService.createProductOption(productId, productOptionRequestDtoList));
+    }
+
 }

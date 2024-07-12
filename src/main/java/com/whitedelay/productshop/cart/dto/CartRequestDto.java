@@ -17,7 +17,7 @@ public class CartRequestDto {
 
     public static CartRequestDto from (Long productOptionId, int quantity, Member member, Product product) {
         return CartRequestDto.builder()
-                .cartProductOptionId(productOptionId != null ? productOptionId : 0L)
+                .cartProductOptionId(productOptionId)
                 .cartProductQuantity(quantity)
                 .member(member)
                 .product(product)

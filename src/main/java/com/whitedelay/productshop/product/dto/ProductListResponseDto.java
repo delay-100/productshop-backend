@@ -9,7 +9,7 @@ import java.util.List;
 
 @Builder
 @Getter
-public class ProductResponseDto {
+public class ProductListResponseDto {
     private Long productId;
     private String productTitle;
     private String productContent;
@@ -17,10 +17,10 @@ public class ProductResponseDto {
     private int productWishlistCount;
     private int productPrice;
     private String productCategory;
-    private List<ImageResponseDto> imageResponseDtoList;
+    private ImageResponseDto imageResponseDto;
 
-    public static ProductResponseDto from(Product product, List<ImageResponseDto> imageResponseDtoList) {
-        return ProductResponseDto.builder()
+    public static ProductListResponseDto from(Product product, ImageResponseDto imageResponseDto) {
+        return ProductListResponseDto.builder()
                 .productId(product.getProductId())
                 .productTitle(product.getProductTitle())
                 .productContent(product.getProductContent())
@@ -28,7 +28,7 @@ public class ProductResponseDto {
                 .productWishlistCount(product.getProductWishlistCount())
                 .productPrice(product.getProductPrice())
                 .productCategory(product.getProductCategory().getCategory())
-                .imageResponseDtoList(imageResponseDtoList)
+                .imageResponseDto(imageResponseDto)
                 .build();
     }
 }

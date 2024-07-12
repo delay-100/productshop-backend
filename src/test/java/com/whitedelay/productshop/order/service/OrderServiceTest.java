@@ -113,7 +113,7 @@ class OrderServiceTest {
 
     @Test
     @DisplayName("주문 성공")
-    void postOrderProductPay_Success() {
+    void createOrderProductPay_Success() {
         // Given
         OrderProductPayRequestDto requestDto = OrderProductPayRequestDto.builder()
                 .orderProductList(Arrays.asList(
@@ -129,10 +129,10 @@ class OrderServiceTest {
                 .build();
 
         when(redisService.deductStock(productOption.getProductOptionId(), 2)).thenReturn(true);
-        doNothing().when(orderProductService).postOrderProductPay(member, requestDto);
+        doNothing().when(orderProductService).createOrderProductPay(member, requestDto);
 
         // When
-        OrderProductPayResponseDto response = orderService.postOrderProductPay(member, requestDto);
+        OrderProductPayResponseDto response = orderService.createOrderProductPay(member, requestDto);
 
         // Then
         assertAll(
@@ -141,13 +141,12 @@ class OrderServiceTest {
                 () -> assertThat(response.getPaymentStatus()).isEqualTo(OrderStatusEnum.PAYMENT_COMPLETED)
         );
 
-        // Verify that the orderProductService.postOrderProductPay was called
-        verify(orderProductService, times(1)).postOrderProductPay(member, requestDto);
+        verify(orderProductService, times(1)).createOrderProductPay(member, requestDto);
     }
 
     @Test
     @DisplayName("주문 실패 - 재고 부족")
-    void postOrderProductPay_Failure_StockNotAvailable() {
+    void createOrderProductPay_Failure_StockNotAvailable() {
         // Given
         OrderProductPayRequestDto requestDto = OrderProductPayRequestDto.builder()
                 .orderProductList(Arrays.asList(
@@ -165,7 +164,7 @@ class OrderServiceTest {
         when(redisService.deductStock(productOption.getProductOptionId(), 2)).thenReturn(false);
 
         // When / Then
-        assertThatThrownBy(() -> orderService.postOrderProductPay(member, requestDto))
+        assertThatThrownBy(() -> orderService.createOrderProductPay(member, requestDto))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining("상품 옵션의 재고가 부족합니다.");
     }

@@ -1,6 +1,7 @@
 package com.whitedelay.productshop.product.controller;
 
 import com.whitedelay.productshop.product.dto.ProductDetailResponseDto;
+import com.whitedelay.productshop.product.dto.ProductListResponseDto;
 import com.whitedelay.productshop.product.dto.ProductResponseDto;
 import com.whitedelay.productshop.product.entity.ProductCategoryEnum;
 import com.whitedelay.productshop.product.entity.ProductStatusEnum;
@@ -35,13 +36,13 @@ public class ProductControllerTest {
     @InjectMocks
     private ProductController productController;
 
-    private ProductResponseDto productResponseDto1;
-    private ProductResponseDto productResponseDto2;
+    private ProductListResponseDto productListResponseDto1;
+    private ProductListResponseDto productListResponseDto2;
     private ProductDetailResponseDto productDetailResponseDto;
 
     @BeforeEach
     void setUp() {
-        productResponseDto1 = ProductResponseDto.builder()
+        productListResponseDto1 = ProductListResponseDto.builder()
                 .productId(1L)
                 .productTitle("샘플 상품1")
                 .productContent("샘플 상품 내용1")
@@ -51,7 +52,7 @@ public class ProductControllerTest {
                 .productCategory(ProductCategoryEnum.FOOD.getCategory())
                 .build();
 
-        productResponseDto2 = ProductResponseDto.builder()
+        productListResponseDto2 = ProductListResponseDto.builder()
                 .productId(2L)
                 .productTitle("샘플 상품2")
                 .productContent("샘플 상품 내용2")
@@ -69,7 +70,7 @@ public class ProductControllerTest {
                 .productWishlistCount(10)
                 .productPrice(1000)
                 .productCategory(ProductCategoryEnum.FOOD.getCategory())
-                .productOptions(Collections.emptyList())
+                .productOptionList(Collections.emptyList())
                 .build();
     }
 
@@ -78,19 +79,19 @@ public class ProductControllerTest {
     void getAllProductList_Success() {
         // Given
         Pageable pageable = PageRequest.of(0, 10);
-        List<ProductResponseDto> productList = Arrays.asList(productResponseDto1, productResponseDto2);
-        Page<ProductResponseDto> productPage = new PageImpl<>(productList, pageable, productList.size());
+        List<ProductListResponseDto> productList = Arrays.asList(productListResponseDto1, productListResponseDto2);
+        Page<ProductListResponseDto> productPage = new PageImpl<>(productList, pageable, productList.size());
         when(productService.getAllProductList(anyInt(), anyInt(), eq(""))).thenReturn(productPage);
 
         // When
-        ApiResponse<Page<ProductResponseDto>> response = productController.getAllProductList(0, 10, "");
+        ApiResponse<Page<ProductListResponseDto>> response = productController.getAllProductList(0, 10, "");
 
         // Then
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo("success");
         assertThat(response.getData().getContent()).hasSize(2);
 
-        ProductResponseDto dto1 = response.getData().getContent().get(0);
+        ProductListResponseDto dto1 = response.getData().getContent().get(0);
         assertThat(dto1.getProductId()).isEqualTo(1L);
         assertThat(dto1.getProductTitle()).isEqualTo("샘플 상품1");
         assertThat(dto1.getProductContent()).isEqualTo("샘플 상품 내용1");
@@ -99,7 +100,7 @@ public class ProductControllerTest {
         assertThat(dto1.getProductPrice()).isEqualTo(1000);
         assertThat(dto1.getProductCategory()).isEqualTo(ProductCategoryEnum.FOOD.getCategory());
 
-        ProductResponseDto dto2 = response.getData().getContent().get(1);
+        ProductListResponseDto dto2 = response.getData().getContent().get(1);
         assertThat(dto2.getProductId()).isEqualTo(2L);
         assertThat(dto2.getProductTitle()).isEqualTo("샘플 상품2");
         assertThat(dto2.getProductContent()).isEqualTo("샘플 상품 내용2");
@@ -114,19 +115,19 @@ public class ProductControllerTest {
     void searchProductList_Success() {
         // Given
         Pageable pageable = PageRequest.of(0, 10);
-        List<ProductResponseDto> productList = Arrays.asList(productResponseDto1, productResponseDto2);
-        Page<ProductResponseDto> productPage = new PageImpl<>(productList, pageable, productList.size());
+        List<ProductListResponseDto> productList = Arrays.asList(productListResponseDto1, productListResponseDto2);
+        Page<ProductListResponseDto> productPage = new PageImpl<>(productList, pageable, productList.size());
         when(productService.getAllProductList(anyInt(), anyInt(), eq("샘플"))).thenReturn(productPage);
 
         // When
-        ApiResponse<Page<ProductResponseDto>> response = productController.getAllProductList(0, 10, "샘플");
+        ApiResponse<Page<ProductListResponseDto>> response = productController.getAllProductList(0, 10, "샘플");
 
         // Then
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo("success");
         assertThat(response.getData().getContent()).hasSize(2);
 
-        ProductResponseDto dto1 = response.getData().getContent().get(0);
+        ProductListResponseDto dto1 = response.getData().getContent().get(0);
         assertThat(dto1.getProductId()).isEqualTo(1L);
         assertThat(dto1.getProductTitle()).isEqualTo("샘플 상품1");
         assertThat(dto1.getProductContent()).isEqualTo("샘플 상품 내용1");
@@ -135,7 +136,7 @@ public class ProductControllerTest {
         assertThat(dto1.getProductPrice()).isEqualTo(1000);
         assertThat(dto1.getProductCategory()).isEqualTo(ProductCategoryEnum.FOOD.getCategory());
 
-        ProductResponseDto dto2 = response.getData().getContent().get(1);
+        ProductListResponseDto dto2 = response.getData().getContent().get(1);
         assertThat(dto2.getProductId()).isEqualTo(2L);
         assertThat(dto2.getProductTitle()).isEqualTo("샘플 상품2");
         assertThat(dto2.getProductContent()).isEqualTo("샘플 상품 내용2");
@@ -150,19 +151,19 @@ public class ProductControllerTest {
     void searchProductList_Success2() {
         // Given
         Pageable pageable = PageRequest.of(0, 10);
-        List<ProductResponseDto> productList = Collections.singletonList(productResponseDto2);
-        Page<ProductResponseDto> productPage = new PageImpl<>(productList, pageable, productList.size());
+        List<ProductListResponseDto> productList = Collections.singletonList(productListResponseDto2);
+        Page<ProductListResponseDto> productPage = new PageImpl<>(productList, pageable, productList.size());
         when(productService.getAllProductList(anyInt(), anyInt(), eq("상품2"))).thenReturn(productPage);
 
         // When
-        ApiResponse<Page<ProductResponseDto>> response = productController.getAllProductList(0, 10, "상품2");
+        ApiResponse<Page<ProductListResponseDto>> response = productController.getAllProductList(0, 10, "상품2");
 
         // Then
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo("success");
         assertThat(response.getData().getContent()).hasSize(1);
 
-        ProductResponseDto dto2 = response.getData().getContent().get(0); // index 수정
+        ProductListResponseDto dto2 = response.getData().getContent().get(0); // index 수정
         assertThat(dto2.getProductId()).isEqualTo(2L);
         assertThat(dto2.getProductTitle()).isEqualTo("샘플 상품2");
         assertThat(dto2.getProductContent()).isEqualTo("샘플 상품 내용2");
@@ -193,6 +194,6 @@ public class ProductControllerTest {
         assertThat(dto.getProductWishlistCount()).isEqualTo(10);
         assertThat(dto.getProductPrice()).isEqualTo(1000);
         assertThat(dto.getProductCategory()).isEqualTo(ProductCategoryEnum.FOOD.getCategory());
-        assertThat(dto.getProductOptions()).isEmpty();
+        assertThat(dto.getProductOptionList()).isEmpty();
     }
 }

@@ -33,7 +33,7 @@ public class OrderProductService {
 
     @Async
     @Transactional
-    public void postOrderProductPay(Member member, OrderProductPayRequestDto orderProductPayRequestDto) {
+    public void createOrderProductPay(Member member, OrderProductPayRequestDto orderProductPayRequestDto) {
         try {
             List<OrderProduct> orderProductList = new ArrayList<>();
             orderProductPayRequestDto.getOrderProductList().forEach(orderProduct -> {

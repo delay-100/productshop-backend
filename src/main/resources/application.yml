@@ -1,46 +1,62 @@
-  spring:
-    config:
-      import: optional:file:.env[.properties]
-    application:
-      name: productshop
-    datasource:
-      url: jdbc:mysql://${MYSQL_SERVER}:3306/productshop
-      username: ${SPRING_DATASOURCE_USERNAME}
-      password: ${SPRING_DATASOURCE_PASSWORD}
-      driver-class-name: com.mysql.cj.jdbc.Driver
+spring:
+  config:
+    import: optional:file:.env[.properties]
+  application:
+    name: productshop
+  datasource:
+    url: jdbc:mysql://${MYSQL_SERVER}:3306/productshop
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
 
-    jpa:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
       hibernate:
-        ddl-auto: update
-      properties:
-        hibernate:
-          dialect: org.hibernate.dialect.MySQL8Dialect
-          show_sql: true
-          format_sql: true
-          use_sql_comments: true
+        dialect: org.hibernate.dialect.MySQL8Dialect
+        show_sql: true
+        format_sql: true
+        use_sql_comments: true
 
-    mail:
-      host: ${MAIL_HOST}
-      port: ${MAIL_PORT}
-      username: ${MAIL_USERNAME}
-      password: ${MAIL_PASSWORD}
-      properties:
-        mail:
-          smtp:
-            auth: true
-            ssl:
-              enable: true
-      protocol: smtp
-    data:
-      redis:
-        host: ${REDIS_HOST}
+  mail:
+    host: ${MAIL_HOST}
+    port: ${MAIL_PORT}
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+    protocol: smtp
+  data:
+    redis:
+      host: ${REDIS_HOST}
 #        host: redis
-        port: ${REDIS_PORT}
+      port: ${REDIS_PORT}
+  servlet:
+    multipart:
+      max-request-size: 30MB
+      max-file-size: 30MB
 
-  #    // debugger - 모든 로그 찍음(local환경), info(dev, 운영환경), warn, error
-  # log level 설정
-  logging:
-    level:
-      root: INFO
-      com.whitedelay.productshop: DEBUG
-      org.springframework.web: DEBUG
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_CREDENTIALS_ACCESS_KEY}
+      secret-key: ${AWS_CREDENTIALS_SECRET_KEY}
+    s3:
+      bucket: ${AWS_S3_BUCKET}
+    region:
+      static: ${AWS_REGION_STATIC}
+    stack:
+      auto: ${AWS_STACK_AUTO}
+
+#    // debugger - 모든 로그 찍음(local환경), info(dev, 운영환경), warn, error
+# log level 설정
+logging:
+  level:
+    root: INFO
+    com.whitedelay.productshop: DEBUG
+    org.springframework.web: DEBUG

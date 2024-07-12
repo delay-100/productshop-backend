@@ -23,8 +23,8 @@ public class Order extends Timestamped {
     @Column(nullable = false)
     private LocalDateTime orderDate;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private OrderStatusEnum orderStatus;
 
     // 백 -> 프 -> 백
@@ -34,8 +34,8 @@ public class Order extends Timestamped {
     @Column(nullable = false)
     private int orderPrice;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private OrderCardCompanyEnum orderCardCompany;
 
     // 결제 완료 시 사용할 주소 정보

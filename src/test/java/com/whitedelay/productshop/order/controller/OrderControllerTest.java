@@ -89,7 +89,7 @@ public class OrderControllerTest {
 
 //    @Test
 //    @DisplayName("상품 주문")
-//    void postOrderProductPay_Success() {
+//    void createOrderProductPay_Success() {
 //        // Given
 //        OrderProductPayRequestDto orderProductPayRequestDto = OrderProductPayRequestDto.builder()
 //                .orderProducts(Collections.emptyList())

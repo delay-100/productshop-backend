@@ -1,6 +1,10 @@
 package com.whitedelay.productshop.product.service;
 
+import com.whitedelay.productshop.image.dto.ImageResponseDto;
+import com.whitedelay.productshop.image.entity.ImageTableEnum;
+import com.whitedelay.productshop.image.service.ImageService;
 import com.whitedelay.productshop.product.dto.ProductDetailResponseDto;
+import com.whitedelay.productshop.product.dto.ProductListResponseDto;
 import com.whitedelay.productshop.product.dto.ProductResponseDto;
 import com.whitedelay.productshop.product.dto.ProductOptionDetailResponseDto;
 import com.whitedelay.productshop.product.entity.Product;
@@ -40,6 +44,9 @@ public class ProductServiceTest {
     private ProductService productService;
 
     @Mock
+    private ImageService imageService;
+
+    @Mock
     private ProductRepository productRepository;
 
     @Mock
@@ -48,6 +55,7 @@ public class ProductServiceTest {
     private Product product1;
     private Product product2;
     private ProductOption productOption1;
+    private ImageResponseDto imageResponseDto;
 
     @BeforeEach
     void setUp() {
@@ -66,7 +74,6 @@ public class ProductServiceTest {
                 .productOptionTitle("옵션1")
                 .productOptionStock(10)
                 .productOptionPrice(500)
-                .productStartDate(LocalDateTime.now())
                 .product(product1) // ProductOption에 Product 설정
                 .build();
 
@@ -79,6 +86,11 @@ public class ProductServiceTest {
                 .productPrice(20000)
                 .productCategory(ProductCategoryEnum.ELECTRONICS)
                 .build();
+
+        imageResponseDto = ImageResponseDto.builder()
+                .uploadImageUrl("http://example.com/image.jpg")
+                .fileName("image.jpg")
+                .build();
     }
 
     @Test
@@ -89,9 +101,11 @@ public class ProductServiceTest {
         Page<Product> productPage = new PageImpl<>(Arrays.asList(product1, product2), pageable, 2);
         when(productRepository.findAll(pageable))
                 .thenReturn(productPage);
+        when(imageService.findImageResponse(eq(ImageTableEnum.PRODUCT), any(Long.class)))
+                .thenReturn(imageResponseDto);
 
         // When
-        Page<ProductResponseDto> result = productService.getAllProductList(0, 10, "");
+        Page<ProductListResponseDto> result = productService.getAllProductList(0, 10, "");
 
         // Then
         assertAll(
@@ -99,7 +113,7 @@ public class ProductServiceTest {
                 () -> assertThat(result.getContent()).hasSize(2)
         );
 
-        ProductResponseDto dto1 = result.getContent().get(0);
+        ProductListResponseDto dto1 = result.getContent().get(0);
         assertAll(
                 () -> assertThat(dto1.getProductId()).isEqualTo(1L),
                 () -> assertThat(dto1.getProductTitle()).isEqualTo("샘플 상품1"),
@@ -110,7 +124,7 @@ public class ProductServiceTest {
                 () -> assertThat(dto1.getProductCategory()).isEqualTo(ProductCategoryEnum.FOOD.getCategory())
         );
 
-        ProductResponseDto dto2 = result.getContent().get(1);
+        ProductListResponseDto dto2 = result.getContent().get(1);
         assertAll(
                 () -> assertThat(dto2.getProductId()).isEqualTo(2L),
                 () -> assertThat(dto2.getProductTitle()).isEqualTo("샘플 상품2"),
@@ -131,9 +145,11 @@ public class ProductServiceTest {
         Page<Product> productPage = new PageImpl<>(products, pageable, 1);
         when(productRepository.findByProductTitleContaining(eq("상품2"), any(Pageable.class)))
                 .thenReturn(productPage);
+        when(imageService.findImageResponse(eq(ImageTableEnum.PRODUCT), any(Long.class)))
+                .thenReturn(imageResponseDto);
 
         // When
-        Page<ProductResponseDto> result = productService.getAllProductList(0, 10, "상품2");
+        Page<ProductListResponseDto> result = productService.getAllProductList(0, 10, "상품2");
 
         // Then
         assertAll(
@@ -141,7 +157,7 @@ public class ProductServiceTest {
                 () -> assertThat(result.getContent()).hasSize(1)
         );
 
-        ProductResponseDto dto = result.getContent().get(0);
+        ProductListResponseDto dto = result.getContent().get(0);
         assertAll(
                 () -> assertThat(dto.getProductId()).isEqualTo(2L),
                 () -> assertThat(dto.getProductTitle()).isEqualTo("샘플 상품2"),
@@ -161,6 +177,8 @@ public class ProductServiceTest {
                 .thenReturn(Optional.of(product1));
         when(productOptionRepository.findByProduct(product1))
                 .thenReturn(Collections.singletonList(productOption1));
+        when(imageService.findImageResponseList(eq(ImageTableEnum.PRODUCT), any(Long.class)))
+                .thenReturn(Collections.singletonList(imageResponseDto));
 
         // When
         ProductDetailResponseDto result = productService.getProductDetail(1L);
@@ -175,16 +193,15 @@ public class ProductServiceTest {
                 () -> assertThat(result.getProductWishlistCount()).isEqualTo(10),
                 () -> assertThat(result.getProductPrice()).isEqualTo(1000),
                 () -> assertThat(result.getProductCategory()).isEqualTo(ProductCategoryEnum.FOOD.getCategory()),
-                () -> assertThat(result.getProductOptions()).hasSize(1)
+                () -> assertThat(result.getProductOptionList()).hasSize(1)
         );
 
-        ProductOptionDetailResponseDto optionDto = result.getProductOptions().get(0);
+        ProductOptionDetailResponseDto optionDto = result.getProductOptionList().get(0);
         assertAll(
                 () -> assertThat(optionDto.getProductOptionId()).isEqualTo(1L),
                 () -> assertThat(optionDto.getProductOptionTitle()).isEqualTo("옵션1"),
                 () -> assertThat(optionDto.getProductOptionStock()).isEqualTo(10),
-                () -> assertThat(optionDto.getProductOptionPrice()).isEqualTo(500),
-                () -> assertThat(optionDto.getProductStartDate()).isNotNull()
+                () -> assertThat(optionDto.getProductOptionPrice()).isEqualTo(500)
         );
     }
 
