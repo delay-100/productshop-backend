@@ -11,6 +11,7 @@ import com.whitedelay.productshop.product.entity.Product;
 import com.whitedelay.productshop.product.entity.ProductOption;
 import com.whitedelay.productshop.product.repository.ProductOptionRepository;
 import com.whitedelay.productshop.product.repository.ProductRepository;
+import com.whitedelay.productshop.redis.service.RedisService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -20,6 +21,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -28,6 +30,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductService {
     private final ImageService imageService;
+    private final RedisService redisService;
     private final ProductRepository productRepository;
     private final ProductOptionRepository productOptionRepository;
 
@@ -61,7 +64,7 @@ public class ProductService {
         return ProductDetailResponseDto.from(product, productOptionList, imageResponseDtoList);
     }
 
-    public ProductResponseDto createProduct(ProductRequestDto productRequestDto, List<MultipartFile> imageFileList, List<ProductOptionRequestDto> productOptionRequestDto) {
+    public ProductResponseDto createProduct(ProductRequestDto productRequestDto, List<MultipartFile> imageFileList, List<ProductOptionRequestDto> productOptionRequestDtoList) {
         // 리스트가 비어 있는지 확인
         if (imageFileList == null || imageFileList.isEmpty()) {
             throw new IllegalArgumentException("이미지가 없습니다.");
@@ -72,7 +75,7 @@ public class ProductService {
                 throw new IllegalArgumentException("빈 파일이 포함되어 있습니다.");
             }
         }
-        if (productOptionRequestDto == null || productOptionRequestDto.isEmpty()) {
+        if (productOptionRequestDtoList == null || productOptionRequestDtoList.isEmpty()) {
             throw new IllegalArgumentException("상품 옵션이 없습니다.(상품 옵션은 기본1개)");
         }
 
@@ -85,10 +88,7 @@ public class ProductService {
         );
 
         // 상품 옵션 추가
-        List<ProductOption> productOptions = productOptionRequestDto.stream()
-                .map(optionDto -> ProductOption.from(optionDto, product))
-                .collect(Collectors.toList());
-        productOptionRepository.saveAll(productOptions);
+        createProductOption(product.getProductId(), productOptionRequestDtoList);
 
         return ProductResponseDto.from(product, imageResponseDto);
     }
@@ -106,6 +106,14 @@ public class ProductService {
                 .collect(Collectors.toList());
         productOptionRepository.saveAll(productOptionList);
 
+        saveProductOptionStockToRedis(productOptionList);
+
         return ProductOptionResponseDto.from(productOptionList);
+    }
+
+    private void saveProductOptionStockToRedis(List<ProductOption> optionList) {
+        for (ProductOption option : optionList) {
+            redisService.setInitialStock(option.getProductOptionId(), option.getProductOptionStock());
+        }
     }
 }

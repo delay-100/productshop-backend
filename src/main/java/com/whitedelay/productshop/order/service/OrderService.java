@@ -77,7 +77,6 @@ public class OrderService {
                     throw new IllegalArgumentException("상품 옵션의 재고가 부족합니다.");
                 }
             });
-            // redis에서 락이 걸리면 db쪽에 내려오지 못함
             orderProductService.createOrderProductPay(member, orderProductPayRequestDto);
             return OrderProductPayResponseDto.from(
                     orderProductPayRequestDto.getTotalOrderPrice(),
