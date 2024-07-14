@@ -106,14 +106,14 @@ public class ProductService {
                 .collect(Collectors.toList());
         productOptionRepository.saveAll(productOptionList);
 
-        saveProductOptionStockToRedis(productOptionList);
+        saveProductOptionStockToRedis(productId, productOptionList);
 
         return ProductOptionResponseDto.from(productOptionList);
     }
 
-    private void saveProductOptionStockToRedis(List<ProductOption> optionList) {
+    private void saveProductOptionStockToRedis(Long productId, List<ProductOption> optionList) {
         for (ProductOption option : optionList) {
-            redisService.setInitialStock(option.getProductOptionId(), option.getProductOptionStock());
+            redisService.setInitialStock(productId, option.getProductOptionId(), option.getProductOptionStock());
         }
     }
 }

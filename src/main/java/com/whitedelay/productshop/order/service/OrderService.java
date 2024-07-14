@@ -71,11 +71,20 @@ public class OrderService {
 
     @Transactional
     public OrderProductPayResponseDto createOrderProductPay(Member member, OrderProductPayRequestDto orderProductPayRequestDto) {
+        List<DetuctedProductInfo> detuctedProductInfoList = new ArrayList<DetuctedProductInfo>();
+
         try {
             orderProductPayRequestDto.getOrderProductList().forEach(orderProduct -> {
-                if (!redisService.deductStock(orderProduct.getProductOptionId(), orderProduct.getQuantity())) {
+                if (!redisService.deductStock(orderProduct.getProductId(), orderProduct.getProductOptionId(), orderProduct.getQuantity())) {
                     throw new IllegalArgumentException("상품 옵션의 재고가 부족합니다.");
                 }
+                detuctedProductInfoList.add(
+                        DetuctedProductInfo.builder()
+                                .productId(orderProduct.getProductId())
+                                .productOptionId(orderProduct.getProductOptionId())
+                                .productOptionStock(orderProduct.getQuantity())
+                                .build()
+                );
             });
             orderProductService.createOrderProductPay(member, orderProductPayRequestDto);
             return OrderProductPayResponseDto.from(
@@ -86,7 +95,13 @@ public class OrderService {
             );
 
         } catch (Exception e) {
+            detuctedProductInfoList.forEach(stock -> redisService.rollbackStock(
+                    stock.getProductId(),
+                    stock.getProductOptionId(),
+                    stock.getProductOptionStock()
+            ));
             System.out.println("e = " + e);
+            // 이전까지 차감했던 값 다시 증가시키기
             throw e;
         }
     }

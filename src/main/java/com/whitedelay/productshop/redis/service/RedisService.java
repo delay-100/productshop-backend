@@ -1,6 +1,7 @@
 package com.whitedelay.productshop.redis.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -11,8 +12,13 @@ public class RedisService {
     private final RedisTemplate<String, String> redisTemplate;
 //    private final RedissonClient redissonClient;
 
-    public void setInitialStock(Long productOptionId, int stock) {
-        redisTemplate.opsForValue().set("productOption:" + productOptionId, String.valueOf(stock));
+    @Value("${PRODUCT_NAMESPACE}")
+    private String productNamespace;
+
+    private final String stockString = "stock";
+
+    public void setInitialStock(Long productId, Long productOptionId, int stock) {
+        redisTemplate.opsForValue().set(productNamespace + ":" + productId + "-" + productOptionId + "-" + stockString, String.valueOf(stock));
     }
 //
 //    public int getStock(Long productOptionId) {
@@ -23,8 +29,8 @@ public class RedisService {
 //        redisTemplate.opsForValue().set("productOption:" + productOptionId, String.valueOf(stock));
 //    }
 
-    public boolean deductStock(Long productOptionId, int quantity) {
-        String stockKey = "productOption:" + productOptionId;
+    public boolean deductStock(Long productId, Long productOptionId, int quantity) {
+        String stockKey = productNamespace + ":" + productId + "-" + productOptionId + "-" + stockString;
 
         // 트랜잭션 없이 INCRBY 명령어를 사용하여 재고 감소
         Long stock = redisTemplate.opsForValue().increment(stockKey, -quantity);
@@ -35,6 +41,11 @@ public class RedisService {
             return false;
         }
         return true;
+    }
+
+    public void rollbackStock(Long productId, Long productOptionId, int quantity) {
+        String stockKey = productNamespace + ":" + productId + "-" + productOptionId + "-" + stockString;
+        redisTemplate.opsForValue().increment(stockKey, quantity);
     }
 
 //    public boolean deductStock(Long productOptionId, int quantity) {

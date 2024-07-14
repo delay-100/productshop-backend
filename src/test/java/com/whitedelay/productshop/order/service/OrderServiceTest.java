@@ -128,7 +128,7 @@ class OrderServiceTest {
                 .orderPrice(2200)
                 .build();
 
-        when(redisService.deductStock(productOption.getProductOptionId(), 2)).thenReturn(true);
+        when(redisService.deductStock(product.getProductId(), productOption.getProductOptionId(), 2)).thenReturn(true);
         doNothing().when(orderProductService).createOrderProductPay(member, requestDto);
 
         // When
@@ -161,7 +161,7 @@ class OrderServiceTest {
                 .orderPrice(2200)
                 .build();
 
-        when(redisService.deductStock(productOption.getProductOptionId(), 2)).thenReturn(false);
+        when(redisService.deductStock(product.getProductId(), productOption.getProductOptionId(), 2)).thenReturn(false);
 
         // When / Then
         assertThatThrownBy(() -> orderService.createOrderProductPay(member, requestDto))
