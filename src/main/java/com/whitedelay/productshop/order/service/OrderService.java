@@ -95,7 +95,7 @@ public class OrderService {
             );
 
         } catch (Exception e) {
-            detuctedProductInfoList.forEach(stock -> redisService.rollbackStock(
+            detuctedProductInfoList.forEach(stock -> redisService.deductRollbackStock(
                     stock.getProductId(),
                     stock.getProductOptionId(),
                     stock.getProductOptionStock()

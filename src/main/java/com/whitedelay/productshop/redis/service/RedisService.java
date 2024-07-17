@@ -43,9 +43,17 @@ public class RedisService {
         return true;
     }
 
-    public void rollbackStock(Long productId, Long productOptionId, int quantity) {
+    public void deductRollbackStock(Long productId, Long productOptionId, int quantity) {
         String stockKey = productNamespace + ":" + productId + "-" + productOptionId + "-" + stockString;
         redisTemplate.opsForValue().increment(stockKey, quantity);
+    }
+
+    public boolean addStock(Long productId, Long productOptionId, int quantity) {
+        String stockKey = productNamespace + ":" + productId + "-" + productOptionId + "-" + stockString;
+
+        redisTemplate.opsForValue().increment(stockKey, quantity);
+
+        return true;
     }
 
 //    public boolean deductStock(Long productOptionId, int quantity) {

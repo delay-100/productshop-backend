@@ -116,4 +116,17 @@ public class ProductService {
             redisService.setInitialStock(productId, option.getProductOptionId(), option.getProductOptionStock());
         }
     }
+
+    @Transactional
+    public boolean updateProductOptionStock(Long productId, Long productOptionId, ProductOptionStockRequestDto productOptionStockRequestDto) {
+        Product product = productRepository.findByProductId(productId)
+                .orElseThrow(() -> new IllegalArgumentException("상품이 없습니다."));
+        ProductOption productOption = productOptionRepository.findByIdForUpdate(productOptionId)
+                .orElseThrow(() -> new IllegalArgumentException("상품 옵션이 없습니다."));
+
+        redisService.addStock(productId, productOptionId, productOptionStockRequestDto.getStock());
+        productOptionRepository.updateStock(productOptionId, productOption.getProductOptionStock() + productOptionStockRequestDto.getStock());
+
+        return true;
+    }
 }

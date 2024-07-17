@@ -76,4 +76,21 @@ public class ProductController {
         return ApiResponse.createSuccess(productService.createProductOption(productId, productOptionRequestDtoList));
     }
 
+
+    /**
+     * POST
+     * 옵션별 상품 재고 추가
+     * @param productId 상품 아이디
+     * @param productOptionId 상품 옵션 아이디
+     * @param productOptionStockRequestDto 재고
+     * @return 상품 옵션 재고 추가 여부(T/F)
+     */
+    @PostMapping(BASE_PRODUCT + "/{productId}/{productOptionId}")
+    public ApiResponse<Boolean> updateProductOptionStock(
+        @PathVariable Long productId,
+        @PathVariable Long productOptionId,
+        @RequestBody ProductOptionStockRequestDto productOptionStockRequestDto
+    ) {
+        return ApiResponse.createSuccess(productService.updateProductOptionStock(productId, productOptionId, productOptionStockRequestDto));
+    }
 }

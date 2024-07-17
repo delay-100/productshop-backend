@@ -4,6 +4,8 @@ package com.whitedelay.productshop.product.entity;
 import com.whitedelay.productshop.product.dto.ProductOptionRequestDto;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.sql.Time;
 import java.time.LocalDateTime;
 
 @Builder(access = AccessLevel.PUBLIC)
@@ -12,7 +14,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Table(name = "product_option")
-public class ProductOption {
+public class ProductOption extends Timestamped {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long productOptionId;
