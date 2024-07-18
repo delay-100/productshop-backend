@@ -6,7 +6,7 @@ ProductShop
 
 
 ### 🕰️ 개발 기간
-* 24.06.19일 - 24.07.16일(1개월)
+* 24.06.19 - 24.07.16(1개월)
 
 ### ⚙️ 개발 환경
 - `JAVA 21`
@@ -25,11 +25,11 @@ ProductShop
 ![image](https://github.com/user-attachments/assets/8c43bb59-37d7-4d2d-81ab-4a949d93cce2)
 
 ### 📚 API 문서
-- postman 7/18 추가 예정
+- #### [POSTMAN](https://documenter.getpostman.com/view/23481846/2sA3kSo3ZJ)
 
 ## 📌 주요기능
 ### 회원 가입
-- 이메일 인증(SMTP)
+- 이메일 인증(SMTP, Redis)
 - 개인 정보 암호화(AES256, BCryptPasswordEncoder)
   
 ### 로그인 및 인가
