@@ -3,7 +3,7 @@ ProductShop
 상품 구매 사이트
 
 ## 🖥️ 프로젝트 소개
-
+7/19 추가 예정
 
 ### 🕰️ 개발 기간
 * 24.06.19 - 24.07.16(1개월)
@@ -19,10 +19,13 @@ ProductShop
 - **Tools**: Docker 26.1.1, GitHub Actions, JMeter
 
 ### 🏗️ 아키텍쳐
-- draw.io 7/18 추가 예정
+<!-- ![아키텍쳐](https://github.com/user-attachments/assets/10887e9c-ccd1-4fdd-8ffa-b8a11cfa943f) -->
+<img src="https://github.com/user-attachments/assets/10887e9c-ccd1-4fdd-8ffa-b8a11cfa943f" height="400"/>
 
 ### 🗃️ ERD([ERDCloud](https://www.erdcloud.com/d/Xm7kDGmuH6picA6E8))
-![image](https://github.com/user-attachments/assets/8c43bb59-37d7-4d2d-81ab-4a949d93cce2)
+<!-- ![ERD](https://github.com/user-attachments/assets/8c43bb59-37d7-4d2d-81ab-4a949d93cce2) -->
+<img src="https://github.com/user-attachments/assets/8c43bb59-37d7-4d2d-81ab-4a949d93cce2" height="400"/>
+
 
 ### 📚 API 문서
 - #### [POSTMAN](https://documenter.getpostman.com/view/23481846/2sA3kSo3ZJ)
@@ -54,4 +57,4 @@ ProductShop
 - 위시리스트
 
 ## 📈 성능 최적화 및 트러블슈팅
-- 7/18 ~ 7/19 추가 예정
+- 7/19 추가 예정
