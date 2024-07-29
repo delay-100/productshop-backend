@@ -1,6 +1,5 @@
-package com.whitedelay.productshop.member.dto;
+package com.whitedelay.productshop.order.dto;
 
-import com.whitedelay.productshop.order.dto.OrderProductResponseDto;
 import com.whitedelay.productshop.order.entity.OrderProduct;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

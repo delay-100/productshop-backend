@@ -1,4 +1,4 @@
-package com.whitedelay.productshop.member.dto;
+package com.whitedelay.productshop.order.dto;
 
 import com.whitedelay.productshop.order.entity.Order;
 import com.whitedelay.productshop.order.entity.OrderStatusEnum;
