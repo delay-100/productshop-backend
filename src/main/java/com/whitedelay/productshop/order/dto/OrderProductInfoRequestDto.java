@@ -10,7 +10,7 @@ import lombok.Setter;
 public class OrderProductInfoRequestDto {
     private Long productId;
     private int quantity;
-    private Long productOptionId; // nullable, 옵션이 없을 수도 있음
-    private int optionPrice; // nullable, 없을수도 있음
+    private Long productOptionId;
+    private int optionPrice;
 
 }
