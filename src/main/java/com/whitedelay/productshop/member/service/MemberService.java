@@ -78,12 +78,12 @@ public class MemberService {
         accessTokenCookie.setHttpOnly(true);
         accessTokenCookie.setMaxAge(0);
 
-        Cookie refreshTokenCookie = new Cookie(REFRESHTOKEN_HEADER, null);
-        refreshTokenCookie.setPath("/");
-        refreshTokenCookie.setHttpOnly(true);
-        refreshTokenCookie.setMaxAge(0);
+//        Cookie refreshTokenCookie = new Cookie(REFRESHTOKEN_HEADER, null);
+//        refreshTokenCookie.setPath("/");
+//        refreshTokenCookie.setHttpOnly(true);
+//        refreshTokenCookie.setMaxAge(0);
 
         res.addCookie(accessTokenCookie);
-        res.addCookie(refreshTokenCookie);
+//        res.addCookie(refreshTokenCookie);
     }
 }

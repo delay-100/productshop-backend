@@ -123,7 +123,7 @@ class OrderServiceTest {
                                 .quantity(2)
                                 .build()
                 ))
-                .totalOrderPrice(2200)
+                .productTotalPrice(2200)
                 .orderShippingFee(0)
                 .orderPrice(2200)
                 .build();
@@ -137,7 +137,7 @@ class OrderServiceTest {
         // Then
         assertAll(
                 () -> assertThat(response).isNotNull(),
-                () -> assertThat(response.getTotalOrderPrice()).isEqualTo(2200),
+                () -> assertThat(response.getProductTotalPrice()).isEqualTo(2200),
                 () -> assertThat(response.getPaymentStatus()).isEqualTo(OrderStatusEnum.PAYMENT_COMPLETED)
         );
 
@@ -156,7 +156,7 @@ class OrderServiceTest {
                                 .quantity(2)
                                 .build()
                 ))
-                .totalOrderPrice(2200)
+                .productTotalPrice(2200)
                 .orderShippingFee(0)
                 .orderPrice(2200)
                 .build();

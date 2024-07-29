@@ -26,7 +26,7 @@ public class OrderProductPayRequestDto {
 
     // 결제
     private OrderCardCompanyEnum orderCardCompany;
-    private int totalOrderPrice;
+    private int productTotalPrice;
     private int orderShippingFee;
     private int orderPrice; // 총금액
 }

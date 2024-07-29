@@ -98,13 +98,13 @@ public class OrderControllerTest {
 //                .orderAddress("서울시 강남구 테헤란로 123")
 //                .orderPhone("010-1234-5678")
 //                .orderCardCompany(OrderCardCompanyEnum.KAKAOBANK)
-//                .totalOrderPrice(10000)
+//                .productTotalPrice(10000)
 //                .orderShippingFee(3000)
 //                .orderPrice(13000)
 //                .build();
 //
 //        OrderProductPayResponseDto orderProductPayResponseDto = OrderProductPayResponseDto.builder()
-//                .totalOrderPrice(10000)
+//                .productTotalPrice(10000)
 //                .orderShippingFee(3000)
 //                .orderPrice(13000)
 //                .paymentStatus(OrderStatusEnum.PAYMENT_COMPLETED)
@@ -121,7 +121,7 @@ public class OrderControllerTest {
 //        assertThat(response.getStatus()).isEqualTo("success");
 //
 //        OrderProductPayResponseDto dto = response.getData();
-//        assertThat(dto.getTotalOrderPrice()).isEqualTo(10000);
+//        assertThat(dto.getProductTotalPrice()).isEqualTo(10000);
 //        assertThat(dto.getOrderShippingFee()).isEqualTo(3000);
 //        assertThat(dto.getOrderPrice()).isEqualTo(13000);
 //        assertThat(dto.getPaymentStatus()).isEqualTo(OrderStatusEnum.PAYMENT_COMPLETED);

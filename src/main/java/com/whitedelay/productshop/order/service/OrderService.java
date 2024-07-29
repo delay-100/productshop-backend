@@ -71,7 +71,7 @@ public class OrderService {
 
     @Transactional
     public OrderProductPayResponseDto createOrderProductPay(Member member, OrderProductPayRequestDto orderProductPayRequestDto) {
-        List<DetuctedProductInfo> detuctedProductInfoList = new ArrayList<DetuctedProductInfo>();
+        List<DetuctedProductInfo> detuctedProductInfoList = new ArrayList<>();
 
         try {
             orderProductPayRequestDto.getOrderProductList().forEach(orderProduct -> {
@@ -88,7 +88,7 @@ public class OrderService {
             });
             orderProductService.createOrderProductPay(member, orderProductPayRequestDto);
             return OrderProductPayResponseDto.from(
-                    orderProductPayRequestDto.getTotalOrderPrice(),
+                    orderProductPayRequestDto.getProductTotalPrice(),
                     orderProductPayRequestDto.getOrderShippingFee(),
                     orderProductPayRequestDto.getOrderPrice(),
                     OrderStatusEnum.PAYMENT_COMPLETED

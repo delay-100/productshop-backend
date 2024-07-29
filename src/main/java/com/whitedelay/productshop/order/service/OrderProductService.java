@@ -1,6 +1,7 @@
 package com.whitedelay.productshop.order.service;
 
 import com.whitedelay.productshop.member.entity.Member;
+import com.whitedelay.productshop.member.repository.MemberRepository;
 import com.whitedelay.productshop.order.dto.OrderProductPayRequestDto;
 import com.whitedelay.productshop.order.dto.OrderProductRequestDto;
 import com.whitedelay.productshop.order.dto.OrderRequestDto;
@@ -25,6 +26,7 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class OrderProductService {
+    private final MemberRepository memberRepository;
     private final OrderRepository orderRepository;
     private final OrderProductRepository orderProductRepository;
     private final ProductRepository productRepository;
@@ -35,6 +37,9 @@ public class OrderProductService {
     @Transactional
     public void createOrderProductPay(Member member, OrderProductPayRequestDto orderProductPayRequestDto) {
         try {
+            member = memberRepository.findById(member.getId())
+                    .orElseThrow(() -> new IllegalArgumentException("사용자 정보가 없습니다."));
+
             List<OrderProduct> orderProductList = new ArrayList<>();
             orderProductPayRequestDto.getOrderProductList().forEach(orderProduct -> {
                 ProductOption productOption = productOptionRepository.findByIdForUpdate(orderProduct.getProductOptionId())
