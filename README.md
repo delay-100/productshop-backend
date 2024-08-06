@@ -67,8 +67,8 @@ ProductShop
 - 위시리스트
   
 ## 🔍 트러블슈팅
-- 주문 상품 재고 DB의 동시성 문제 해결
-- Redis의 동시성 이슈 해결
+- [주문 상품 재고 DB의 동시성 문제 해결](https://delay100.tistory.com/208#2.%20%EB%8F%99%EC%8B%9C%EC%84%B1%20%EC%A0%9C%EC%96%B4-1)
+- [Redis의 동시성 이슈 해결](https://delay100.tistory.com/208#3.%20Redis%20%EC%9E%AC%EA%B3%A0%EA%B4%80%EB%A6%AC-1)
 <!-- - JWT를 사용함에도 불구하고 UserDetailsImpl에서 Member DB를 검사하여 세션 기반 인증과 차이가 없던 문제 해결(-> 당연한건디................) -->
 
 ## 📈 성능 최적화
