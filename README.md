@@ -39,32 +39,31 @@ ProductShop
 ### 📚 API 문서
 - #### [POSTMAN](https://documenter.getpostman.com/view/23481846/2sA3kSo3ZJ)
 
-## 📌 주요기능
+## 📌 주요기능([구현 이야기](https://delay100.tistory.com/198))
 
-### 회원 가입
+### [회원 가입](https://delay100.tistory.com/200)
 - 이메일 인증(Naver SMTP, Redis) - 동작 프로세스 다이어그램으로 만들
 - 개인 정보 암호화(AES256, BCryptPasswordEncoder)
   
-### 로그인 및 인가
+### [로그인 및 인가](https://delay100.tistory.com/201)
 - SpringSecurity
 - JWT: 2개의 토큰(Access, Refresh)으로 관리
 - Refresh Token 정보 저장(Redis)
 
-### 상품
+### [상품](https://delay100.tistory.com/203)
 - 상품 이미지 저장(AWS S3)
 - 판매 가능 여부 업데이트(DB Scheduling)
-- 옵션별 재고 캐싱(Redis) -> 만료시간 추가
+- 옵션별 재고 캐싱(Redis)
 - 상품 검색
 
-### 주문
+### [주문](https://delay100.tistory.com/206)
 - 재고 처리(DB 비관적 락, Redis)
 - 주문 취소, 반품(DB Scheduling)
 - 주문 전/후 내역 확인
   
 ### 그 외
-- 마이페이지(개인정보 업데이트)
-- 장바구니
-- 위시리스트
+- [마이페이지(개인정보 업데이트)](https://delay100.tistory.com/202?category=1149514)
+- [장바구니, 위시리스트](https://delay100.tistory.com/205?category=1149514)
   
 ## 🔍 트러블슈팅
 - [주문 상품 재고 DB의 동시성 문제 해결](https://delay100.tistory.com/208#2.%20%EB%8F%99%EC%8B%9C%EC%84%B1%20%EC%A0%9C%EC%96%B4-1)
@@ -72,8 +71,8 @@ ProductShop
 <!-- - JWT를 사용함에도 불구하고 UserDetailsImpl에서 Member DB를 검사하여 세션 기반 인증과 차이가 없던 문제 해결(-> 당연한건디................) -->
 
 ## 📈 성능 최적화
-- 상품 재고 관리를 Redis 캐싱으로 전환하여 주문 속도 개선
-- Redisson도입 -> Redis INCR 명령으로 변경하여 성능 최적화
+- [상품 재고 관리를 Redis 캐싱으로 전환하여 주문 속도 개선](https://delay100.tistory.com/208#3.%20Redis%20%EC%9E%AC%EA%B3%A0%EA%B4%80%EB%A6%AC-1)
+- [Redisson도입](https://delay100.tistory.com/208#4-1.%20Redissen-1) -> [Redis INCR 명령으로 변경](https://delay100.tistory.com/208#4-2.%20INC-1)하여 성능 최적화
   
 ![image](https://github.com/user-attachments/assets/99cb4c71-edef-4fbc-98b7-58f4e2ec7235)
 
